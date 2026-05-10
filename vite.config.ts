@@ -29,7 +29,7 @@ export default defineConfig(({mode}) => {
           runtimeCaching: [
             {
               // API calls — Network first, fallback cache
-              urlPattern: /^http:\/\/localhost:5000\/api\/.*/i,
+              urlPattern: /^https?:\/\/(localhost:5000|cookers-delight-api\.onrender\.com)\/api\/.*/i,
               handler: "NetworkFirst",
               options: {
                 cacheName: "api-cache",
