@@ -7,9 +7,9 @@ import {
   HiOutlineUser, HiOutlineArrowRightOnRectangle, HiBars3, HiXMark,
   HiOutlineChatBubbleLeftRight
 } from 'react-icons/hi2';
-import { useCustomer } from './CustomerContext';
-import LoyaltyBadge from './components/LoyaltyBadge';
 import api from '../api/axios';
+import { useInstallPrompt } from '../hooks/useInstallPrompt';
+import { HiOutlineArrowDownTray } from 'react-icons/hi2';
 
 const NavItem = ({ icon: Icon, label, path, active, badge, onClick }) => (
   <Link 
@@ -35,6 +35,7 @@ const NavItem = ({ icon: Icon, label, path, active, badge, onClick }) => (
 
 const CustomerLayout = () => {
   const { customer, logout } = useCustomer();
+  const { isInstallable, isInstalled, triggerInstall } = useInstallPrompt();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -105,6 +106,26 @@ const CustomerLayout = () => {
             <LoyaltyBadge points={customer?.loyaltyPoints || 0} />
           </div>
         </div>
+
+        {isInstallable && !isInstalled && (
+          <div className="px-6 mb-6">
+            <button 
+              onClick={triggerInstall}
+              className="w-full group relative overflow-hidden bg-gradient-to-br from-brand-orange to-[#ff6b4a] p-4 rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-brand-orange/20"
+            >
+              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="relative flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-md">
+                  <HiOutlineArrowDownTray size={20} className="text-white animate-bounce" />
+                </div>
+                <div className="text-left">
+                  <p className="text-white font-black text-xs uppercase tracking-tight">Install CD Boat</p>
+                  <p className="text-white/70 text-[10px] font-bold">Fast & Offline Access</p>
+                </div>
+              </div>
+            </button>
+          </div>
+        )}
 
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
           {navItems.map((item) => (
@@ -254,6 +275,19 @@ const CustomerLayout = () => {
                     onClick={() => setIsMobileMenuOpen(false)}
                   />
                 ))}
+
+                {isInstallable && !isInstalled && (
+                  <button 
+                    onClick={() => {
+                      triggerInstall();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-4 bg-brand-orange text-white rounded-xl font-bold text-sm shadow-xl shadow-brand-orange/20 animate-pulse"
+                  >
+                    <HiOutlineArrowDownTray size={22} />
+                    INSTALL CD BOAT APP
+                  </button>
+                )}
               </div>
 
               <div className="pt-6 border-t border-white/5 space-y-4">
