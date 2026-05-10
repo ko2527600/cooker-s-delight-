@@ -38,7 +38,7 @@ router.post("/login", async (req, res) => {
   res.cookie("cd_admin_token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: cookieMaxAge
   });
 
