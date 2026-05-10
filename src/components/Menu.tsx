@@ -6,7 +6,7 @@
 import { motion } from 'motion/react';
 import { useState } from 'react';
 import { MENU_ITEMS } from '../constants';
-import { ShoppingCart, Plus } from 'lucide-react';
+import { HiOutlineShoppingBag, HiPlus } from 'react-icons/hi2';
 
 export function Menu() {
   const categories = ['All', 'Ghanaian', 'Nigerian', 'Fast Food', 'Continental', 'Snacks', 'Sides'];
@@ -82,7 +82,7 @@ export function Menu() {
                     {'GH-AUTH'.repeat(1)}
                   </div>
                   <button className="flex items-center gap-2 bg-transparent border border-white/20 text-white px-5 py-2.5 rounded-sm text-[10px] uppercase font-black tracking-widest hover:bg-white hover:text-black transition-colors">
-                    <Plus className="h-3 w-3" />
+                    <HiPlus size={12} />
                     Quick Add
                   </button>
                 </div>

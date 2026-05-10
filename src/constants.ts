@@ -95,24 +95,28 @@ export const GALLERY_IMAGES = [
 export const BRANCHES = [
   {
     name: "Kaneshie",
+    area: "Main Branch",
     landmark: "Opposite Cocoa Clinic",
     address: "Kaneshie Main Road",
     phone: "+233243379412"
   },
   {
     name: "Circle",
+    area: "Business Hub",
     landmark: "American Mall",
     address: "Circle Interchange",
     phone: "+233243379412"
   },
   {
     name: "East Legon",
+    area: "Residential",
     landmark: "Near Police Station",
     address: "Legon Link Road",
     phone: "+233243379412"
   },
   {
     name: "Swan Lake",
+    area: "North Accra",
     landmark: "CPP Junction",
     address: "Swan Lake Area",
     phone: "+233243379412"
@@ -121,30 +125,34 @@ export const BRANCHES = [
 
 export const REVIEWS = [
   {
-    name: "Kofi Mensah",
+    id: "rev-1",
+    author: "Kofi Mensah",
     rating: 5,
-    text: "The Jollof rice is exactly what I was looking for. Smokey, spicy, and absolutely delicious!",
+    comment: "The Jollof rice is exactly what I was looking for. Smokey, spicy, and absolutely delicious!",
     date: "March 12, 2026",
     avatar: "/assets/guest1.jpg"
   },
   {
-    name: "Amara Okafor",
+    id: "rev-2",
+    author: "Amara Okafor",
     rating: 5,
-    text: "Best Nigerian soups in Accra. Highly recommended for authentic taste.",
+    comment: "Best Nigerian soups in Accra. Highly recommended for authentic taste.",
     date: "February 28, 2026",
     avatar: "/assets/guest2.jpg"
   },
   {
-    name: "James Wilson",
+    id: "rev-3",
+    author: "James Wilson",
     rating: 4,
-    text: "Great pizza and amazingly fast delivery to East Legon. Professional service indeed.",
+    comment: "Great pizza and amazingly fast delivery to East Legon. Professional service indeed.",
     date: "April 05, 2026",
     avatar: "https://i.pravatar.cc/150?u=james"
   },
   {
-    name: "Ama Boateng",
+    id: "rev-4",
+    author: "Ama Boateng",
     rating: 5,
-    text: "The Banku & Tilapia is divine. Feels like grandma's kitchen every single time!",
+    comment: "The Banku & Tilapia is divine. Feels like grandma's kitchen every single time!",
     date: "April 22, 2026",
     avatar: "https://i.pravatar.cc/150?u=ama"
   }

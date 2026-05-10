@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { UtensilsCrossed, Instagram, Facebook, Twitter, ChefHat } from 'lucide-react';
+import { FiInstagram, FiFacebook } from 'react-icons/fi';
 
 export function Footer() {
   return (
@@ -28,10 +28,10 @@ export function Footer() {
 
         <div className="flex gap-6 mb-12">
           <a href="https://www.instagram.com/cookersdelightgh/" target="_blank" rel="noopener noreferrer" className="p-3 glass-panel border-white/10 rounded-full hover:bg-brand-orange hover:border-brand-orange transition-all text-white/60 hover:text-white">
-            <Instagram className="h-5 w-5" />
+            <FiInstagram size={20} />
           </a>
           <a href="https://www.facebook.com/cookersdelightgh/" target="_blank" rel="noopener noreferrer" className="p-3 glass-panel border-white/10 rounded-full hover:bg-brand-orange hover:border-brand-orange transition-all text-white/60 hover:text-white">
-            <Facebook className="h-5 w-5" />
+            <FiFacebook size={20} />
           </a>
         </div>
 

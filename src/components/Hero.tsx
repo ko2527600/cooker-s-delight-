@@ -4,7 +4,7 @@
  */
 
 import { motion } from 'motion/react';
-import { ArrowRight, ChevronRight } from 'lucide-react';
+// Lucide imports removed as they were unused
 
 export function Hero() {
   return (

@@ -5,7 +5,8 @@
 
 import { motion } from 'motion/react';
 import { BRANCHES } from '../constants';
-import { MapPin, Phone, ExternalLink } from 'lucide-react';
+import { HiMapPin } from 'react-icons/hi2';
+import { FiPhone, FiExternalLink } from 'react-icons/fi';
 
 export function Branches() {
   return (
@@ -33,7 +34,7 @@ export function Branches() {
               className="glass-panel p-8 rounded-lg border-white/5 hover:border-brand-orange/50 transition-all flex flex-col h-full"
             >
               <div className="bg-brand-orange/10 w-12 h-12 rounded-sm flex items-center justify-center mb-6">
-                <MapPin className="text-brand-orange h-6 w-6" />
+                <HiMapPin size={24} color="#EC4824" />
               </div>
               <h3 className="font-serif text-2xl font-bold text-white mb-2">{branch.name}</h3>
               <p className="text-brand-orange font-black text-[10px] uppercase tracking-widest mb-4">{branch.area}</p>
@@ -44,7 +45,7 @@ export function Branches() {
                    {branch.landmark}
                 </div>
                 <div className="flex items-center gap-3 text-white/40 text-xs">
-                   <Phone className="h-3 w-3" />
+                   <FiPhone size={12} />
                    {branch.phone}
                 </div>
               </div>
@@ -56,7 +57,9 @@ export function Branches() {
                 className="flex items-center justify-center gap-2 w-full py-3 bg-white/5 text-white/70 font-black uppercase tracking-widest text-[10px] rounded-sm border border-white/10 hover:bg-white hover:text-black transition-all group"
               >
                 Get Directions
-                <ExternalLink className="h-3 w-3 group-hover:scale-110 transition-transform" />
+                <span className="group-hover:scale-110 transition-transform">
+                  <FiExternalLink size={12} />
+                </span>
               </a>
             </motion.div>
           ))}

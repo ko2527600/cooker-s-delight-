@@ -4,22 +4,23 @@
  */
 
 import { motion } from 'motion/react';
-import { Target, Users, ShieldCheck } from 'lucide-react';
+import { HiUsers, HiCheckBadge } from 'react-icons/hi2';
+import { FiTarget } from 'react-icons/fi';
 
 export function About() {
   const values = [
     {
-      icon: <Target className="h-8 w-8 text-brand-burgundy" />,
+      icon: <FiTarget size={32} color="#872735" />,
       title: "Our Mission",
       desc: "To deliver authentic, hot, and tasty meals that celebrate the rich culinary heritage of Ghana and Nigeria."
     },
     {
-      icon: <Users className="h-8 w-8 text-brand-burgundy" />,
+      icon: <HiUsers size={32} color="#872735" />,
       title: "Great People",
       desc: "Our team is built on professionalism and a passion for service excellence, making every guest feel at home."
     },
     {
-      icon: <ShieldCheck className="h-8 w-8 text-brand-burgundy" />,
+      icon: <HiCheckBadge size={32} color="#872735" />,
       title: "Quality First",
       desc: "We prioritize hygiene and fresh local ingredients to ensure the highest standards of food safety."
     }

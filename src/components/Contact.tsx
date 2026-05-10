@@ -4,7 +4,8 @@
  */
 
 import { motion } from 'motion/react';
-import { Phone, MessageSquare, Instagram, Send } from 'lucide-react';
+import { HiChatBubbleLeftRight, HiPaperAirplane } from 'react-icons/hi2';
+import { FiPhone, FiInstagram } from 'react-icons/fi';
 import { CONTACT_INFO } from '../constants';
 
 export function Contact() {
@@ -28,7 +29,7 @@ export function Contact() {
             <div className="space-y-6">
               <div className="flex gap-6 p-6 glass-panel rounded-lg hover:border-brand-orange/40 transition-all border-white/5">
                 <div className="bg-brand-orange/20 p-4 rounded-sm text-brand-orange">
-                  <Phone className="h-6 w-6" />
+                  <FiPhone size={24} />
                 </div>
                 <div>
                   <p className="text-[10px] uppercase font-black text-white/30 tracking-widest mb-1">Call Us Anywhere</p>

@@ -5,7 +5,11 @@
 
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Camera, X, ZoomIn, ZoomOut, RotateCcw, Maximize2 } from 'lucide-react';
+import { 
+  HiChevronLeft, HiChevronRight, HiCamera, HiXMark, 
+  HiMagnifyingGlassPlus, HiMagnifyingGlassMinus, HiArrowPath, 
+  HiArrowsPointingOut 
+} from 'react-icons/hi2';
 import { GALLERY_IMAGES } from '../constants';
 
 export function Gallery() {
@@ -80,10 +84,10 @@ export function Gallery() {
             </div>
             <div className="flex gap-4">
               <button onClick={prev} className="p-4 rounded-sm border border-white/10 text-white hover:bg-brand-orange hover:border-brand-orange transition-all">
-                <ChevronLeft className="h-6 w-6" />
+                <HiChevronLeft size={24} />
               </button>
               <button onClick={next} className="p-4 rounded-sm border border-white/10 text-white hover:bg-brand-orange hover:border-brand-orange transition-all">
-                <ChevronRight className="h-6 w-6" />
+                <HiChevronRight size={24} />
               </button>
             </div>
           </div>
@@ -94,7 +98,7 @@ export function Gallery() {
           >
             <div className="absolute top-6 right-6 z-20 opacity-0 group-hover/container:opacity-100 transition-opacity">
               <div className="bg-brand-orange p-3 rounded-sm text-white">
-                <Maximize2 className="h-5 w-5" />
+                <HiArrowsPointingOut size={20} />
               </div>
             </div>
             <AnimatePresence initial={false} custom={direction}>
@@ -126,7 +130,7 @@ export function Gallery() {
                     transition={{ delay: 0.3 }}
                   >
                     <span className="flex items-center gap-2 text-brand-orange text-[10px] uppercase font-black tracking-widest mb-2 drop-shadow-md">
-                      <Camera className="h-4 w-4" />
+                      <HiCamera size={16} />
                       Gallery Selection
                     </span>
                     <h3 className="text-white text-4xl md:text-5xl font-serif font-bold mb-2 drop-shadow-xl">{GALLERY_IMAGES[index].title}</h3>
@@ -173,27 +177,27 @@ export function Gallery() {
                   onClick={(e) => { e.stopPropagation(); setZoom(prev => Math.min(prev + 0.5, 4)); }}
                   className="p-2 text-white/70 hover:text-white transition-colors"
                 >
-                  <ZoomIn className="h-5 w-5" />
+                  <HiMagnifyingGlassPlus size={20} />
                 </button>
                 <button 
                   onClick={(e) => { e.stopPropagation(); setZoom(prev => Math.max(prev - 0.5, 1)); }}
                   className="p-2 text-white/70 hover:text-white transition-colors"
                   disabled={zoom === 1}
                 >
-                  <ZoomOut className="h-5 w-5" />
+                  <HiMagnifyingGlassMinus size={20} />
                 </button>
                 <button 
                   onClick={(e) => { e.stopPropagation(); setZoom(1); }}
                   className="p-2 text-white/70 hover:text-white transition-colors"
                 >
-                  <RotateCcw className="h-5 w-5" />
+                  <HiArrowPath size={20} />
                 </button>
               </div>
               <button 
                 onClick={toggleLightbox}
                 className="p-4 bg-brand-orange text-white rounded-sm hover:opacity-90 transition-all font-black"
               >
-                <X className="h-6 w-6" />
+                <HiXMark size={24} />
               </button>
             </div>
 
@@ -207,13 +211,13 @@ export function Gallery() {
               onClick={(e) => { e.stopPropagation(); prev(); }}
               className="absolute left-6 top-1/2 -translate-y-1/2 p-6 glass-panel border-white/5 text-white hover:bg-brand-orange transition-all rounded-sm z-50"
             >
-              <ChevronLeft className="h-8 w-8" />
+              <HiChevronLeft size={32} />
             </button>
             <button 
               onClick={(e) => { e.stopPropagation(); next(); }}
               className="absolute right-6 top-1/2 -translate-y-1/2 p-6 glass-panel border-white/5 text-white hover:bg-brand-orange transition-all rounded-sm z-50"
             >
-              <ChevronRight className="h-8 w-8" />
+              <HiChevronRight size={32} />
             </button>
 
             {/* Main Image ... */}

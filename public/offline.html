@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CD Boat — Offline</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #111;
+      color: white;
+      font-family: sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+      padding: 24px;
+    }
+    .emoji { font-size: 64px; }
+    h1 { 
+      font-size: 28px; 
+      font-weight: 700;
+      color: #EC4824;
+    }
+    p { color: rgba(255,255,255,0.5); font-size: 15px; }
+    button {
+      background: #EC4824;
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="emoji">🍽️</div>
+  <h1>You're Offline</h1>
+  <p>Please check your connection.<br/>
+     Your last orders are still available.</p>
+  <button onclick="window.location.reload()">
+    Try Again
+  </button>
+</body>
+</html>

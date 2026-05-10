@@ -4,25 +4,55 @@ import {
   HiUsers, HiCheckBadge, HiChevronLeft, HiMagnifyingGlass,
   HiOutlineShoppingBag, HiPlus, HiMinus, HiTrash, HiArrowUp,
   HiCheckCircle, HiRocketLaunch, HiSparkles, HiEnvelope, HiOutlineBell,
-  HiArrowRight
+  HiArrowRight, HiOutlineUser
 } from 'react-icons/hi2';
 import { FiPhone, FiInstagram, FiFacebook, FiTarget, FiSearch } from 'react-icons/fi';
 import { BsWhatsapp, BsInstagram, BsFacebook, BsHeartFill } from 'react-icons/bs';
-import { 
-  motion, 
-  AnimatePresence, 
-  useScroll, 
-  useTransform, 
-  useSpring, 
-  useMotionValue, 
-  useInView,
-  useReducedMotion
-} from 'motion/react';
+import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView, useReducedMotion } from 'motion/react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { AuthProvider } from './admin/AuthContext';
+import ProtectedRoute from './admin/ProtectedRoute';
+import Login from './admin/Login';
+import Dashboard from './admin/pages/Dashboard';
+import MenuManager from './admin/pages/MenuManager';
+import OrdersManager from './admin/pages/OrdersManager';
+import GalleryManager from './admin/pages/GalleryManager';
+import BranchesManager from './admin/pages/BranchesManager';
+import ReviewsManager from './admin/pages/ReviewsManager';
+import AnnouncementsManager from './admin/pages/AnnouncementsManager';
+import Settings from './admin/pages/Settings';
+import CustomersManager from './admin/pages/CustomersManager';
+import Layout from './admin/Layout';
+import { ToastProvider } from './admin/components/Toast';
+import useApi from './hooks/useApi';
+import api from './api/axios';
 import { MENU_DATA, GALLERY_IMAGES, BRANCHES, REVIEWS } from './constants';
+import { getImgUrl } from './utils/image';
+import { Toaster } from 'react-hot-toast';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import { CustomerProvider } from './portal/CustomerContext';
+import CustomerProtectedRoute from './portal/CustomerProtectedRoute';
+import CustomerLayout from './portal/CustomerLayout';
+import CustomerLogin from './portal/pages/CustomerLogin';
+import CustomerRegister from './portal/pages/CustomerRegister';
+import CustomerDashboard from './portal/pages/CustomerDashboard';
+import PlaceOrder from './portal/pages/PlaceOrder';
+import OrderHistory from './portal/pages/OrderHistory';
+import OrderDetail from './portal/pages/OrderDetail';
+import CustomerProfile from './portal/pages/CustomerProfile';
+import SavedAddresses from './portal/pages/SavedAddresses';
+import MyReviews from './portal/pages/MyReviews';
+import Notifications from './portal/pages/Notifications';
+import LoyaltyPoints from './portal/pages/LoyaltyPoints';
+import PWAUpdateBanner from './components/PWAUpdateBanner';
+import CDBoatDownloadSection from './components/CDBoatDownloadSection';
+import AdminInstallGate from './admin/AdminInstallGate';
+import FeedbackPage from './portal/pages/FeedbackPage';
+import FeedbackManager from './admin/pages/FeedbackManager';
 
 // --- Types ---
 interface CartItem {
-  id: number;
+  id: string;
   name: string;
   price: string;
   quantity: number;
@@ -62,7 +92,10 @@ const useCountUp = (end: number, duration: number = 2000) => {
 
 // --- Helper: Image URL Formatter ---
 const formatImg = (url: string, w: number = 800) => {
+  if (!url) return "";
   if (url.startsWith('/assets')) return url;
+  if (url.startsWith('/uploads')) return getImgUrl(url);
+  if (url.startsWith('http')) return url;
   return `${url}&auto=format&fit=crop&q=80&w=${w}&fm=webp`;
 };
 
@@ -139,36 +172,45 @@ const Toast = ({ toasts, removeToast }: { toasts: ToastMessage[], removeToast: (
 );
 
 const AnnouncementBar = () => {
+  const { data: announcement, loading } = useApi('/announcements');
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const dismissed = localStorage.getItem('announcement-dismissed');
-    if (!dismissed) setIsVisible(true);
-  }, []);
+    if (!loading && announcement) {
+      const dismissed = localStorage.getItem(`ann-dismissed-${announcement.id}`);
+      if (!dismissed) setIsVisible(true);
+    }
+  }, [announcement, loading]);
 
   const dismiss = () => {
-    localStorage.setItem('announcement-dismissed', 'true');
+    if (announcement) localStorage.setItem(`ann-dismissed-${announcement.id}`, 'true');
     setIsVisible(false);
   };
 
+  if (loading || !announcement || !isVisible) return null;
+
   return (
     <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: 'auto', opacity: 1 }}
-          exit={{ height: 0, opacity: 0 }}
-          className="bg-brand-orange text-white py-2 px-6 relative z-[60] overflow-hidden"
-        >
-          <div className="container mx-auto text-center font-body text-xs md:text-sm font-bold tracking-wide">
-            🔥 Now Delivering Across Accra — Order on WhatsApp: 
-            <a href="tel:+233243379412" className="underline ml-1">+233 24 337 9412</a>
-          </div>
-          <button onClick={dismiss} className="absolute right-4 top-1/2 -translate-y-1/2 hover:scale-110 transition-transform">
-            <HiXMark size={20} />
-          </button>
-        </motion.div>
-      )}
+      <motion.div
+        initial={{ height: 0, opacity: 0 }}
+        animate={{ height: 'auto', opacity: 1 }}
+        exit={{ height: 0, opacity: 0 }}
+        className="py-2 px-6 relative z-[60] overflow-hidden"
+        style={{ backgroundColor: announcement.bgColor, color: announcement.textColor }}
+      >
+        <div className="container mx-auto text-center font-body text-xs md:text-sm font-bold tracking-wide">
+          {announcement.link ? (
+            <a href={announcement.link} target="_blank" rel="noopener noreferrer" className="hover:underline">
+              {announcement.text}
+            </a>
+          ) : (
+            announcement.text
+          )}
+        </div>
+        <button onClick={dismiss} className="absolute right-4 top-1/2 -translate-y-1/2 hover:scale-110 transition-transform">
+          <HiXMark size={20} />
+        </button>
+      </motion.div>
     </AnimatePresence>
   );
 };
@@ -233,6 +275,16 @@ const Navbar = ({
                 {link}
               </button>
             ))}
+            
+            {/* Customer Portal Link */}
+            <Link 
+              to={localStorage.getItem('cd_customer_token') ? "/portal/dashboard" : "/portal/login"}
+              className="text-white/80 hover:text-brand-orange transition-colors font-body text-sm font-medium flex items-center gap-2"
+            >
+              <HiOutlineUser size={18} color="#EC4824" />
+              {localStorage.getItem('cd_customer_token') ? 'My Account' : 'Sign In'}
+            </Link>
+
             <a
               href="https://wa.me/233243379412"
               target="_blank"
@@ -290,6 +342,14 @@ const Navbar = ({
                     {link}
                   </button>
                 ))}
+                
+                <Link 
+                  to={localStorage.getItem('cd_customer_token') ? "/portal/dashboard" : "/portal/login"}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-4xl font-display text-left font-bold text-white hover:text-brand-orange transition-colors"
+                >
+                  {localStorage.getItem('cd_customer_token') ? 'Account' : 'Sign In'}
+                </Link>
               </div>
               <div className="mt-auto pt-10 border-t border-white/5 space-y-6">
                 <p className="text-white/40 text-sm font-body">Get in touch:</p>
@@ -498,7 +558,7 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
               key={i} 
               className="min-w-[300px] h-[400px] rounded-[40px] relative overflow-hidden group cursor-grab active:cursor-grabbing snap-center"
             >
-              <img src={formatImg(slides[i % 4], 600)} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={cat} />
+              <img src={getImgUrl(slides[i % 4])} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={cat} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-8">
                 <h3 className="text-3xl font-display font-bold mb-2">{cat}</h3>
                 <span className="text-brand-orange text-xs font-bold uppercase tracking-widest">Explore Category</span>
@@ -559,6 +619,8 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
          </div>
       </section>
 
+      <CDBoatDownloadSection />
+
       {/* Footer Drift Marquee */}
       <div className="bg-brand-black py-4 border-y border-white/5 overflow-hidden flex items-center">
          <div className="animate-marquee-scroll whitespace-nowrap">
@@ -576,19 +638,21 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
 // --- Page: Menu ---
 
 const MenuPage = ({ addToast, cart, setCart }: { addToast: (m: string) => void, cart: CartItem[], setCart: React.Dispatch<React.SetStateAction<CartItem[]>> }) => {
+  const { data: items, loading, error, refetch } = useApi('/menu?available=true');
   const [activeCategory, setActiveCategory] = useState('All');
   const [search, setSearch] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const categories = ['All', 'Ghanaian', 'Nigerian', 'Snacks', 'Sides', 'Fast Food', 'Continental'];
 
   const filteredItems = useMemo(() => {
-    return MENU_DATA.filter(item => {
+    if (!items) return [];
+    return items.filter(item => {
       const matchCat = activeCategory === 'All' || item.category === activeCategory;
       const matchSearch = item.name.toLowerCase().includes(search.toLowerCase()) || 
                           item.description.toLowerCase().includes(search.toLowerCase());
       return matchCat && matchSearch;
     });
-  }, [activeCategory, search]);
+  }, [items, activeCategory, search]);
 
   const addToCart = (item: any) => {
     setCart(prev => {
@@ -599,14 +663,14 @@ const MenuPage = ({ addToast, cart, setCart }: { addToast: (m: string) => void, 
     addToast(`Added ${item.name} ✓`);
   };
 
-  const updateQty = (id: number, delta: number) => {
+  const updateQty = (id: string, delta: number) => {
     setCart(prev => prev.map(item => {
       if (item.id === id) return { ...item, quantity: Math.max(1, item.quantity + delta) };
       return item;
     }));
   };
 
-  const removeFromCart = (id: number) => {
+  const removeFromCart = (id: string) => {
     setCart(prev => prev.filter(item => item.id !== id));
     addToast("Item removed");
   };
@@ -621,7 +685,7 @@ const MenuPage = ({ addToast, cart, setCart }: { addToast: (m: string) => void, 
   return (
     <PageWrapper>
       <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
-        <img src={formatImg("/assets/flyer2.jpg", 1920)} className="absolute inset-0 w-full h-full object-cover opacity-50" alt="" />
+        <img src={getImgUrl("/assets/flyer2.jpg")} className="absolute inset-0 w-full h-full object-cover opacity-50" alt="" />
         <div className="absolute inset-0 bg-gradient-to-t from-brand-black to-transparent"></div>
         <h1 className="relative z-10 text-7xl md:text-9xl font-bold">Our <span className="italic font-normal text-brand-orange">Menu</span></h1>
       </section>
@@ -655,36 +719,47 @@ const MenuPage = ({ addToast, cart, setCart }: { addToast: (m: string) => void, 
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <AnimatePresence mode="popLayout">
-              {filteredItems.map((item, idx) => (
-                <motion.div
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ delay: idx * 0.05 }}
-                  key={item.id}
-                  className="bg-white/5 rounded-[32px] overflow-hidden group hover:border-brand-orange/30 border border-transparent transition-all"
-                >
-                  <div className="h-48 relative overflow-hidden">
-                    <img src={formatImg(item.image)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={item.name} />
-                  </div>
-                  <div className="p-8">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-display text-xl font-bold">{item.name}</h3>
-                      <span className="text-brand-orange font-bold">{item.price}</span>
+            {loading ? (
+              Array(8).fill(0).map((_, i) => (
+                <div key={i} className="bg-white/5 rounded-[32px] h-[350px] animate-pulse" />
+              ))
+            ) : error ? (
+              <div className="col-span-full py-20 text-center space-y-4">
+                <p className="text-white/40">Failed to load menu</p>
+                <button onClick={() => refetch()} className="text-brand-orange font-bold underline">Try Again</button>
+              </div>
+            ) : (
+              <AnimatePresence mode="popLayout">
+                {filteredItems.map((item, idx) => (
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ delay: idx * 0.05 }}
+                    key={item.id || `menu-${idx}`}
+                    className="bg-white/5 rounded-[32px] overflow-hidden group hover:border-brand-orange/30 border border-transparent transition-all"
+                  >
+                    <div className="h-48 relative overflow-hidden">
+                      <img src={getImgUrl(item.image)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={item.name} />
                     </div>
-                    <p className="text-white/40 text-xs font-body mb-6 leading-relaxed h-8 overflow-hidden">{item.description}</p>
-                    <button 
-                      onClick={() => addToCart(item)}
-                      className="w-full bg-white/5 hover:bg-brand-orange py-3 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-2"
-                    >
-                      <HiPlus /> Add to Order
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+                    <div className="p-8">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-display text-xl font-bold">{item.name}</h3>
+                        <span className="text-brand-orange font-bold">{item.price}</span>
+                      </div>
+                      <p className="text-white/40 text-xs font-body mb-6 leading-relaxed h-8 overflow-hidden">{item.description}</p>
+                      <button 
+                        onClick={() => addToCart(item)}
+                        className="w-full bg-white/5 hover:bg-brand-orange py-3 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-2"
+                      >
+                        <HiPlus /> Add to Order
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            )}
           </div>
         </div>
       </section>
@@ -763,44 +838,58 @@ const MenuPage = ({ addToast, cart, setCart }: { addToast: (m: string) => void, 
 // --- Page: Gallery ---
 
 const GalleryPage = () => {
+  const { data: gallery, loading, error, refetch } = useApi('/gallery?visible=true');
   const [index, setIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (index === null) return;
+      if (index === null || !gallery) return;
       if (e.key === 'Escape') setIndex(null);
-      if (e.key === 'ArrowRight') setIndex(i => (i! + 1) % GALLERY_IMAGES.length);
-      if (e.key === 'ArrowLeft') setIndex(i => (i! - 1 + GALLERY_IMAGES.length) % GALLERY_IMAGES.length);
+      if (e.key === 'ArrowRight') setIndex(i => (i! + 1) % gallery.length);
+      if (e.key === 'ArrowLeft') setIndex(i => (i! - 1 + gallery.length) % gallery.length);
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [index]);
+  }, [index, gallery]);
 
   return (
     <PageWrapper>
       <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
-        <img src={formatImg(GALLERY_IMAGES[1].url, 1920)} className="absolute inset-0 w-full h-full object-cover opacity-50" alt="" />
+        <img src={gallery?.[0]?.url || "/assets/flyer2.jpg"} className="absolute inset-0 w-full h-full object-cover opacity-50" alt="" />
         <div className="absolute inset-0 bg-gradient-to-t from-brand-black to-transparent"></div>
         <h1 className="relative z-10 text-7xl md:text-9xl font-bold">Gal<span className="italic font-normal text-brand-orange">lery</span></h1>
       </section>
 
       <section className="py-20 bg-brand-black">
         <div className="container mx-auto px-6">
-          <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
-            {GALLERY_IMAGES.map((img, i) => (
-              <motion.div
-                key={i}
-                whileHover={{ rotateX: 5, rotateY: 5, scale: 1.02 }}
-                onClick={() => setIndex(i)}
-                className="relative group overflow-hidden rounded-[32px] cursor-pointer break-inside-avoid gallery-item shadow-2xl"
-              >
-                <img src={formatImg(img.url)} className="w-full h-auto object-cover" alt={img.title} />
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center p-10">
-                   <h3 className="text-white font-display text-4xl font-bold text-center translate-y-8 group-hover:translate-y-0 transition-all duration-500">{img.title}</h3>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {Array(6).fill(0).map((_, i) => (
+                <div key={i} className="aspect-square bg-white/5 rounded-[32px] animate-pulse" />
+              ))}
+            </div>
+          ) : error ? (
+            <div className="text-center py-20">
+              <p className="text-white/40">Failed to load gallery</p>
+              <button onClick={() => refetch()} className="text-brand-orange font-bold underline">Try Again</button>
+            </div>
+          ) : (
+            <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
+              {gallery.map((img, i) => (
+                <motion.div
+                  key={img.id || `gall-${i}`}
+                  whileHover={{ rotateX: 5, rotateY: 5, scale: 1.02 }}
+                  onClick={() => setIndex(i)}
+                  className="relative group overflow-hidden rounded-[32px] cursor-pointer break-inside-avoid gallery-item shadow-2xl"
+                >
+                  <img src={getImgUrl(img.url)} className="w-full h-auto object-cover" alt={img.title} />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center p-10">
+                     <h3 className="text-white font-display text-4xl font-bold text-center translate-y-8 group-hover:translate-y-0 transition-all duration-500">{img.title}</h3>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -815,8 +904,8 @@ const GalleryPage = () => {
           >
             <button onClick={() => setIndex(null)} className="absolute top-10 right-10 text-white/40 hover:text-white transition-colors z-30"><HiXMark size={40} /></button>
             
-            <button onClick={() => setIndex((index - 1 + GALLERY_IMAGES.length) % GALLERY_IMAGES.length)} className="absolute left-8 top-1/2 -translate-y-1/2 w-16 h-16 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-all text-white/40 hover:text-white z-30"><HiChevronLeft size={32} /></button>
-            <button onClick={() => setIndex((index + 1) % GALLERY_IMAGES.length)} className="absolute right-8 top-1/2 -translate-y-1/2 w-16 h-16 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-all text-white/40 hover:text-white z-30"><HiChevronRight size={32} /></button>
+            <button onClick={() => setIndex((index - 1 + gallery.length) % gallery.length)} className="absolute left-8 top-1/2 -translate-y-1/2 w-16 h-16 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-all text-white/40 hover:text-white z-30"><HiChevronLeft size={32} /></button>
+            <button onClick={() => setIndex((index + 1) % gallery.length)} className="absolute right-8 top-1/2 -translate-y-1/2 w-16 h-16 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-all text-white/40 hover:text-white z-30"><HiChevronRight size={32} /></button>
 
             <motion.div
               key={index}
@@ -825,10 +914,10 @@ const GalleryPage = () => {
               exit={{ scale: 0.85, opacity: 0 }}
               className="relative w-full max-w-5xl h-full flex flex-col items-center justify-center gap-8"
             >
-              <img src={formatImg(GALLERY_IMAGES[index].url, 1920)} className="max-w-full max-h-[75vh] object-contain rounded-3xl shadow-[0_0_100px_rgba(236,72,36,0.2)]" alt="" />
+              <img src={gallery[index].url} className="max-w-full max-h-[75vh] object-contain rounded-3xl shadow-[0_0_100px_rgba(236,72,36,0.2)]" alt="" />
               <div className="text-center">
-                 <h3 className="text-4xl font-display font-bold mb-2">{GALLERY_IMAGES[index].title}</h3>
-                 <p className="text-white/40 font-bold uppercase tracking-widest text-sm">{index + 1} / {GALLERY_IMAGES.length}</p>
+                 <h3 className="text-4xl font-display font-bold mb-2">{gallery[index].title}</h3>
+                 <p className="text-white/40 font-bold uppercase tracking-widest text-sm">{index + 1} / {gallery.length}</p>
               </div>
             </motion.div>
           </motion.div>
@@ -840,87 +929,130 @@ const GalleryPage = () => {
 
 // --- Page: Branches, Reviews, Contact --- (Upgraded)
 
-const BranchesPage = () => (
-  <PageWrapper>
-    <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
-      <img src={formatImg("/assets/forcourt2.jpg", 1920)} className="absolute inset-0 w-full h-full object-cover opacity-50" alt="" />
-      <div className="absolute inset-0 bg-gradient-to-t from-brand-black to-transparent"></div>
-      <h1 className="relative z-10 text-7xl md:text-9xl font-bold text-center">Our <span className="italic font-normal text-brand-orange">Locations</span></h1>
-    </section>
-    <section className="py-24 bg-brand-black">
-      <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          {BRANCHES.map((branch, i) => (
-            <motion.div key={i} whileHover={{ y: -10 }} className="bg-white/5 p-12 rounded-[50px] border border-white/5 flex flex-col justify-between group h-full">
-              <div>
-                <h3 className="text-6xl font-display font-bold mb-4 group-hover:text-brand-orange transition-colors">{branch.name}</h3>
-                <div className="space-y-2 mb-12 text-white/40 text-lg">
-                   <p className="text-brand-orange font-bold uppercase text-xs tracking-widest mb-6">Branch Hub</p>
-                   <p>{branch.landmark}</p>
-                   <p>{branch.address}</p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                 <a href={`tel:${branch.phone}`} className="bg-white/5 hover:bg-white/10 px-8 py-4 rounded-full font-bold flex items-center gap-2"><FiPhone /> Call Now</a>
-                 <a href="https://wa.me/233243379412" className="bg-brand-orange/10 hover:bg-brand-orange/20 text-brand-orange px-8 py-4 rounded-full font-bold flex items-center gap-2"><BsWhatsapp /> WhatsApp</a>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  </PageWrapper>
-);
+const BranchesPage = () => {
+  const { data: branches, loading, error, refetch } = useApi('/branches');
 
-const ReviewsPage = () => (
-  <PageWrapper>
-    <div className="bg-brand-orange py-3 overflow-hidden flex whitespace-nowrap">
-       <div className="animate-marquee-scroll flex font-bold uppercase text-xs tracking-tighter">
-          {[...Array(20)].map((_, i) => <span key={i} className="mx-10">★ "The best Jollof in Accra" ★ "Authentic Nigerian taste" ★ "Professional service" ★ "Highly recommended" ★ </span>)}
-       </div>
-    </div>
-    <section className="py-24 bg-brand-black">
-      <div className="container mx-auto px-6 text-center">
-         <div className="flex flex-col items-center mb-32">
-            <span className="text-[150px] font-display font-bold leading-none mb-4">4.8</span>
-            <div className="flex text-brand-orange mb-6">
-               {[...Array(5)].map((_, i) => <span key={i}><HiStar size={50} /></span>)}
+  return (
+    <PageWrapper>
+      <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
+        <img src={formatImg("/assets/forcourt2.jpg", 1920)} className="absolute inset-0 w-full h-full object-cover opacity-50" alt="" />
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-black to-transparent"></div>
+        <h1 className="relative z-10 text-7xl md:text-9xl font-bold text-center">Our <span className="italic font-normal text-brand-orange">Locations</span></h1>
+      </section>
+      <section className="py-24 bg-brand-black">
+        <div className="container mx-auto px-6">
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              {Array(4).fill(0).map((_, i) => (
+                <div key={i} className="bg-white/5 h-[400px] rounded-[50px] animate-pulse" />
+              ))}
             </div>
-            <p className="text-white/40 font-bold uppercase tracking-[0.3em]">Community Rated Excellence</p>
-         </div>
-
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-40">
-           {REVIEWS.map((r, i) => (
-             <motion.div key={i} whileHover={{ rotateX: 5, rotateY: 5 }} className="bg-white/5 p-16 rounded-[60px] text-left border border-white/5">
-                <div className="flex text-brand-orange mb-10">
-                   {[...Array(5)].map((_, j) => <span key={j} className={j >= r.rating ? 'opacity-20' : ''}><HiStar size={24} /></span>)}
-                </div>
-                <p className="text-3xl font-display italic font-light leading-relaxed mb-12">"{r.text}"</p>
-                <div className="flex items-center gap-6">
-                   <img src={r.avatar} className="w-16 h-16 rounded-full border-2 border-brand-orange" alt="" />
-                   <div><h4 className="font-bold text-xl">{r.name}</h4><p className="text-white/40">{r.date}</p></div>
-                </div>
-             </motion.div>
-           ))}
-         </div>
-
-         <div className="py-24 border-t border-white/5 text-left">
-            <h2 className="text-5xl font-display font-bold mb-12 flex items-center gap-4">Follow us <span className="text-brand-orange"><BsInstagram /></span> <span className="text-white/20">@cookersdelightgh</span></h2>
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-               {[...Array(6)].map((_, i) => (
-                 <div key={i} className="aspect-square bg-white/5 rounded-3xl overflow-hidden relative group">
-                    <img src={formatImg(GALLERY_IMAGES[i % GALLERY_IMAGES.length].url, 400)} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700 opacity-50" alt="" />
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all bg-brand-orange/60 backdrop-blur-sm">
-                       <div className="flex flex-col items-center gap-2"><BsHeartFill /><span className="text-[10px] font-bold uppercase">Follow</span></div>
+          ) : error ? (
+            <div className="text-center py-20">
+              <p className="text-white/40">Failed to load branches</p>
+              <button onClick={() => refetch()} className="text-brand-orange font-bold underline">Try Again</button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              {branches.map((branch, i) => (
+                <motion.div key={branch.id || `branch-${i}`} whileHover={{ y: -10 }} className="bg-white/5 p-12 rounded-[50px] border border-white/5 flex flex-col justify-between group h-full">
+                  <div>
+                    <div className="flex justify-between items-start mb-4">
+                      <h3 className="text-6xl font-display font-bold group-hover:text-brand-orange transition-colors">{branch.name}</h3>
+                      <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${branch.isOpen ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+                        <div className={`w-1.5 h-1.5 rounded-full ${branch.isOpen ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                        {branch.isOpen ? 'Open Now' : 'Closed'}
+                      </div>
                     </div>
-                 </div>
-               ))}
+                    <div className="space-y-2 mb-12 text-white/40 text-lg">
+                      <p className="text-brand-orange font-bold uppercase text-xs tracking-widest mb-6">Branch Hub</p>
+                      <p>{branch.landmark}</p>
+                      <p>{branch.address}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4">
+                      <a href={`tel:${branch.phone}`} className="bg-white/5 hover:bg-white/10 px-8 py-4 rounded-full font-bold flex items-center gap-2 text-sm"><FiPhone /> Call Now</a>
+                      <a href="https://wa.me/233243379412" className="bg-brand-orange/10 hover:bg-brand-orange/20 text-brand-orange px-8 py-4 rounded-full font-bold flex items-center gap-2 text-sm"><BsWhatsapp /> WhatsApp</a>
+                  </div>
+                </motion.div>
+              ))}
             </div>
+          )}
+        </div>
+      </section>
+    </PageWrapper>
+  );
+};
+
+const ReviewsPage = () => {
+  const { data: reviews, loading, error, refetch } = useApi('/reviews?approved=true');
+  const { data: gallery } = useApi('/gallery?visible=true');
+
+  return (
+    <PageWrapper>
+      <div className="bg-brand-orange py-3 overflow-hidden flex whitespace-nowrap">
+         <div className="animate-marquee-scroll flex font-bold uppercase text-xs tracking-tighter">
+            {[...Array(20)].map((_, i) => <span key={i} className="mx-10">★ "The best Jollof in Accra" ★ "Authentic Nigerian taste" ★ "Professional service" ★ "Highly recommended" ★ </span>)}
          </div>
       </div>
+      <section className="py-24 bg-brand-black">
+        <div className="container mx-auto px-6 text-center">
+           <div className="flex flex-col items-center mb-32">
+              <span className="text-[150px] font-display font-bold leading-none mb-4">4.8</span>
+              <div className="flex text-brand-orange mb-6">
+                 {[...Array(5)].map((_, i) => <span key={i}><HiStar size={50} /></span>)}
+              </div>
+              <p className="text-white/40 font-bold uppercase tracking-[0.3em]">Community Rated Excellence</p>
+           </div>
+
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-40">
+             {loading ? (
+               Array(4).fill(0).map((_, i) => (
+                 <div key={i} className="bg-white/5 h-[300px] rounded-[60px] animate-pulse" />
+               ))
+             ) : error ? (
+               <div className="col-span-full py-20">
+                 <p className="text-white/40">Failed to load reviews</p>
+                 <button onClick={() => refetch()} className="text-brand-orange font-bold underline">Try Again</button>
+               </div>
+             ) : (
+               reviews.map((r, i) => (
+                 <motion.div key={r.id || `rev-${i}`} whileHover={{ rotateX: 5, rotateY: 5 }} className="bg-white/5 p-16 rounded-[60px] text-left border border-white/5">
+                    <div className="flex text-brand-orange mb-10">
+                       {[...Array(5)].map((_, j) => <span key={j} className={j >= r.rating ? 'opacity-20' : ''}><HiStar size={24} /></span>)}
+                    </div>
+                    <p className="text-3xl font-display italic font-light leading-relaxed mb-12">"{r.comment}"</p>
+                    <div className="flex items-center gap-6">
+                       <div className="w-16 h-16 rounded-full border-2 border-brand-orange flex items-center justify-center bg-brand-orange text-white font-bold text-xl">
+                         {r.author.charAt(0)}
+                       </div>
+                       <div><h4 className="font-bold text-xl">{r.author}</h4><p className="text-white/40">{new Date(r.createdAt).toLocaleDateString()}</p></div>
+                    </div>
+                 </motion.div>
+               ))
+             )}
+           </div>
+
+           <div className="py-24 border-t border-white/5 text-left">
+              <h2 className="text-5xl font-display font-bold mb-12 flex items-center gap-4">Follow us <span className="text-brand-orange"><BsInstagram size={40} /></span> <span className="text-white/20">@cookersdelightgh</span></h2>
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                 {gallery?.slice(0, 6).map((img, i) => (
+                   <div key={img.id || `inst-${i}`} className="aspect-square bg-white/5 rounded-3xl overflow-hidden relative group">
+                      <img src={getImgUrl(img.url)} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700 opacity-50" alt="" />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all bg-brand-orange/60 backdrop-blur-sm">
+                         <div className="flex flex-col items-center gap-2"><BsHeartFill size={16} /><span className="text-[10px] font-bold uppercase">Follow</span></div>
+                      </div>
+                   </div>
+                 )) || [...Array(6)].map((_, i) => (
+                   <div key={i} className="aspect-square bg-white/5 rounded-3xl animate-pulse" />
+                 ))}
+              </div>
+           </div>
+      </div>
     </section>
-  </PageWrapper>
-);
+    </PageWrapper>
+  );
+};
 
 const ContactPage = ({ addToast }: { addToast: (m: string) => void }) => {
   const handleSubmit = (e: React.FormEvent) => {
@@ -1053,9 +1185,9 @@ const Footer = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => v
   );
 };
 
-// --- Main App ---
+// --- Main Public Website Component ---
 
-export default function App() {
+function PublicWebsite() {
   const [currentPage, setCurrentPage] = useState('Home');
   const [loading, setLoading] = useState(true);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
@@ -1093,6 +1225,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-brand-black text-white selection:bg-brand-orange/30">
+      <PWAUpdateBanner />
       <CustomCursor />
       <AnnouncementBar />
       
@@ -1154,5 +1287,67 @@ export default function App() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+// --- Main App Router ---
+
+export default function App() {
+  return (
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <Router>
+        <AuthProvider>
+          <CustomerProvider>
+            <ToastProvider>
+              <Toaster position="top-right" />
+              <Routes>
+                {/* Public Website */}
+                <Route path="/" element={<PublicWebsite />} />
+
+                {/* Customer Portal */}
+                <Route path="/portal/login" element={<CustomerLogin />} />
+                <Route path="/portal/register" element={<CustomerRegister />} />
+                <Route element={<CustomerProtectedRoute />}>
+                  <Route element={<CustomerLayout />}>
+                    <Route path="/portal/dashboard" element={<CustomerDashboard />} />
+                    <Route path="/portal/order" element={<PlaceOrder />} />
+                    <Route path="/portal/orders" element={<OrderHistory />} />
+                    <Route path="/portal/orders/:id" element={<OrderDetail />} />
+                    <Route path="/portal/profile" element={<CustomerProfile />} />
+                    <Route path="/portal/addresses" element={<SavedAddresses />} />
+                    <Route path="/portal/reviews" element={<MyReviews />} />
+                    <Route path="/portal/notifications" element={<Notifications />} />
+                    <Route path="/portal/loyalty" element={<LoyaltyPoints />} />
+                    <Route path="/portal/feedback" element={<FeedbackPage />} />
+                    <Route path="/portal/*" element={<CustomerDashboard />} />
+                  </Route>
+                </Route>
+
+                {/* Admin Portal */}
+                <Route path="/admin/login" element={<AdminInstallGate />} />
+                <Route element={<ProtectedRoute />}>
+                  <Route element={<Layout />}>
+                    <Route path="/admin/dashboard" element={<Dashboard />} />
+                    <Route path="/admin/menu" element={<MenuManager />} />
+                    <Route path="/admin/orders" element={<OrdersManager />} />
+                    <Route path="/admin/gallery" element={<GalleryManager />} />
+                    <Route path="/admin/branches" element={<BranchesManager />} />
+                    <Route path="/admin/reviews" element={<ReviewsManager />} />
+                    <Route path="/admin/announcements" element={<AnnouncementsManager />} />
+                    <Route path="/admin/settings" element={<Settings />} />
+                    <Route path="/admin/customers" element={<CustomersManager />} />
+                    <Route path="/admin/feedback" element={<FeedbackManager />} />
+                    <Route path="/admin/*" element={<Dashboard />} />
+                  </Route>
+                </Route>
+
+                {/* Optional: Global 404 redirect to home */}
+                <Route path="*" element={<PublicWebsite />} />
+              </Routes>
+            </ToastProvider>
+          </CustomerProvider>
+        </AuthProvider>
+      </Router>
+    </GoogleOAuthProvider>
   );
 }

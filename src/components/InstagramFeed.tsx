@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
-import { Instagram, Heart, MessageCircle, ExternalLink } from 'lucide-react';
+import { FiInstagram, FiExternalLink } from 'react-icons/fi';
+import { BsHeartFill, BsChatFill } from 'react-icons/bs';
 
 const INSTAGRAM_POSTS = [
   {
@@ -76,9 +77,11 @@ export const InstagramFeed = () => {
             whileInView={{ opacity: 1, x: 0 }}
             className="flex items-center gap-3 px-8 py-4 bg-brand-orange text-white rounded-sm text-[10px] uppercase font-black tracking-widest hover:bg-white hover:text-brand-orange transition-all group"
           >
-            <Instagram className="h-5 w-5" />
+            <FiInstagram size={20} />
             Follow Our Story
-            <ExternalLink className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-all" />
+            <span className="opacity-0 group-hover:opacity-100 transition-all">
+              <FiExternalLink size={16} />
+            </span>
           </motion.a>
         </div>
 
@@ -103,11 +106,11 @@ export const InstagramFeed = () => {
               />
               <div className="absolute inset-0 bg-brand-orange/80 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center gap-4">
                 <div className="flex items-center gap-2 text-white font-bold">
-                  <Heart className="h-5 w-5 fill-white" />
+                  <BsHeartFill size={20} />
                   <span>{post.likes}</span>
                 </div>
                 <div className="flex items-center gap-2 text-white font-bold">
-                  <MessageCircle className="h-5 w-5 fill-white" />
+                  <BsChatFill size={20} />
                   <span>{post.comments}</span>
                 </div>
               </div>

@@ -4,7 +4,7 @@
  */
 
 import { motion } from 'motion/react';
-import { UtensilsCrossed, MapPin, Phone, MessageSquare, Instagram, Menu as MenuIcon, X } from 'lucide-react';
+import { HiBars3, HiXMark } from 'react-icons/hi2';
 import { useState } from 'react';
 
 export function Navbar() {
@@ -60,7 +60,7 @@ export function Navbar() {
           {/* Mobile Toggle */}
           <div className="md:hidden">
             <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-white">
-              {isOpen ? <X className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
+              {isOpen ? <HiXMark size={24} /> : <HiBars3 size={24} />}
             </button>
           </div>
         </div>

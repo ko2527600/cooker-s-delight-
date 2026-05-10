@@ -4,7 +4,8 @@
  */
 
 import { motion } from 'motion/react';
-import { Quote, Star, UserCircle, Plus } from 'lucide-react';
+import { HiStar, HiOutlineStar, HiUserCircle, HiPlus } from 'react-icons/hi2';
+import { BsQuote } from 'react-icons/bs';
 import { REVIEWS } from '../constants';
 import React, { useState } from 'react';
 import { Review } from '../types';
@@ -46,7 +47,7 @@ export function Reviews() {
             className="group flex items-center gap-3 bg-brand-orange text-white px-8 py-4 rounded-sm font-black uppercase tracking-widest text-[11px] hover:opacity-90 transition-all shadow-xl shadow-brand-orange/10"
           >
             {showForm ? 'Cancel' : 'Share Your Experience'}
-            {!showForm && <Plus className="h-4 w-4" />}
+            {!showForm && <HiPlus size={16} />}
           </button>
         </div>
 
@@ -109,14 +110,19 @@ export function Reviews() {
               viewport={{ once: true }}
               className="glass-panel p-8 rounded-lg relative border-white/5 flex flex-col h-full"
             >
-              <Quote className="absolute top-6 right-6 h-10 w-10 text-white/5" />
+              <span className="absolute top-6 right-6 text-white/5">
+                <BsQuote size={40} />
+              </span>
               
               <div className="flex items-center gap-1 mb-6">
                 {[...Array(5)].map((_, i) => (
-                  <Star 
-                    key={i} 
-                    className={`h-3 w-3 ${i < msg.rating ? 'text-brand-orange fill-brand-orange' : 'text-white/10'}`} 
-                  />
+                  <React.Fragment key={i}>
+                    {i < msg.rating ? (
+                      <HiStar size={12} color="#EC4824" />
+                    ) : (
+                      <HiOutlineStar size={12} color="rgba(255,255,255,0.1)" />
+                    )}
+                  </React.Fragment>
                 ))}
               </div>
 
@@ -128,7 +134,7 @@ export function Reviews() {
                 {msg.avatar ? (
                   <img src={msg.avatar} alt={msg.author} className="w-10 h-10 rounded-full border border-white/10" />
                 ) : (
-                  <UserCircle className="w-10 h-10 text-white/20" />
+                  <HiUserCircle size={40} color="rgba(255,255,255,0.2)" />
                 )}
                 <div>
                   <h4 className="text-white font-bold text-sm tracking-tight">{msg.author}</h4>
