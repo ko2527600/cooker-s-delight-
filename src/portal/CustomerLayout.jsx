@@ -7,6 +7,8 @@ import {
   HiOutlineUser, HiOutlineArrowRightOnRectangle, HiBars3, HiXMark,
   HiOutlineChatBubbleLeftRight
 } from 'react-icons/hi2';
+import { useCustomer } from './CustomerContext';
+import LoyaltyBadge from './components/LoyaltyBadge';
 import api from '../api/axios';
 import { useInstallPrompt } from '../hooks/useInstallPrompt';
 import { HiOutlineArrowDownTray } from 'react-icons/hi2';
