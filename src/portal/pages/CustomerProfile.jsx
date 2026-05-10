@@ -3,7 +3,8 @@ import { motion } from 'motion/react';
 import { 
   HiOutlineUser, HiOutlineEnvelope, HiOutlinePhone, 
   HiOutlineShieldCheck, HiOutlineTrash, HiOutlineArrowRight,
-  HiOutlineCalendar, HiOutlineShoppingBag, HiOutlineBanknotes, HiOutlineStar
+  HiOutlineCalendar, HiOutlineShoppingBag, HiOutlineBanknotes, HiOutlineStar,
+  HiLockClosed
 } from 'react-icons/hi2';
 import { toast } from 'react-hot-toast';
 import { useCustomer } from '../CustomerContext';
@@ -164,7 +165,7 @@ const CustomerProfile = () => {
          <div className="space-y-10">
             {/* Password Form (Only for non-Google users) */}
             {!customer?.googleId && (
-              <ProfileCard title="Update Password" icon={HiOutlineLockClosed}>
+              <ProfileCard title="Update Password" icon={HiLockClosed}>
                  <form onSubmit={handleChangePassword} className="space-y-5">
                     <div className="space-y-2">
                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Current Password</label>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { HiOutlineEnvelope, HiOutlineLockClosed, HiOutlineEye, HiOutlineEyeSlash, HiOutlineArrowRight } from 'react-icons/hi2';
+import { HiOutlineEnvelope, HiLockClosed, HiOutlineEye, HiOutlineEyeSlash, HiOutlineArrowRight } from 'react-icons/hi2';
 import { GoogleLogin } from '@react-oauth/google';
 import { toast } from 'react-hot-toast';
 import { useCustomer } from '../CustomerContext';
@@ -134,7 +134,7 @@ const CustomerLogin = () => {
                   <button type="button" className="text-[10px] font-bold text-brand-orange hover:underline uppercase tracking-wider">Forgot Password?</button>
                </div>
                <div className="relative group">
-                  <HiOutlineLockClosed className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-brand-orange transition-colors" size={20} />
+                  <HiLockClosed className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-brand-orange transition-colors" size={20} />
                   <input 
                     type={showPassword ? "text" : "password"} 
                     required

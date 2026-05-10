@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
   HiOutlineStar, HiOutlineShoppingBag, HiOutlineChatBubbleLeftRight,
-  HiOutlineGift, HiOutlineArrowRight, HiOutlineLockClosed,
+  HiOutlineGift, HiOutlineArrowRight, HiLockClosed,
   HiOutlineCalendarDays, HiOutlineInformationCircle
 } from 'react-icons/hi2';
 import { useCustomer } from '../CustomerContext';
@@ -137,7 +137,7 @@ const LoyaltyPoints = () => {
             <div className="bg-[#141414] border border-white/5 rounded-[2.5rem] p-8 relative overflow-hidden group">
                <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center gap-4">
                   <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center text-white/40 border border-white/10">
-                     <HiOutlineLockClosed size={28} />
+                     <HiLockClosed size={28} />
                   </div>
                   <div className="text-center">
                      <p className="text-sm font-black text-white uppercase tracking-widest">Coming Soon</p>

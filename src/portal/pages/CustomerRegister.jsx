@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { 
-  HiOutlineEnvelope, HiOutlineLockClosed, HiOutlineEye, HiOutlineEyeSlash, 
+  HiOutlineEnvelope, HiLockClosed, HiOutlineEye, HiOutlineEyeSlash, 
   HiOutlineUser, HiOutlinePhone, HiOutlineArrowRight, HiOutlineShieldCheck
 } from 'react-icons/hi2';
 import { GoogleLogin } from '@react-oauth/google';
@@ -137,7 +137,7 @@ const CustomerRegister = () => {
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Password</label>
                 <div className="relative group">
-                    <HiOutlineLockClosed className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-brand-orange transition-colors" size={20} />
+                    <HiLockClosed className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-brand-orange transition-colors" size={20} />
                     <input 
                       type={showPassword ? "text" : "password"} 
                       required

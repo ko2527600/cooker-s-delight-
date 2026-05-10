@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { 
-  HiOutlineUser, HiOutlineLockClosed, HiOutlineEye, HiOutlineEyeSlash,
+  HiOutlineUser, HiLockClosed, HiOutlineEye, HiOutlineEyeSlash,
   HiOutlineBuildingOffice2, HiOutlineTrash, HiOutlineExclamationTriangle
 } from "react-icons/hi2";
 import api from "../../api/axios";
