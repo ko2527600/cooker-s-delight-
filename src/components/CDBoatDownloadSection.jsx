@@ -141,11 +141,11 @@ export default function CDBoatDownloadSection() {
               <div className="text-left">
                 <p className="text-[9px] opacity-75 
                   font-normal tracking-widest">
-                  OPEN IN BROWSER
+                  USE WEB APP
                 </p>
                 <p className="text-base font-bold 
                   tracking-normal normal-case">
-                  Launch CD Boat
+                  Install CD Boat
                 </p>
               </div>
             </a>
