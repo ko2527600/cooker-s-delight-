@@ -40,11 +40,11 @@ const PORT = process.env.PORT || 5000
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:4173",
+  "https://cooker-s-delight.vercel.app",
   process.env.CLIENT_URL,
-  process.env.VERCEL_URL 
-    ? `https://${process.env.VERCEL_URL}` 
-    : null,
 ].filter(Boolean)
+
+const isVercel = (url) => url && (url.endsWith(".vercel.app") || url.includes("vercel.app"))
 
 // ─── MIDDLEWARE ───
 app.use(helmet({
@@ -55,9 +55,12 @@ app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (mobile apps, curl)
     if (!origin) return callback(null, true)
-    if (allowedOrigins.includes(origin)) {
+    
+    if (allowedOrigins.includes(origin) || isVercel(origin)) {
       return callback(null, true)
     }
+    
+    console.warn(`⚠️ CORS blocked: ${origin}`)
     callback(new Error(`CORS blocked: ${origin}`))
   },
   credentials: true,
