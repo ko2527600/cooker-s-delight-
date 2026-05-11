@@ -54,28 +54,27 @@ const Dashboard = () => {
       const response = await api.get("/analytics/summary");
       const newData = response.data;
       
-      // Check for new orders during silent polling
-      if (isSilent && data && newData.totalOrders > data.totalOrders) {
-        const newCount = newData.totalOrders - data.totalOrders;
-        playNotificationSound();
-        // We use a custom event or a direct call if we had access to Toast here, 
-        // but for now we'll trigger a browser notification if permitted
-        if ("Notification" in window && Notification.permission === "granted") {
-          new Notification("New Order Received! 🥘", {
-            body: `You have ${newCount} new order(s) waiting for processing.`,
-            icon: "/favicon.ico"
-          });
+      setData(prevData => {
+        // Check for new orders during silent polling by comparing counts
+        if (isSilent && prevData && newData.totalOrders > prevData.totalOrders) {
+          const newCount = newData.totalOrders - prevData.totalOrders;
+          playNotificationSound();
+          if ("Notification" in window && Notification.permission === "granted") {
+            new Notification("New Order Received! 🥘", {
+              body: `You have ${newCount} new order(s) waiting for processing.`,
+              icon: "/favicon.ico"
+            });
+          }
         }
-      }
-      
-      setData(newData);
+        return newData;
+      });
       setError(null);
     } catch (err) {
       if (!isSilent) setError(err.response?.data?.message || "Failed to load dashboard data");
     } finally {
       if (!isSilent) setLoading(false);
     }
-  }, [data]);
+  }, []); // Removed [data] dependency to keep the function stable
 
   useEffect(() => {
     // Request notification permission on mount
@@ -84,9 +83,9 @@ const Dashboard = () => {
     }
     
     fetchSummary();
-    const interval = setInterval(() => fetchSummary(true), 30000);
+    const interval = setInterval(() => fetchSummary(true), 15000); // Poll more frequently but silently
     return () => clearInterval(interval);
-  }, [fetchSummary]);
+  }, []); // Only run once on mount
 
   if (loading) {
     return (

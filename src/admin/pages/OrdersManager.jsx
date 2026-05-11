@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+﻿import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   HiOutlinePlus, HiOutlineMagnifyingGlass, HiOutlineEye, HiOutlineTrash,
@@ -348,7 +348,7 @@ const OrdersManager = () => {
                             </div>
                          </div>
                       </td>
-                      <td className="px-8 py-5 text-sm font-bold text-brand-orange">₵{order.totalAmount}</td>
+                      <td className="px-8 py-5 text-sm font-bold text-brand-orange">â‚µ{order.totalAmount}</td>
                       <td className="px-8 py-5" onClick={e => e.stopPropagation()}>
                          <select 
                            value={order.status}
@@ -456,13 +456,13 @@ const OrdersManager = () => {
                       <tr key={i}>
                         <td className="px-6 py-4 text-white font-medium">{item.name}</td>
                         <td className="px-6 py-4 text-center text-white/60">{item.quantity}</td>
-                        <td className="px-6 py-4 text-right text-white/60">₵{item.price}</td>
-                        <td className="px-6 py-4 text-right text-brand-orange font-bold">₵{(item.price * item.quantity).toFixed(2)}</td>
+                        <td className="px-6 py-4 text-right text-white/60">â‚µ{item.price}</td>
+                        <td className="px-6 py-4 text-right text-brand-orange font-bold">â‚µ{(item.price * item.quantity).toFixed(2)}</td>
                       </tr>
                     ))}
                     <tr className="bg-white/5">
                       <td colSpan="3" className="px-6 py-4 text-right font-bold text-white/40 uppercase tracking-widest">Total Amount</td>
-                      <td className="px-6 py-4 text-right text-2xl font-display font-bold text-brand-orange">₵{selectedOrder.totalAmount}</td>
+                      <td className="px-6 py-4 text-right text-2xl font-display font-bold text-brand-orange">â‚µ{selectedOrder.totalAmount}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -519,7 +519,7 @@ const OrdersManager = () => {
                  </div>
                </div>
                <a 
-                 href={`https://wa.me/${selectedOrder.customerPhone.replace(/\D/g, '')}?text=Hello ${selectedOrder.customerName}, your Cookers Delight order is now ${selectedOrder.status}!`}
+                 href={`https://wa.me/${selectedOrder.customerPhone.replace(/\D/g, '')}?text=Hello , your Cookers Delight order is now ${selectedOrder.status}!`}
                  target="_blank"
                  rel="noopener noreferrer"
                  className="flex-[1.5] bg-[#25D366] hover:bg-[#25D366]/90 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-3 self-end"
@@ -587,7 +587,7 @@ const OrdersManager = () => {
                              ...item, 
                              menuItem: e.target.value, 
                              name: found ? found.name : "",
-                             price: found ? parseFloat(found.price.replace('₵','')) : 0 
+                             price: found ? parseFloat(found.price.replace('â‚µ','')) : 0 
                            };
                            setNewOrder({...newOrder, items: newItems});
                          }}
@@ -606,7 +606,7 @@ const OrdersManager = () => {
                        }} className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white outline-none" />
                     </div>
                     <div className="w-24 space-y-1">
-                       <label className="text-[8px] font-bold text-white/20 uppercase">Price (₵)</label>
+                       <label className="text-[8px] font-bold text-white/20 uppercase">Price (â‚µ)</label>
                        <input type="number" value={item.price} onChange={(e) => {
                          const newItems = [...newOrder.items];
                          newItems[idx].price = parseFloat(e.target.value) || 0;
@@ -630,7 +630,7 @@ const OrdersManager = () => {
              <div>
                 <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Estimated Total</p>
                 <p className="text-3xl font-display font-bold text-brand-orange">
-                  ₵{newOrder.items.reduce((sum, i) => sum + (i.price * i.quantity), 0).toFixed(2)}
+                  â‚µ{newOrder.items.reduce((sum, i) => sum + (i.price * i.quantity), 0).toFixed(2)}
                 </p>
              </div>
              <div className="flex gap-4">
