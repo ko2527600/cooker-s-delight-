@@ -444,7 +444,7 @@ const Dashboard = () => {
         >
           <h3 className="text-lg font-bold text-white mb-4">Orders by Status</h3>
           <div className="flex-1 w-full relative" style={{ minHeight: '250px' }}>
-            <ResponsiveContainer width="100%" height="100%" debounce={50}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={50}>
               <PieChart>
                 <Pie
                   data={pieData}
@@ -488,7 +488,7 @@ const Dashboard = () => {
         >
           <h3 className="text-lg font-bold text-white mb-8">Orders by Branch</h3>
           <div className="h-[250px] w-full" style={{ minHeight: '250px' }}>
-            <ResponsiveContainer width="100%" height="100%" debounce={50}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={50}>
               <RechartsBarChart data={ordersByBranch} layout="vertical">
                 <XAxis type="number" hide />
                 <YAxis 

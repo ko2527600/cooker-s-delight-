@@ -6,26 +6,25 @@ const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
-  const adminToken = localStorage.getItem("cd_admin_token")
-  const customerToken = localStorage.getItem("cd_customer_token")
+  const url = config.url || "";
   
-  // Smart Token Selection: Prevent Admin token from leaking into Portal and vice-versa
+  // Strict System Separation:
+  // 1. Customer Portal routes always contain '/customers'
+  // 2. Admin Portal routes contain '/admin', '/analytics', or just '/auth/me'
+  const isCustomerApi = url.includes('/customers');
+
   let token = null;
-  const path = window.location.pathname;
-  
-  if (path.startsWith("/admin")) {
-    token = adminToken;
-  } else if (path.startsWith("/portal") || path.startsWith("/api/customers")) {
-    token = customerToken;
+  if (isCustomerApi) {
+    token = localStorage.getItem('cd_customer_token');
   } else {
-    token = customerToken || adminToken;
+    token = localStorage.getItem('cd_admin_token');
   }
 
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  return config
-})
+  return config;
+});
 
 api.interceptors.response.use(
   (response) => response,

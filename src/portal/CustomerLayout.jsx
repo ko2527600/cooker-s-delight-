@@ -45,17 +45,25 @@ const CustomerLayout = () => {
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
 
   useEffect(() => {
+    if (!customer) return;
+
     const fetchNotifs = async () => {
       try {
         const res = await api.get('/customers/notifications');
         setRecentNotifs(res.data.slice(0, 5));
         setUnreadCount(res.data.filter(n => !n.read).length);
-      } catch (err) {}
+      } catch (err) {
+        // If we get a 401 here, it's likely the session expired
+        if (err.response?.status === 401) {
+          console.warn("Session expired, stopping background sync.");
+        }
+      }
     };
+
     fetchNotifs();
     const interval = setInterval(fetchNotifs, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [customer]);
 
   const navItems = [
     { label: "Dashboard", path: "/portal/dashboard", icon: HiOutlineHome },
