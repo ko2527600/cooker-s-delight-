@@ -57,7 +57,7 @@ const seedData = async () => {
         available: true,
         featured: false,
         description: "Rich okra soup with crab, fish, and wele",
-        image: "https://images.unsplash.com/photo-1546241072-48010ad28c2c?w=800",
+        image: "/assets/menu2.jpg",
       },
       {
         name: "Ogbono Soup",
@@ -66,7 +66,7 @@ const seedData = async () => {
         available: true,
         featured: false,
         description: "Traditional Ogbono with choice of swallow",
-        image: "https://images.unsplash.com/photo-1546241072-48010ad28c2c?w=800",
+        image: "/assets/menu2.jpg",
       },
       {
         name: "Egusi Soup",
@@ -84,7 +84,7 @@ const seedData = async () => {
         available: true,
         featured: true,
         description: "Golden flaky pastry with savory minced meat",
-        image: "https://images.unsplash.com/photo-1601050690597-df056fb352ba?w=800",
+        image: "/assets/meat pie.jpg",
       },
       {
         name: "Spicy Kelewele",
@@ -93,7 +93,7 @@ const seedData = async () => {
         available: true,
         featured: false,
         description: "Fried plantain with ginger, pepper, spices",
-        image: "https://images.unsplash.com/photo-1603131839084-2fd74ef1e47d?w=800",
+        image: "/assets/fried rice and kelewala and chicken.jpg",
       },
       {
         name: "House Pizza",

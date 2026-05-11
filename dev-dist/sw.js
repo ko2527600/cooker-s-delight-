@@ -78,14 +78,14 @@ define(['./workbox-8d0d8005'], (function (workbox) { 'use strict';
    */
   workbox.precacheAndRoute([{
     "url": "/index.html",
-    "revision": "0.ahrtl4aalpg"
+    "revision": "0.deausk69cn"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/index.html"), {
     allowlist: [/^\/$/],
-    denylist: [/^\/api/, /^\/uploads/]
+    denylist: [/^\/api/, /^\/uploads/, /\.(js|css|png|jpg|jpeg|svg|gif|webp|woff2|ico)$/]
   }));
-  workbox.registerRoute(/^http:\/\/localhost:5000\/api\/.*/i, new workbox.NetworkFirst({
+  workbox.registerRoute(/^https?:\/\/(localhost:5000|cookers-delight-api\.onrender\.com)\/api\/.*/i, new workbox.NetworkFirst({
     "cacheName": "api-cache",
     "networkTimeoutSeconds": 10,
     plugins: [new workbox.ExpirationPlugin({

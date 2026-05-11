@@ -101,54 +101,9 @@ const formatImg = (url: string, w: number = 800) => {
 
 // --- Global Components ---
 
-const CustomCursor = () => {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isHovering, setIsHovering] = useState(false);
-  const [isImageHover, setIsImageHover] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
+// --- Global Components ---
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setPosition({ x: e.clientX, y: e.clientY });
-      setIsVisible(true);
-    };
-    
-    const handleMouseOver = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      setIsHovering(target.closest('button, a, .hover-trigger') !== null);
-      setIsImageHover(target.closest('img, .gallery-item') !== null);
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseover', handleMouseOver);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseover', handleMouseOver);
-    };
-  }, []);
-
-  if (typeof window !== 'undefined' && window.innerWidth < 1024) return null;
-
-  return (
-    <motion.div
-      className="fixed top-0 left-0 pointer-events-none z-[9999] flex items-center justify-center mix-blend-difference"
-      animate={{
-        x: position.x - (isHovering ? 20 : 6),
-        y: position.y - (isHovering ? 20 : 6),
-        width: isHovering ? 40 : 12,
-        height: isHovering ? 40 : 12,
-        opacity: isVisible ? 1 : 0
-      }}
-      transition={{ type: 'spring', damping: 25, stiffness: 250, mass: 0.5 }}
-    >
-      <div className="w-full h-full bg-brand-orange rounded-full flex items-center justify-center overflow-hidden">
-        {isImageHover && !isHovering && (
-          <span className="text-[8px] font-bold text-white uppercase tracking-tighter">View</span>
-        )}
-      </div>
-    </motion.div>
-  );
-};
+const Toast = ({ toasts, removeToast }: { toasts: ToastMessage[], removeToast: (id: number) => void }) => (
 
 const Toast = ({ toasts, removeToast }: { toasts: ToastMessage[], removeToast: (id: number) => void }) => (
   <div className="fixed bottom-24 left-8 z-[200] flex flex-col gap-3 pointer-events-none">
@@ -715,7 +670,9 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
               className="space-y-12"
             >
                <div className="flex justify-center text-brand-orange mb-8">
-                  <BsQuote size={80} className="opacity-20" />
+                  <div className="opacity-20">
+                    <BsQuote size={80} />
+                  </div>
                </div>
                <h2 className="text-4xl md:text-7xl font-display italic font-light leading-tight text-white/90">
                   "Food is not just fuel, it's <span className="text-brand-orange font-normal not-italic">information</span>. It talks to your DNA and tells it what to do."
@@ -1346,7 +1303,6 @@ function PublicWebsite() {
   return (
     <div className="min-h-screen bg-brand-black text-white selection:bg-brand-orange/30">
       <PWAUpdateBanner />
-      <CustomCursor />
       <AnnouncementBar />
       
       <AnimatePresence mode="wait">

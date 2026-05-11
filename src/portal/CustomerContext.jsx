@@ -8,6 +8,12 @@ export const CustomerProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const checkSession = useCallback(async () => {
+    const token = localStorage.getItem('cd_customer_token');
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await api.get('/customers/auth/me');
       setCustomer(res.data);

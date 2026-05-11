@@ -20,12 +20,20 @@
     @apply bg-brand-black text-white font-body overflow-x-hidden;
     margin: 0;
     padding: 0;
-    cursor: none; /* Hide default cursor on desktop */
   }
-  
-  @media (max-width: 1024px) {
-    body {
-      cursor: auto;
+
+  /* Performance Optimizations for Low-End Devices */
+  .optimize-render {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 500px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
     }
   }
 
