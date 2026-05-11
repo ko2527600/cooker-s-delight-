@@ -7,7 +7,7 @@ import {
   HiArrowRight, HiOutlineUser
 } from 'react-icons/hi2';
 import { FiPhone, FiInstagram, FiFacebook, FiTarget, FiSearch } from 'react-icons/fi';
-import { BsWhatsapp, BsInstagram, BsFacebook, BsHeartFill } from 'react-icons/bs';
+import { BsWhatsapp, BsInstagram, BsFacebook, BsHeartFill, BsQuote } from 'react-icons/bs';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView, useReducedMotion } from 'motion/react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { AuthProvider } from './admin/AuthContext';
