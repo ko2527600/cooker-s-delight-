@@ -89,7 +89,8 @@ export default defineConfig(({mode}) => {
           navigateFallback: "/index.html",
           navigateFallbackDenylist: [
             /^\/api/,
-            /^\/uploads/
+            /^\/uploads/,
+            /\.(js|css|png|jpg|jpeg|svg|gif|webp|woff2|ico)$/ // Don't fallback for missing assets
           ]
         },
         
