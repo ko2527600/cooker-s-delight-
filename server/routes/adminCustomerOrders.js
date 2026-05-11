@@ -90,4 +90,23 @@ router.patch("/:id/status", async (req, res) => {
   }
 });
 
+// @route   DELETE /api/admin/customer-orders/:id
+// @desc    Delete a customer order
+router.delete("/:id", async (req, res) => {
+  try {
+    // Delete order items first due to foreign key constraints if not cascading
+    await prisma.customerOrderItem.deleteMany({
+      where: { orderId: req.params.id }
+    });
+
+    await prisma.customerOrder.delete({
+      where: { id: req.params.id }
+    });
+
+    res.json({ message: "Order deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 export default router;

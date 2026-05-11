@@ -110,12 +110,14 @@ const OrdersManager = () => {
       const response = await api.patch(endpoint, { status: newStatus });
       
       if (activeTab === 'WhatsApp') {
-        setOrders(prev => prev.map(o => o.id === id ? response.data : o));
+        setOrders(prev => prev.map(o => o.id === id ? { ...o, ...response.data } : o));
       } else {
-        setCustomerOrders(prev => prev.map(o => o.id === id ? response.data : o));
+        setCustomerOrders(prev => prev.map(o => o.id === id ? { ...o, ...response.data } : o));
       }
       
-      if (selectedOrder?.id === id) setSelectedOrder(response.data);
+      if (selectedOrder?.id === id) {
+        setSelectedOrder(prev => ({ ...prev, ...response.data }));
+      }
       showToast(`Order marked as ${newStatus}`);
     } catch (err) {
       showToast("Failed to update status", "error");
@@ -124,9 +126,17 @@ const OrdersManager = () => {
 
   const handleDelete = async () => {
     try {
-      await api.delete(`/orders/${deletingId}`);
-      setOrders(prev => prev.filter(o => o.id !== deletingId));
+      const endpoint = activeTab === 'WhatsApp' ? `/orders/${deletingId}` : `/admin/customer-orders/${deletingId}`;
+      await api.delete(endpoint);
+      
+      if (activeTab === 'WhatsApp') {
+        setOrders(prev => prev.filter(o => o.id !== deletingId));
+      } else {
+        setCustomerOrders(prev => prev.filter(o => o.id !== deletingId));
+      }
+      
       showToast("Order deleted");
+      setShowConfirm(false);
     } catch (err) {
       showToast("Delete failed", "error");
     }

@@ -568,6 +568,89 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
         </motion.div>
       </section>
 
+      {/* Featured Menu Preview */}
+      <section className="py-32 bg-brand-black">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
+            <div>
+              <span className="text-brand-orange font-bold uppercase tracking-widest text-sm mb-4 block">Chef's Selection</span>
+              <h2 className="text-6xl md:text-8xl font-bold leading-tight">Featured <br/><span className="italic font-normal">Delicacies.</span></h2>
+            </div>
+            <button onClick={() => setCurrentPage('Menu')} className="border-2 border-white/20 hover:bg-white hover:text-black px-10 py-5 rounded-full font-bold transition-all">View Full Menu</button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {MENU_DATA.slice(0, 3).map((item, i) => (
+              <motion.div 
+                key={item.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="group relative bg-white/5 rounded-[40px] overflow-hidden border border-white/5 hover:border-brand-orange/30 transition-all"
+              >
+                <div className="h-72 overflow-hidden">
+                  <img src={getImgUrl(item.image)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={item.name} />
+                </div>
+                <div className="p-10">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-2xl font-bold">{item.name}</h3>
+                    <span className="text-brand-orange font-bold text-xl">{item.price}</span>
+                  </div>
+                  <p className="text-white/40 mb-8 line-clamp-2">{item.description}</p>
+                  <button 
+                    onClick={() => { setCurrentPage('Menu'); window.scrollTo({ top: 0 }); }}
+                    className="w-full bg-white/5 group-hover:bg-brand-orange py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
+                  >
+                    Order Now <HiArrowRight />
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Reviews Preview */}
+      <section className="py-32 bg-brand-black">
+        <div className="container mx-auto px-6">
+           <div className="text-center mb-20">
+              <span className="text-brand-orange font-bold uppercase tracking-widest text-sm mb-4 block">Testimonials</span>
+              <h2 className="text-5xl md:text-7xl font-bold">What Our <span className="italic font-normal">Guests Say.</span></h2>
+           </div>
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {REVIEWS.slice(0, 3).map((rev, i) => (
+                <motion.div 
+                  key={rev.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="bg-white/5 p-12 rounded-[40px] border border-white/5 flex flex-col justify-between h-full hover:bg-white/10 transition-all"
+                >
+                   <div>
+                      <div className="flex text-brand-orange mb-8">
+                         {[...Array(5)].map((_, j) => <HiStar key={j} size={20} className={j >= rev.rating ? 'opacity-20' : ''} />)}
+                      </div>
+                      <p className="text-xl font-body italic text-white/70 leading-relaxed mb-10">"{rev.comment}"</p>
+                   </div>
+                   <div className="flex items-center gap-4 pt-8 border-t border-white/5">
+                      <div className="w-12 h-12 rounded-full bg-brand-orange text-white flex items-center justify-center font-bold">{rev.author.charAt(0)}</div>
+                      <div>
+                         <h4 className="font-bold">{rev.author}</h4>
+                         <p className="text-xs text-white/20 uppercase tracking-widest">{rev.date}</p>
+                      </div>
+                   </div>
+                </motion.div>
+              ))}
+           </div>
+           <div className="text-center mt-16">
+              <button onClick={() => setCurrentPage('Reviews')} className="text-brand-orange font-bold uppercase tracking-widest text-xs hover:underline flex items-center gap-2 mx-auto">
+                 Read All Reviews <HiArrowRight />
+              </button>
+           </div>
+        </div>
+      </section>
+
       {/* Feature Section: Why Choose Us */}
       <section className="py-32 bg-[#0a0a0a]">
          <div className="container mx-auto px-6">
@@ -616,6 +699,32 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
             <div className="flex flex-wrap justify-center gap-8 text-white/40 font-bold uppercase text-xs tracking-widest">
                {['Weddings', 'Corporate', 'Parties', 'School Events'].map(e => <span key={e}>• {e}</span>)}
             </div>
+         </div>
+      </section>
+
+      {/* Quote Banner */}
+      <section className="py-40 bg-[#0e0e0e] relative overflow-hidden flex items-center justify-center border-y border-white/5">
+         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[40vw] font-black text-white/[0.02] select-none pointer-events-none">
+            &rdquo;
+         </div>
+         <div className="container mx-auto px-6 relative z-10 text-center max-w-5xl">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="space-y-12"
+            >
+               <div className="flex justify-center text-brand-orange mb-8">
+                  <BsQuote size={80} className="opacity-20" />
+               </div>
+               <h2 className="text-4xl md:text-7xl font-display italic font-light leading-tight text-white/90">
+                  "Food is not just fuel, it's <span className="text-brand-orange font-normal not-italic">information</span>. It talks to your DNA and tells it what to do."
+               </h2>
+               <div className="flex flex-col items-center gap-4">
+                  <div className="w-16 h-1px bg-brand-orange" />
+                  <p className="uppercase tracking-[0.4em] text-xs font-bold text-white/40">The Cookers Delight Philosophy</p>
+               </div>
+            </motion.div>
          </div>
       </section>
 
@@ -749,12 +858,23 @@ const MenuPage = ({ addToast, cart, setCart }: { addToast: (m: string) => void, 
                         <span className="text-brand-orange font-bold">{item.price}</span>
                       </div>
                       <p className="text-white/40 text-xs font-body mb-6 leading-relaxed h-8 overflow-hidden">{item.description}</p>
-                      <button 
-                        onClick={() => addToCart(item)}
-                        className="w-full bg-white/5 hover:bg-brand-orange py-3 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-2"
-                      >
-                        <HiPlus /> Add to Order
-                      </button>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => addToCart(item)}
+                          className="flex-1 bg-white/5 hover:bg-brand-orange py-3 rounded-2xl text-[10px] font-bold transition-all flex items-center justify-center gap-2"
+                        >
+                          <HiPlus /> Add to Order
+                        </button>
+                        <button 
+                          onClick={() => {
+                            const msg = `Hello! I'd like to order: ${item.name} (${item.price})`;
+                            window.open(`https://wa.me/233243379412?text=${encodeURIComponent(msg)}`);
+                          }}
+                          className="px-4 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white py-3 rounded-2xl transition-all"
+                        >
+                          <BsWhatsapp size={16} />
+                        </button>
+                      </div>
                     </div>
                   </motion.div>
                 ))}
