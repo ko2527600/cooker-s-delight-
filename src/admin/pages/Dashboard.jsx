@@ -36,21 +36,53 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [chartRange, setChartRange] = useState("30D");
+  const [prevOrderCount, setPrevOrderCount] = useState(0);
+
+  const playNotificationSound = () => {
+    try {
+      const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
+      audio.volume = 0.5;
+      audio.play();
+    } catch (e) {
+      console.log("Audio playback failed", e);
+    }
+  };
 
   const fetchSummary = useCallback(async (isSilent = false) => {
     if (!isSilent) setLoading(true);
     try {
       const response = await api.get("/analytics/summary");
-      setData(response.data);
+      const newData = response.data;
+      
+      // Check for new orders during silent polling
+      if (isSilent && data && newData.totalOrders > data.totalOrders) {
+        const newCount = newData.totalOrders - data.totalOrders;
+        playNotificationSound();
+        // We use a custom event or a direct call if we had access to Toast here, 
+        // but for now we'll trigger a browser notification if permitted
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification("New Order Received! 🥘", {
+            body: `You have ${newCount} new order(s) waiting for processing.`,
+            icon: "/favicon.ico"
+          });
+        }
+      }
+      
+      setData(newData);
       setError(null);
     } catch (err) {
       if (!isSilent) setError(err.response?.data?.message || "Failed to load dashboard data");
     } finally {
       if (!isSilent) setLoading(false);
     }
-  }, []);
+  }, [data]);
 
   useEffect(() => {
+    // Request notification permission on mount
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+    
     fetchSummary();
     const interval = setInterval(() => fetchSummary(true), 30000);
     return () => clearInterval(interval);
@@ -136,6 +168,26 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-10">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-display font-black text-white tracking-tight">System Analytics</h1>
+          <p className="text-white/40 text-xs font-bold uppercase tracking-widest mt-1">Real-time performance metrics</p>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="text-right hidden sm:block">
+            <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Last Updated</p>
+            <p className="text-xs font-bold text-white/60">{new Date().toLocaleTimeString()}</p>
+          </div>
+          <button 
+            onClick={() => fetchSummary()}
+            disabled={loading}
+            className="w-12 h-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-white/40 hover:text-brand-orange hover:border-brand-orange/40 transition-all active:scale-95 disabled:opacity-50"
+          >
+            <HiOutlineArrowPath size={20} className={loading ? 'animate-spin' : ''} />
+          </button>
+        </div>
+      </div>
+
       {/* Row 1 - Stats */}
       <motion.div 
         variants={containerVariants}

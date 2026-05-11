@@ -11,28 +11,30 @@ router.get("/summary", auth, async (req, res) => {
     today.setHours(0,0,0,0);
 
     const [
-      totalOrders,
-      revAgg,
+      legacyOrdersCount,
+      legacyRevenueAgg,
+      portalOrdersCount,
+      portalRevenueAgg,
       totalMenuItems,
       totalReviews,
-      pendingOrders,
+      pendingLegacyOrders,
+      pendingPortalOrders,
       ratingsAgg,
       totalCustomers,
-      totalCustomerOrders,
-      customerRevenueAgg,
       newCustomersToday,
       recentCustomerOrdersList,
       newFeedback
     ] = await Promise.all([
       prisma.order.count(),
       prisma.order.aggregate({ _sum: { totalAmount: true } }),
+      prisma.customerOrder.count(),
+      prisma.customerOrder.aggregate({ _sum: { totalAmount: true } }),
       prisma.menuItem.count(),
       prisma.review.count(),
       prisma.order.count({ where: { status: "pending" } }),
+      prisma.customerOrder.count({ where: { status: "pending" } }),
       prisma.review.aggregate({ _avg: { rating: true } }),
       prisma.customer.count(),
-      prisma.customerOrder.count(),
-      prisma.customerOrder.aggregate({ _sum: { totalAmount: true } }),
       prisma.customer.count({ where: { createdAt: { gte: today } } }),
       prisma.customerOrder.findMany({
         orderBy: { createdAt: 'desc' },
@@ -42,36 +44,59 @@ router.get("/summary", auth, async (req, res) => {
       prisma.feedback.count({ where: { status: "new" } })
     ]);
 
-    const totalRevenue = revAgg._sum.totalAmount || 0;
+    const totalOrders = legacyOrdersCount + portalOrdersCount;
+    const totalRevenue = (legacyRevenueAgg._sum.totalAmount || 0) + (portalRevenueAgg._sum.totalAmount || 0);
+    const pendingOrders = pendingLegacyOrders + pendingPortalOrders;
     const averageRating = (ratingsAgg._avg.rating || 0).toFixed(1);
 
-    // Today's stats
-    const todayAgg = await prisma.order.aggregate({
-      where: { createdAt: { gte: today } },
-      _sum: { totalAmount: true },
-      _count: { id: true }
-    });
-    const revenueToday = todayAgg._sum.totalAmount || 0;
-    const ordersToday = todayAgg._count.id || 0;
+    // Today's combined stats
+    const [todayAggLegacy, todayAggPortal] = await Promise.all([
+      prisma.order.aggregate({
+        where: { createdAt: { gte: today } },
+        _sum: { totalAmount: true },
+        _count: { id: true }
+      }),
+      prisma.customerOrder.aggregate({
+        where: { createdAt: { gte: today } },
+        _sum: { totalAmount: true },
+        _count: { id: true }
+      })
+    ]);
+    const revenueToday = (todayAggLegacy._sum.totalAmount || 0) + (todayAggPortal._sum.totalAmount || 0);
+    const ordersToday = (todayAggLegacy._count.id || 0) + (todayAggPortal._count.id || 0);
 
-    // This Week's stats
+    // This Week's combined stats
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
-    const weekAgg = await prisma.order.aggregate({
-      where: { createdAt: { gte: weekAgo } },
-      _sum: { totalAmount: true },
-      _count: { id: true }
-    });
-    const revenueThisWeek = weekAgg._sum.totalAmount || 0;
-    const ordersThisWeek = weekAgg._count.id || 0;
+    const [weekAggLegacy, weekAggPortal] = await Promise.all([
+      prisma.order.aggregate({
+        where: { createdAt: { gte: weekAgo } },
+        _sum: { totalAmount: true },
+        _count: { id: true }
+      }),
+      prisma.customerOrder.aggregate({
+        where: { createdAt: { gte: weekAgo } },
+        _sum: { totalAmount: true },
+        _count: { id: true }
+      })
+    ]);
+    const revenueThisWeek = (weekAggLegacy._sum.totalAmount || 0) + (weekAggPortal._sum.totalAmount || 0);
+    const ordersThisWeek = (weekAggLegacy._count.id || 0) + (weekAggPortal._count.id || 0);
 
-    // Revenue By Day (Last 30 Days)
+    // Revenue By Day (Last 30 Days) - Combined
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const recentOrders = await prisma.order.findMany({
-      where: { createdAt: { gte: thirtyDaysAgo } },
-      include: { items: true }
-    });
+    const [recentOrdersLegacy, recentOrdersPortal] = await Promise.all([
+      prisma.order.findMany({
+        where: { createdAt: { gte: thirtyDaysAgo } },
+        include: { items: true }
+      }),
+      prisma.customerOrder.findMany({
+        where: { createdAt: { gte: thirtyDaysAgo } },
+        include: { items: true }
+      })
+    ]);
+    const recentOrders = [...recentOrdersLegacy, ...recentOrdersPortal];
 
     const dailyStats = {};
     recentOrders.forEach(o => {
@@ -103,18 +128,24 @@ router.get("/summary", auth, async (req, res) => {
       .slice(0, 5)
       .map(name => ({ name, count: itemCounts[name] }));
 
-    const ordersByBranch = await prisma.order.groupBy({
-      by: ['branch'],
-      _count: { id: true }
-    });
-    const branchStats = ordersByBranch.map(b => ({ branch: b.branch, count: b._count.id }));
+    // Combined Stats by Branch
+    const [branchLegacy, branchPortal] = await Promise.all([
+      prisma.order.groupBy({ by: ['branch'], _count: { id: true } }),
+      prisma.customerOrder.groupBy({ by: ['branch'], _count: { id: true } })
+    ]);
+    const branchMap = {};
+    branchLegacy.forEach(b => branchMap[b.branch] = (branchMap[b.branch] || 0) + b._count.id);
+    branchPortal.forEach(b => branchMap[b.branch] = (branchMap[b.branch] || 0) + b._count.id);
+    const branchStats = Object.keys(branchMap).map(name => ({ branch: name, count: branchMap[name] }));
 
-    const ordersByStatus = await prisma.order.groupBy({
-      by: ['status'],
-      _count: { id: true }
-    });
+    // Combined Stats by Status
+    const [statusLegacy, statusPortal] = await Promise.all([
+      prisma.order.groupBy({ by: ['status'], _count: { id: true } }),
+      prisma.customerOrder.groupBy({ by: ['status'], _count: { id: true } })
+    ]);
     const statusMap = {};
-    ordersByStatus.forEach(s => statusMap[s.status] = s._count.id);
+    statusLegacy.forEach(s => statusMap[s.status] = (statusMap[s.status] || 0) + s._count.id);
+    statusPortal.forEach(s => statusMap[s.status] = (statusMap[s.status] || 0) + s._count.id);
 
     const recentOrdersList = await prisma.order.findMany({
       orderBy: { createdAt: 'desc' },
@@ -139,8 +170,6 @@ router.get("/summary", auth, async (req, res) => {
       ordersByStatus: statusMap,
       recentOrders: recentOrdersList,
       totalCustomers,
-      totalCustomerOrders,
-      totalCustomerRevenue: customerRevenueAgg._sum.totalAmount || 0,
       newCustomersToday,
       recentCustomerOrders: recentCustomerOrdersList,
       newFeedback
