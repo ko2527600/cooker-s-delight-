@@ -66,7 +66,7 @@ const MenuManager = () => {
       const item = items.find(i => i.id === id);
       const endpoint = field === 'available' ? 'toggle' : 'feature';
       const response = await api.patch(`/menu/${id}/${endpoint}`);
-      setItems(prev => prev.map(i => i.id === id ? response.data : i));
+      setItems(prev => prev.map(i => i.id === id ? { ...i, ...response.data } : i));
       showToast(`${field.charAt(0).toUpperCase() + field.slice(1)} updated`);
     } catch (err) {
       showToast("Update failed", "error");

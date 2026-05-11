@@ -55,7 +55,7 @@ const ReviewsManager = () => {
     try {
       const endpoint = field === 'approved' ? 'approve' : 'feature';
       const response = await api.patch(`/reviews/${id}/${endpoint}`);
-      setReviews(prev => prev.map(r => r.id === id ? response.data : r));
+      setReviews(prev => prev.map(r => r.id === id ? { ...r, ...response.data } : r));
       showToast(`Review ${field} status updated`);
     } catch (err) {
       showToast("Toggle failed", "error");

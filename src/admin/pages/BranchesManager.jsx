@@ -41,7 +41,7 @@ const BranchesManager = () => {
   const handleToggle = async (id) => {
     try {
       const response = await api.patch(`/branches/${id}/toggle`);
-      setBranches(prev => prev.map(b => b.id === id ? response.data : b));
+      setBranches(prev => prev.map(b => b.id === id ? { ...b, ...response.data } : b));
       showToast(`Branch ${response.data.isOpen ? 'Opened' : 'Closed'}`);
     } catch (err) {
       showToast("Toggle failed", "error");
