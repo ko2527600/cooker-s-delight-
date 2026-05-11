@@ -147,11 +147,46 @@ router.get("/summary", auth, async (req, res) => {
     statusLegacy.forEach(s => statusMap[s.status] = (statusMap[s.status] || 0) + s._count.id);
     statusPortal.forEach(s => statusMap[s.status] = (statusMap[s.status] || 0) + s._count.id);
 
-    const recentOrdersList = await prisma.order.findMany({
-      orderBy: { createdAt: 'desc' },
-      include: { items: true },
-      take: 5
-    });
+    // Unified Recent Orders Feed (Last 10 from both sources)
+    const [recentLegacy, recentPortal] = await Promise.all([
+      prisma.order.findMany({
+        orderBy: { createdAt: 'desc' },
+        include: { items: true },
+        take: 10
+      }),
+      prisma.customerOrder.findMany({
+        orderBy: { createdAt: 'desc' },
+        include: { items: true, customer: { select: { name: true } } },
+        take: 10
+      })
+    ]);
+
+    // Normalize structures so the frontend can render them consistently
+    const normalizedLegacy = recentLegacy.map(o => ({
+      id: o.id,
+      customerName: o.customerName,
+      branch: o.branch,
+      totalAmount: o.totalAmount,
+      status: o.status,
+      createdAt: o.createdAt,
+      items: o.items.map(it => ({ name: it.name, quantity: it.quantity })),
+      source: 'WhatsApp'
+    }));
+
+    const normalizedPortal = recentPortal.map(o => ({
+      id: o.id,
+      customerName: o.customer?.name || "Portal Customer",
+      branch: o.branch || "Portal",
+      totalAmount: o.totalAmount,
+      status: o.status,
+      createdAt: o.createdAt,
+      items: o.items.map(it => ({ name: it.name, quantity: it.quantity })),
+      source: 'Portal'
+    }));
+
+    const combinedRecentOrders = [...normalizedLegacy, ...normalizedPortal]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 10);
 
     res.json({
       totalOrders,
@@ -168,12 +203,12 @@ router.get("/summary", auth, async (req, res) => {
       topItems,
       ordersByBranch: branchStats,
       ordersByStatus: statusMap,
-      recentOrders: recentOrdersList,
+      recentOrders: combinedRecentOrders,
       totalCustomers,
       newCustomersToday,
       totalCustomerOrders: portalOrdersCount,
       totalCustomerRevenue: portalRevenueAgg._sum.totalAmount || 0,
-      recentCustomerOrders: recentCustomerOrdersList,
+      recentCustomerOrders: combinedRecentOrders.filter(o => o.source === 'Portal'),
       newFeedback
     });
   } catch (err) {

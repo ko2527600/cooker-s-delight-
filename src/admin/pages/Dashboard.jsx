@@ -361,12 +361,22 @@ const Dashboard = () => {
                   recentOrders.map((order) => (
                     <tr key={order.id} className="hover:bg-white/[0.02] transition-colors group">
                       <td className="px-8 py-5">
-                        <p className="text-sm font-bold text-white">{order.customerName}</p>
-                        <p className="text-[10px] text-white/40">{order.branch}</p>
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <p className="text-sm font-bold text-white">{order.customerName}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${order.source === 'Portal' ? 'bg-blue-500/20 text-blue-400' : 'bg-green-500/20 text-green-400'}`}>
+                                {order.source}
+                              </span>
+                              <span className="text-[10px] text-white/20">•</span>
+                              <p className="text-[10px] text-white/40">{order.branch}</p>
+                            </div>
+                          </div>
+                        </div>
                       </td>
                       <td className="px-8 py-5 text-xs text-white/60 font-medium">
                         {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
-                        <span className="block text-[10px] text-white/20 truncate max-w-[120px]">{order.items[0]?.menuItem}...</span>
+                        <span className="block text-[10px] text-white/20 truncate max-w-[120px]">{order.items[0]?.name}...</span>
                       </td>
                       <td className="px-8 py-5 text-sm font-bold text-brand-orange">
                         ₵{order.totalAmount}

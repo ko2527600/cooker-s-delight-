@@ -52,7 +52,7 @@ const OrdersManager = () => {
   });
   const [saving, setSaving] = useState(false);
 
-  const fetchOrders = useCallback(async () => {
+  const fetchAllOrders = useCallback(async () => {
     setLoading(true);
     try {
       const params = {};
@@ -61,28 +61,31 @@ const OrdersManager = () => {
       if (dateFrom) params.startDate = dateFrom;
       if (dateTo) params.endDate = dateTo;
 
-      const response = await api.get("/orders", { params });
-      setOrders(response.data);
+      const [legacyRes, portalRes] = await Promise.all([
+        api.get("/orders", { params }),
+        api.get("/admin/customer-orders", { params })
+      ]);
+
+      const normalizedLegacy = legacyRes.data.map(o => ({
+        ...o,
+        sourceType: 'WhatsApp',
+        customerDisplayName: o.customerName
+      }));
+
+      const normalizedPortal = portalRes.data.map(o => ({
+        ...o,
+        sourceType: 'Portal',
+        customerDisplayName: o.customer?.name || "Portal User",
+        customerPhone: o.customer?.phone || "N/A"
+      }));
+
+      const combined = [...normalizedLegacy, ...normalizedPortal].sort((a, b) => 
+        new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      setAllOrders(combined);
     } catch (err) {
       showToast("Failed to fetch orders", "error");
-    } finally {
-      setLoading(false);
-    }
-  }, [statusFilter, branchFilter, dateFrom, dateTo, showToast]);
-
-  const fetchCustomerOrders = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = {};
-      if (statusFilter !== 'All') params.status = statusFilter;
-      if (branchFilter !== 'All') params.branch = branchFilter;
-      if (dateFrom) params.startDate = dateFrom;
-      if (dateTo) params.endDate = dateTo;
-
-      const response = await api.get("/admin/customer-orders", { params });
-      setCustomerOrders(response.data);
-    } catch (err) {
-      showToast("Failed to fetch portal orders", "error");
     } finally {
       setLoading(false);
     }
@@ -96,49 +99,35 @@ const OrdersManager = () => {
   }, []);
 
   useEffect(() => {
-    if (activeTab === 'WhatsApp') fetchOrders();
-    else fetchCustomerOrders();
-  }, [activeTab, fetchOrders, fetchCustomerOrders]);
-
-  useEffect(() => {
+    fetchAllOrders();
     fetchMenu();
-  }, [fetchMenu]);
+  }, [fetchAllOrders, fetchMenu]);
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      const endpoint = activeTab === 'WhatsApp' ? `/orders/${id}/status` : `/admin/customer-orders/${id}/status`;
+      const order = allOrders.find(o => o.id === id);
+      const endpoint = order.sourceType === 'WhatsApp' ? `/orders/${id}/status` : `/admin/customer-orders/${id}/status`;
       const response = await api.patch(endpoint, { status: newStatus });
       
-      if (activeTab === 'WhatsApp') {
-        setOrders(prev => prev.map(o => o.id === id ? { ...o, ...response.data } : o));
-      } else {
-        setCustomerOrders(prev => prev.map(o => o.id === id ? { ...o, ...response.data } : o));
-      }
-      
-      if (selectedOrder?.id === id) {
-        setSelectedOrder(prev => ({ ...prev, ...response.data }));
-      }
+      setAllOrders(prev => prev.map(o => o.id === id ? { ...o, ...response.data } : o));
       showToast(`Order marked as ${newStatus}`);
     } catch (err) {
-      showToast("Failed to update status", "error");
+      showToast("Status update failed", "error");
     }
   };
 
   const handleDelete = async () => {
     try {
-      const endpoint = activeTab === 'WhatsApp' ? `/orders/${deletingId}` : `/admin/customer-orders/${deletingId}`;
+      const order = allOrders.find(o => o.id === deletingId);
+      const endpoint = order.sourceType === 'WhatsApp' ? `/orders/${deletingId}` : `/admin/customer-orders/${deletingId}`;
       await api.delete(endpoint);
       
-      if (activeTab === 'WhatsApp') {
-        setOrders(prev => prev.filter(o => o.id !== deletingId));
-      } else {
-        setCustomerOrders(prev => prev.filter(o => o.id !== deletingId));
-      }
-      
+      setAllOrders(prev => prev.filter(o => o.id !== deletingId));
       showToast("Order deleted");
-      setShowConfirm(false);
     } catch (err) {
       showToast("Delete failed", "error");
+    } finally {
+      setShowConfirm(false);
     }
   };
 
@@ -153,14 +142,15 @@ const OrdersManager = () => {
       const payload = {
         ...newOrder,
         items: newOrder.items.map(i => ({
-          menuItem: i.name, // The backend expects item name or ID? Looking at seed, it uses names.
+          menuItemId: i.menuItem,
+          name: i.name,
           quantity: i.quantity,
           price: i.price
         }))
       };
       await api.post("/orders", payload);
       showToast("Order created successfully");
-      fetchOrders();
+      fetchAllOrders();
       setShowAddModal(false);
     } catch (err) {
       showToast("Failed to create order", "error");
@@ -170,15 +160,16 @@ const OrdersManager = () => {
   };
 
   const exportCSV = () => {
-    const headers = ["Order ID", "Date", "Customer", "Phone", "Branch", "Status", "Total", "Items"];
+    const headers = ["Order ID", "Date", "Customer", "Phone", "Branch", "Status", "Total", "Source", "Items"];
     const rows = filteredOrders.map(o => [
       o.id,
       new Date(o.createdAt).toLocaleString(),
-      o.customerName,
+      o.customerDisplayName,
       o.customerPhone,
       o.branch,
       o.status,
       o.totalAmount,
+      o.sourceType,
       o.items.map(i => `${i.quantity}x ${i.name}`).join('; ')
     ]);
 
@@ -187,7 +178,7 @@ const OrdersManager = () => {
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
-    link.setAttribute("download", `orders_${new Date().toLocaleDateString()}.csv`);
+    link.setAttribute("download", `all_orders_${new Date().toLocaleDateString()}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -195,20 +186,20 @@ const OrdersManager = () => {
   };
 
   const filteredOrders = useMemo(() => {
-    const list = activeTab === 'WhatsApp' ? orders : customerOrders;
-    return list.filter(o => {
-      const name = activeTab === 'WhatsApp' ? o.customerName : (o.customer?.name || '');
-      const phone = activeTab === 'WhatsApp' ? o.customerPhone : (o.customer?.phone || '');
-      return name.toLowerCase().includes(search.toLowerCase()) || phone.includes(search);
+    return allOrders.filter(o => {
+      const name = o.customerDisplayName || '';
+      const phone = o.customerPhone || '';
+      const idMatch = o.id.toLowerCase().includes(search.toLowerCase()) || 
+                      (o.orderNumber && o.orderNumber.toLowerCase().includes(search.toLowerCase()));
+      return name.toLowerCase().includes(search.toLowerCase()) || phone.includes(search) || idMatch;
     });
-  }, [orders, customerOrders, search, activeTab]);
+  }, [allOrders, search]);
 
   const stats = useMemo(() => {
-    const list = activeTab === 'WhatsApp' ? orders : customerOrders;
     const s = { pending: 0, confirmed: 0, preparing: 0, delivered: 0, cancelled: 0 };
-    list.forEach(o => { if (s[o.status] !== undefined) s[o.status]++; });
+    allOrders.forEach(o => { if (s[o.status] !== undefined) s[o.status]++; });
     return s;
-  }, [orders, customerOrders, activeTab]);
+  }, [allOrders]);
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -236,31 +227,16 @@ const OrdersManager = () => {
       {/* Top Bar */}
       <div className="flex flex-col gap-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div className="flex items-center gap-4">
-            <h1 className="text-3xl font-display font-bold text-white">Orders</h1>
-            <div className="flex bg-white/5 border border-white/10 rounded-xl p-1">
-              <button 
-                onClick={() => setActiveTab('WhatsApp')}
-                className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'WhatsApp' ? 'bg-[#EC4824] text-white shadow-lg' : 'text-white/40 hover:text-white'}`}
-              >
-                WhatsApp
-              </button>
-              <button 
-                onClick={() => setActiveTab('Portal')}
-                className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'Portal' ? 'bg-[#EC4824] text-white shadow-lg' : 'text-white/40 hover:text-white'}`}
-              >
-                Portal
-              </button>
-            </div>
+          <div>
+            <h1 className="text-3xl font-display font-bold text-white">Consolidated Orders</h1>
+            <p className="text-white/40 text-xs font-bold uppercase tracking-widest mt-1">WhatsApp & Portal activity combined</p>
           </div>
-          {activeTab === 'WhatsApp' && (
-            <button 
-              onClick={() => setShowAddModal(true)}
-              className="bg-[#EC4824] hover:bg-[#EC4824]/90 text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all transform active:scale-95"
-            >
-              <HiOutlinePlus size={18} /> Add Order
-            </button>
-          )}
+          <button 
+            onClick={() => setShowAddModal(true)}
+            className="bg-[#EC4824] hover:bg-[#EC4824]/90 text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all transform active:scale-95"
+          >
+            <HiOutlinePlus size={18} /> New Manual Order
+          </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
@@ -332,128 +308,120 @@ const OrdersManager = () => {
       <div className="bg-[#1a1a1a] border border-white/5 rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead>
-              <tr className="bg-white/5 text-left text-white/20 text-[10px] font-bold uppercase tracking-widest border-b border-white/5">
-                <th className="px-8 py-4 w-12">#</th>
-                <th className="px-8 py-4">Customer</th>
-                <th className="px-8 py-4">Branch</th>
-                <th className="px-8 py-4">Items Summary</th>
-                <th className="px-8 py-4">Total</th>
-                <th className="px-8 py-4">Status</th>
-                <th className="px-8 py-4">Date</th>
-                <th className="px-8 py-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {loading ? (
-                <tr><td colSpan="8" className="p-20"><Skeleton count={5} height="40px" /></td></tr>
-              ) : filteredOrders.length === 0 ? (
-                <tr>
-                  <td colSpan="8" className="p-20 text-center text-white/20">
-                    <div className="flex justify-center mb-4"><HiOutlineShoppingBag size={64} /></div>
-                    <p className="font-bold">No orders yet</p>
-                  </td>
+              <thead>
+                <tr className="bg-white/5 text-left text-white/20 text-[10px] font-bold uppercase tracking-widest">
+                  <th className="px-8 py-4">Order Info</th>
+                  <th className="px-8 py-4">Customer</th>
+                  <th className="px-8 py-4">Branch/Source</th>
+                  <th className="px-8 py-4">Total</th>
+                  <th className="px-8 py-4">Status</th>
+                  <th className="px-8 py-4 text-right">Actions</th>
                 </tr>
-              ) : (
-                filteredOrders.map((order, idx) => (
-                  <tr key={order.id} className="hover:bg-white/[0.02] transition-colors group cursor-pointer" onClick={() => { setSelectedOrder(order); setShowDetail(true); }}>
-                    <td className="px-8 py-5 text-xs text-white/20 font-bold">
-                      {activeTab === 'WhatsApp' ? (idx + 1) : order.orderNumber.split('-').pop()}
-                    </td>
-                    <td className="px-8 py-5">
-                      <div className="flex items-center gap-2">
-                        {activeTab === 'WhatsApp' ? getSourceIcon(order.source) : <HiOutlineGlobeAlt className="text-orange-400" />}
-                        <p className="text-sm font-bold text-white">
-                          {activeTab === 'WhatsApp' ? order.customerName : order.customer?.name}
-                        </p>
-                      </div>
-                      <p className="text-[10px] text-white/40">
-                        {activeTab === 'WhatsApp' ? order.customerPhone : order.customer?.phone}
-                      </p>
-                    </td>
-                    <td className="px-8 py-5 text-xs text-white/60">
-                      {activeTab === 'WhatsApp' ? order.branch : (order.branch || 'Delivery')}
-                      {activeTab === 'Portal' && (
-                        <div className={`mt-1 text-[10px] uppercase font-bold ${order.type === 'delivery' ? 'text-blue-400' : 'text-orange-400'}`}>
-                          {order.type}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-8 py-5 text-[10px] text-white/40 font-medium max-w-[200px] truncate">
-                      {order.items.length} {order.items.length === 1 ? 'item' : 'items'} — {order.items.map(i => i.name).join(', ')}
-                    </td>
-                    <td className="px-8 py-5 text-sm font-bold text-brand-orange">₵{order.totalAmount}</td>
-                    <td className="px-8 py-5" onClick={e => e.stopPropagation()}>
-                       <select 
-                         value={order.status}
-                         onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                         className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase outline-none cursor-pointer ${getStatusStyle(order.status)}`}
-                       >
-                         {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
-                       </select>
-                    </td>
-                    <td className="px-8 py-5 text-[10px] text-white/40 font-bold uppercase tracking-widest whitespace-nowrap">
-                      {new Date(order.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}, {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </td>
-                    <td className="px-8 py-5 text-right" onClick={e => e.stopPropagation()}>
-                      <div className="flex justify-end gap-2">
-                        <button onClick={() => { setSelectedOrder(order); setShowDetail(true); }} className="p-2 rounded-lg hover:bg-white/5 text-white/20 hover:text-white transition-all"><HiOutlineEye size={18} /></button>
-                        <button onClick={() => { setDeletingId(order.id); setShowConfirm(true); }} className="p-2 rounded-lg hover:bg-red-500/10 text-white/20 hover:text-red-500 transition-all"><HiOutlineTrash size={18} /></button>
-                      </div>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {loading ? (
+                  <tr><td colSpan="6" className="p-20"><Skeleton count={5} height="40px" /></td></tr>
+                ) : filteredOrders.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="p-20 text-center text-white/20">
+                      <div className="flex justify-center mb-4"><HiOutlineShoppingBag size={64} /></div>
+                      <p className="font-bold">No orders found matching your filters.</p>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  filteredOrders.map((order) => (
+                    <tr key={order.id} className="hover:bg-white/[0.01] transition-all group cursor-pointer" onClick={() => { setSelectedOrder(order); setShowDetail(true); }}>
+                      <td className="px-8 py-5">
+                        <p className="text-sm font-bold text-white mb-1">#{order.orderNumber || order.id.slice(-6).toUpperCase()}</p>
+                        <p className="text-[10px] text-white/20 font-bold">{new Date(order.createdAt).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
+                      </td>
+                      <td className="px-8 py-5">
+                        <p className="text-sm font-bold text-white">{order.customerDisplayName}</p>
+                        <p className="text-[10px] text-white/40">{order.customerPhone}</p>
+                      </td>
+                      <td className="px-8 py-5">
+                         <div className="flex flex-col gap-1.5">
+                            <span className="text-[10px] font-bold text-white/60">{order.branch || 'General'}</span>
+                            <div className="flex items-center gap-1.5">
+                               <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded ${order.sourceType === 'Portal' ? 'bg-blue-500/20 text-blue-400' : 'bg-green-500/20 text-green-400'}`}>
+                                  {order.sourceType}
+                               </span>
+                               {getSourceIcon(order.source)}
+                            </div>
+                         </div>
+                      </td>
+                      <td className="px-8 py-5 text-sm font-bold text-brand-orange">₵{order.totalAmount}</td>
+                      <td className="px-8 py-5" onClick={e => e.stopPropagation()}>
+                         <select 
+                           value={order.status}
+                           onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                           className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase outline-none cursor-pointer ${getStatusStyle(order.status)}`}
+                         >
+                           {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                         </select>
+                      </td>
+                      <td className="px-8 py-5 text-right" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-end gap-2">
+                          <button onClick={() => { setSelectedOrder(order); setShowDetail(true); }} className="p-2 rounded-lg hover:bg-white/5 text-white/20 hover:text-white transition-all"><HiOutlineEye size={18} /></button>
+                          <button onClick={() => { setDeletingId(order.id); setShowConfirm(true); }} className="p-2 rounded-lg hover:bg-red-500/10 text-white/20 hover:text-red-500 transition-all"><HiOutlineTrash size={18} /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      {/* Order Detail Modal */}
-      <Modal isOpen={showDetail} onClose={() => setShowDetail(false)} title={`Order #${selectedOrder?.id?.slice(-6).toUpperCase()}`} size="lg">
-        {selectedOrder && (
-          <div className="space-y-8">
-            <div className="flex justify-between items-start">
-               <div>
-                 <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">Placed On</p>
-                 <p className="text-white font-medium">{new Date(selectedOrder.createdAt).toLocaleString()}</p>
-               </div>
-               <div className="text-right">
-                  <span className={`px-4 py-2 rounded-full text-xs font-bold uppercase ${getStatusStyle(selectedOrder.status)}`}>
-                    {selectedOrder.status}
-                  </span>
-               </div>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-8 p-6 bg-white/5 rounded-2xl border border-white/5">
-              <div>
-                <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">Customer</p>
-                <p className="text-white font-bold">{activeTab === 'WhatsApp' ? selectedOrder.customerName : selectedOrder.customer?.name}</p>
+        {/* Order Detail Modal */}
+        <Modal isOpen={showDetail} onClose={() => setShowDetail(false)} title={`Order #${selectedOrder?.orderNumber || selectedOrder?.id?.slice(-6).toUpperCase()}`} size="lg">
+          {selectedOrder && (
+            <div className="space-y-8">
+              <div className="flex justify-between items-start">
+                 <div>
+                   <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">Placed On</p>
+                   <p className="text-white font-medium">{new Date(selectedOrder.createdAt).toLocaleString()}</p>
+                 </div>
+                 <div className="text-right">
+                    <span className={`px-4 py-2 rounded-full text-xs font-bold uppercase ${getStatusStyle(selectedOrder.status)}`}>
+                      {selectedOrder.status}
+                    </span>
+                 </div>
               </div>
-              <div>
-                <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">Phone</p>
-                <p className="text-white font-bold">{activeTab === 'WhatsApp' ? selectedOrder.customerPhone : selectedOrder.customer?.phone}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">Address</p>
-                <p className="text-white font-bold">{activeTab === 'WhatsApp' ? (selectedOrder.customerAddress || 'N/A') : (selectedOrder.deliveryAddress || 'Pickup')}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">Branch</p>
-                <p className="text-white font-bold">{selectedOrder.branch || 'N/A'}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">Source / Type</p>
-                <div className="flex items-center gap-2 text-white font-bold">
-                  {activeTab === 'WhatsApp' ? getSourceIcon(selectedOrder.source) : <HiOutlineGlobeAlt className="text-orange-400" />}
-                  <span className="capitalize">{activeTab === 'WhatsApp' ? selectedOrder.source : selectedOrder.type}</span>
+  
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-8 p-6 bg-white/5 rounded-2xl border border-white/5">
+                <div>
+                  <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">Customer</p>
+                  <p className="text-white font-bold">{selectedOrder.customerDisplayName}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">Phone</p>
+                  <p className="text-white font-bold">{selectedOrder.customerPhone}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">Address</p>
+                  <p className="text-white font-bold">{selectedOrder.customerAddress || selectedOrder.deliveryAddress || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">Branch</p>
+                  <p className="text-white font-bold">{selectedOrder.branch || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">Source / Type</p>
+                  <div className="flex items-center gap-2 text-white font-bold">
+                    <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${selectedOrder.sourceType === 'Portal' ? 'bg-blue-500/20 text-blue-400' : 'bg-green-500/20 text-green-400'}`}>
+                      {selectedOrder.sourceType}
+                    </span>
+                    {getSourceIcon(selectedOrder.source)}
+                    <span className="capitalize">{selectedOrder.source || selectedOrder.type}</span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">Note</p>
+                  <p className="text-white text-xs italic">"{selectedOrder.note || 'No special instructions'}"</p>
                 </div>
               </div>
-              <div>
-                <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">Note</p>
-                <p className="text-white text-xs italic">"{selectedOrder.note || 'No special instructions'}"</p>
-              </div>
-            </div>
 
             {selectedOrder.latitude && selectedOrder.longitude && (
               <div>
