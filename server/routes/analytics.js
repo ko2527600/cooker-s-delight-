@@ -171,6 +171,8 @@ router.get("/summary", auth, async (req, res) => {
       recentOrders: recentOrdersList,
       totalCustomers,
       newCustomersToday,
+      totalCustomerOrders: portalOrdersCount,
+      totalCustomerRevenue: portalRevenueAgg._sum.totalAmount || 0,
       recentCustomerOrders: recentCustomerOrdersList,
       newFeedback
     });

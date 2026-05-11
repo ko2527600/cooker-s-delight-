@@ -4,7 +4,8 @@ import {
   HiOutlineChatBubbleLeftRight, HiOutlineStar, HiStar, 
   HiOutlineAdjustmentsHorizontal, HiOutlineMagnifyingGlass,
   HiOutlineEye, HiOutlineCheckCircle, HiOutlineClock,
-  HiOutlineExclamationCircle, HiOutlineXMark, HiOutlineChevronRight
+  HiOutlineExclamationCircle, HiOutlineXMark, HiOutlineChevronRight,
+  HiOutlinePhoto
 } from 'react-icons/hi2';
 import { toast } from 'react-hot-toast';
 import api from '../../api/axios';

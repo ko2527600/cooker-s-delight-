@@ -8,7 +8,19 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const adminToken = localStorage.getItem("cd_admin_token")
   const customerToken = localStorage.getItem("cd_customer_token")
-  const token = adminToken || customerToken
+  
+  // Smart Token Selection: Prevent Admin token from leaking into Portal and vice-versa
+  let token = null;
+  const path = window.location.pathname;
+  
+  if (path.startsWith("/admin")) {
+    token = adminToken;
+  } else if (path.startsWith("/portal") || path.startsWith("/api/customers")) {
+    token = customerToken;
+  } else {
+    token = customerToken || adminToken;
+  }
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
