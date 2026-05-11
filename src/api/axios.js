@@ -33,10 +33,11 @@ api.interceptors.response.use(
     const isMeCheck = error.config.url.includes('/auth/me');
     const isLoginCheck = error.config.url.includes('/login') || error.config.url.includes('/google');
 
-    if (error.response?.status === 401 && !isMeCheck && !isLoginCheck) {
-      const hasToken = localStorage.getItem("cd_admin_token") || localStorage.getItem("cd_customer_token");
-      
-      if (hasToken) {
+    if (error.response?.status === 401) {
+      if (isLoginCheck) return Promise.reject(error);
+
+      // Only clear tokens if the primary session verification fails
+      if (isMeCheck) {
         localStorage.removeItem("cd_admin_token");
         localStorage.removeItem("cd_admin_user");
         localStorage.removeItem("cd_customer_token");
