@@ -19,9 +19,7 @@ const SOURCES = ['whatsapp', 'phone', 'walk-in', 'website'];
 
 const OrdersManager = () => {
   const { showToast } = useToast();
-  const [activeTab, setActiveTab] = useState('WhatsApp');
-  const [orders, setOrders] = useState([]);
-  const [customerOrders, setCustomerOrders] = useState([]);
+  const [allOrders, setAllOrders] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   
