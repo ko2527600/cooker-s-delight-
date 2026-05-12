@@ -12,15 +12,12 @@
 }
 
 @layer base {
-  html, body {
-    cursor: auto !important;
+  /* Step 1: Enforce default system cursor fallback globally */
+  * {
+    cursor: default !important;
   }
 
-  /* Global cursor fix to prevent disappearing on monitors/laptops */
-  *, *::before, *::after {
-    cursor: auto;
-  }
-
+  /* Ensure interactive elements still have the pointer cursor */
   a, button, [role="button"], input, label, select, textarea, .cursor-pointer, [onclick] {
     cursor: pointer !important;
   }
