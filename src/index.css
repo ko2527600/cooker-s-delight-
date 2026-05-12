@@ -12,14 +12,37 @@
 }
 
 @layer base {
-  html {
-    scroll-behavior: smooth;
+  html, body {
+    cursor: auto !important;
   }
-  
+
+  /* Global cursor fix to prevent disappearing on monitors/laptops */
+  *, *::before, *::after {
+    cursor: auto;
+  }
+
+  a, button, [role="button"], input, label, select, textarea, .cursor-pointer, [onclick] {
+    cursor: pointer !important;
+  }
+
+  .cursor-grab { cursor: grab !important; }
+  .cursor-grabbing { cursor: grabbing !important; }
+  .cursor-not-allowed { cursor: not-allowed !important; }
+
   body {
     @apply bg-brand-black text-white font-body overflow-x-hidden;
     margin: 0;
     padding: 0;
+  }
+
+  /* Global Dropdown Fix: Ensure text is visible and background is dark */
+  select, option {
+    background-color: #111111 !important;
+    color: white !important;
+  }
+  
+  select {
+    cursor: pointer !important;
   }
 
   /* Performance Optimizations for Low-End Devices */

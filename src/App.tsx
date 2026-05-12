@@ -101,10 +101,6 @@ const formatImg = (url: string, w: number = 800) => {
 
 // --- Global Components ---
 
-// --- Global Components ---
-
-const Toast = ({ toasts, removeToast }: { toasts: ToastMessage[], removeToast: (id: number) => void }) => (
-
 const Toast = ({ toasts, removeToast }: { toasts: ToastMessage[], removeToast: (id: number) => void }) => (
   <div className="fixed bottom-24 left-8 z-[200] flex flex-col gap-3 pointer-events-none">
     <AnimatePresence>
@@ -584,7 +580,7 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
                 >
                    <div>
                       <div className="flex text-brand-orange mb-8">
-                         {[...Array(5)].map((_, j) => <HiStar key={j} size={20} className={j >= rev.rating ? 'opacity-20' : ''} />)}
+                         {[...Array(5)].map((_, j) => <span key={j}><HiStar size={20} className={j >= rev.rating ? 'opacity-20' : ''} /></span>)}
                       </div>
                       <p className="text-xl font-body italic text-white/70 leading-relaxed mb-10">"{rev.comment}"</p>
                    </div>

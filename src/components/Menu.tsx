@@ -5,7 +5,7 @@
 
 import { motion } from 'motion/react';
 import { useState } from 'react';
-import { MENU_ITEMS } from '../constants';
+import { MENU_DATA } from '../constants';
 import { HiOutlineShoppingBag, HiPlus } from 'react-icons/hi2';
 
 export function Menu() {
@@ -13,8 +13,8 @@ export function Menu() {
   const [activeTab, setActiveTab] = useState('All');
 
   const filteredItems = activeTab === 'All' 
-    ? MENU_ITEMS 
-    : MENU_ITEMS.filter(item => item.category === activeTab);
+    ? MENU_DATA 
+    : MENU_DATA.filter(item => item.category === activeTab);
 
   return (
     <section id="menu" className="py-24 bg-[#111111] immersive-gradient relative border-y border-white/5">
