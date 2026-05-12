@@ -1,14 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  HiOutlineShoppingBag, HiPlus, HiMinus, HiTrash, HiXMark,
+  HiOutlineShoppingBag, HiPlus, HiMinus, HiTrash, HiXMark, HiClock,
 } from 'react-icons/hi2';
 import { FiSearch } from 'react-icons/fi';
 import { BsWhatsapp } from 'react-icons/bs';
 import PageWrapper from '../components/PageWrapper';
 import { useApi } from '../hooks/useApi';
-import { menuApi } from '../lib/api';
-import { getImgUrl } from '../utils/image.js';
+import { menuApi, prepTimeApi } from '../lib/api';
+import { getImgUrl } from '../utils/image';
 import { usePageContext } from './PublicLayout';
 import type { TIMenuItem } from '../types';
 
@@ -16,6 +16,7 @@ interface CartItem {
   menu_id: number;
   menu_name: string;
   menu_price: number;
+  prep_time_minutes: number;
   thumb?: string;
   quantity: number;
 }
@@ -25,15 +26,25 @@ const CATEGORIES = ['All', 'Ghanaian', 'Nigerian', 'Snacks', 'Sides', 'Fast Food
 export default function MenuPage() {
   const { addToast } = usePageContext();
   const { data: items, loading, error, refetch } = useApi<TIMenuItem[]>(() => menuApi.getItems());
+  const { data: prepTimes } = useApi<Record<string, number>>(() => prepTimeApi.getAll());
 
   const [activeCategory, setActiveCategory] = useState('All');
   const [search, setSearch]                 = useState('');
   const [isCartOpen, setIsCartOpen]         = useState(false);
   const [cart, setCart]                     = useState<CartItem[]>([]);
 
-  const filteredItems = useMemo(() => {
+  // Merge prep times into items
+  const enrichedItems = useMemo<TIMenuItem[]>(() => {
     if (!items) return [];
-    return items.filter(item => {
+    if (!prepTimes) return items;
+    return items.map(item => ({
+      ...item,
+      prep_time_minutes: prepTimes[String(item.menu_id)] ?? item.prep_time_minutes ?? 15,
+    }));
+  }, [items, prepTimes]);
+
+  const filteredItems = useMemo(() => {
+    return enrichedItems.filter(item => {
       const cat = item.categories?.[0]?.name ?? '';
       const matchCat = activeCategory === 'All' || cat === activeCategory;
       const matchSearch =
@@ -41,13 +52,21 @@ export default function MenuPage() {
         (item.menu_description ?? '').toLowerCase().includes(search.toLowerCase());
       return matchCat && matchSearch;
     });
-  }, [items, activeCategory, search]);
+  }, [enrichedItems, activeCategory, search]);
 
   const addToCart = (item: TIMenuItem) => {
+    const prepTime = item.prep_time_minutes ?? 15;
     setCart(prev => {
       const existing = prev.find(i => i.menu_id === item.menu_id);
       if (existing) return prev.map(i => i.menu_id === item.menu_id ? { ...i, quantity: i.quantity + 1 } : i);
-      return [...prev, { menu_id: item.menu_id, menu_name: item.menu_name, menu_price: item.menu_price, thumb: item.thumb, quantity: 1 }];
+      return [...prev, {
+        menu_id: item.menu_id,
+        menu_name: item.menu_name,
+        menu_price: item.menu_price,
+        prep_time_minutes: prepTime,
+        thumb: item.thumb,
+        quantity: 1,
+      }];
     });
     addToast(`Added ${item.menu_name} ✓`);
   };
@@ -62,8 +81,13 @@ export default function MenuPage() {
 
   const total = cart.reduce((acc, i) => acc + i.menu_price * i.quantity, 0);
 
+  // Dishes cook in parallel — estimated wait = max prep time + 5 min buffer
+  const estimatedWait = cart.length > 0
+    ? Math.max(...cart.map(i => i.prep_time_minutes)) + 5
+    : 0;
+
   const sendWhatsApp = () => {
-    const msg = `Hello Cookers Delight! I'd like to order:\n${cart.map(i => `- ${i.quantity}x ${i.menu_name} (₵${i.menu_price.toFixed(2)})`).join('\n')}\n\nTotal: ₵${total.toFixed(2)}\nPlease confirm.`;
+    const msg = `Hello Cookers Delight! I'd like to order:\n${cart.map(i => `- ${i.quantity}x ${i.menu_name} (₵${i.menu_price.toFixed(2)})`).join('\n')}\n\nTotal: ₵${total.toFixed(2)}\nEstimated wait: ~${estimatedWait} min\nPlease confirm.`;
     window.open(`https://wa.me/233243379412?text=${encodeURIComponent(msg)}`);
   };
 
@@ -106,7 +130,7 @@ export default function MenuPage() {
           {/* Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {loading ? (
-              Array(8).fill(0).map((_, i) => <div key={i} className="bg-white/5 rounded-[32px] h-[350px] animate-pulse" />)
+              Array(8).fill(0).map((_, i) => <div key={i} className="bg-white/5 rounded-[32px] h-[380px] animate-pulse" />)
             ) : error ? (
               <div className="col-span-full py-20 text-center space-y-4">
                 <p className="text-white/40">Failed to load menu</p>
@@ -130,6 +154,13 @@ export default function MenuPage() {
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                         alt={item.menu_name}
                       />
+                      {/* Prep time badge */}
+                      {item.prep_time_minutes && (
+                        <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+                          <HiClock size={10} />
+                          ~{item.prep_time_minutes} min
+                        </div>
+                      )}
                     </div>
                     <div className="p-8">
                       <div className="flex justify-between items-start mb-2">
@@ -183,6 +214,7 @@ export default function MenuPage() {
                 <h2 className="text-3xl font-display font-bold">Your Order</h2>
                 <button onClick={() => setIsCartOpen(false)} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center"><HiXMark size={24} /></button>
               </div>
+
               <div className="flex-1 overflow-y-auto no-scrollbar space-y-6">
                 {cart.length === 0 ? (
                   <div className="text-center py-20 opacity-20">
@@ -195,6 +227,9 @@ export default function MenuPage() {
                       <div className="flex-1">
                         <h4 className="font-bold mb-1">{item.menu_name}</h4>
                         <p className="text-brand-orange font-bold">₵{item.menu_price.toFixed(2)}</p>
+                        <p className="text-white/30 text-[10px] flex items-center gap-1 mt-0.5">
+                          <HiClock size={10} /> ~{item.prep_time_minutes} min
+                        </p>
                       </div>
                       <div className="flex items-center gap-3 bg-black/40 rounded-xl p-1">
                         <button onClick={() => updateQty(item.menu_id, -1)} className="w-8 h-8 flex items-center justify-center hover:bg-white/5 rounded-lg"><HiMinus /></button>
@@ -206,8 +241,19 @@ export default function MenuPage() {
                   ))
                 )}
               </div>
-              <div className="mt-8 pt-8 border-t border-white/5">
-                <div className="flex justify-between items-center mb-8">
+
+              <div className="mt-8 pt-8 border-t border-white/5 space-y-4">
+                {/* Estimated wait */}
+                {cart.length > 0 && (
+                  <div className="flex items-center justify-between bg-white/5 rounded-xl px-5 py-3">
+                    <span className="flex items-center gap-2 text-white/40 text-xs font-bold uppercase tracking-widest">
+                      <HiClock size={14} /> Estimated Wait
+                    </span>
+                    <span className="text-brand-orange font-bold">~{estimatedWait} min</span>
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center">
                   <span className="text-white/40 font-bold uppercase text-xs">Total Amount</span>
                   <span className="text-3xl font-display font-bold text-brand-orange">₵{total.toFixed(2)}</span>
                 </div>

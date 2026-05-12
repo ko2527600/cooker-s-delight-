@@ -49,6 +49,16 @@ export const reservationApi = {
     api.get<ApiResponse<string[]>>('/reservations/timeslots', { params }),
 };
 
+// ─── Prep times ───────────────────────────────────────────────────────────────
+
+export const prepTimeApi = {
+  // Returns { data: { [menu_id]: prep_time_minutes } }
+  getAll: () =>
+    api.get<{ data: Record<string, number> }>('/cd/prep-times', {
+      baseURL: import.meta.env.VITE_TI_BASE_URL ?? import.meta.env.VITE_TI_API_URL?.replace('/api', ''),
+    }),
+};
+
 // ─── Announcements ────────────────────────────────────────────────────────────
 
 export const announcementApi = {

@@ -128,13 +128,21 @@ class TastyIgniterOrderService
         $tableNum   = $session['table_number'];
 
         $payload = [
-            'location_id'     => $locationId,
-            'order_type'      => 'dine-in',
-            'first_name'      => $customerName,
-            'email'           => $customerEmail,
-            'comment'         => "Table {$tableNum}",
-            'payment'         => 'paystack',
-            'menu_items'      => $this->buildOrderItems($cart),
+            'location_id'  => $locationId,
+            'order_type'   => 'dine-in',
+            'first_name'   => $customerName,
+            'email'        => $customerEmail,
+            // comment appears in TI admin order list and confirmation emails
+            'comment'      => "Table {$tableNum} — {$session['location_name']}",
+            'payment'      => 'paystack',
+            'menu_items'   => $this->buildOrderItems($cart),
+            // order_options is a JSON field TI stores alongside the order;
+            // our admin Tables Dashboard reads table_number from here.
+            'order_options' => json_encode([
+                'table_number'   => $tableNum,
+                'location_name'  => $session['location_name'],
+                'session_token'  => $tableToken,
+            ]),
         ];
 
         $response = $this->http->post('/orders', $payload);
@@ -170,6 +178,26 @@ class TastyIgniterOrderService
                 'menu_option_value_id' => $opt['value_id'],
             ])->all(),
         ])->all();
+    }
+
+    // -------------------------------------------------------------------------
+    // Prep times
+    // -------------------------------------------------------------------------
+
+    /**
+     * Fetch prep times for all menu items, keyed by menu_id.
+     * Returns: [menu_id => prep_time_minutes, ...]
+     */
+    public function fetchPrepTimes(): array
+    {
+        $response = Http::baseUrl(config('app.backend_url'))
+            ->get('/api/cd/prep-times');
+
+        if ($response->failed()) {
+            return [];
+        }
+
+        return $response->json('data', []);
     }
 
     // -------------------------------------------------------------------------

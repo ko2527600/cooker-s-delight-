@@ -19,12 +19,29 @@
             <p class="text-gray-400 text-sm">Live status updates — no refresh needed</p>
         </div>
 
+        <!-- Table info banner -->
+        @if(session('cd_table_number'))
+        <div class="bg-gray-900 rounded-xl px-6 py-3 flex items-center justify-between text-sm">
+            <span class="text-gray-400">Table</span>
+            <span class="font-black text-2xl" style="color:var(--brand-orange)">{{ session('cd_table_number') }}</span>
+            <span class="text-gray-400 text-xs">{{ session('cd_location_name') }}</span>
+        </div>
+        @endif
+
         <!-- Status display -->
         <div id="status-card" class="bg-gray-900 rounded-2xl p-8 space-y-4 shadow-xl">
             <div id="status-dot" class="status-dot mx-auto animate-pulse bg-yellow-500"></div>
             <p id="status-text" class="text-2xl font-bold">Pending</p>
             <p id="status-sub" class="text-gray-400 text-sm">Waiting for payment confirmation…</p>
         </div>
+
+        <!-- Estimated wait time (shown while Preparing) -->
+        @if(!empty($estimatedWaitMinutes))
+        <div id="wait-banner" class="bg-gray-900 rounded-xl px-6 py-3 text-sm text-center">
+            <span class="text-gray-400">Estimated wait</span>
+            <span class="font-bold ml-2" style="color:var(--brand-orange)">~{{ $estimatedWaitMinutes }} min</span>
+        </div>
+        @endif
 
         <!-- Steps -->
         <div class="grid grid-cols-4 gap-1 text-xs text-gray-500">

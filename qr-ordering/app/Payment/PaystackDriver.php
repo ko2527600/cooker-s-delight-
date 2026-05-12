@@ -52,7 +52,17 @@ class PaystackDriver implements PaymentDriver
         $reference = 'CD-' . $orderId . '-' . time();
         $amount    = $this->cartTotal($cart) * 100; // pesewa
 
-        session(['pending_order_id' => $orderId, 'paystack_reference' => $reference]);
+        // Compute estimated wait: max prep time across cart items + 5 min kitchen buffer.
+        // Dishes are cooked in parallel so we use max, not sum.
+        $prepTimes = $this->ti->fetchPrepTimes();
+        $maxPrepTime = collect($cart)->map(fn ($item) => $prepTimes[$item['id']] ?? 15)->max();
+        $estimatedWait = ($maxPrepTime ?? 15) + 5;
+
+        session([
+            'pending_order_id'          => $orderId,
+            'paystack_reference'        => $reference,
+            'cd_estimated_wait_minutes' => $estimatedWait,
+        ]);
 
         $response = Http::withToken(config('services.paystack.secret_key'))
             ->post('https://api.paystack.co/transaction/initialize', [

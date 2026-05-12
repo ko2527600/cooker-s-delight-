@@ -34,6 +34,7 @@ export interface TIMenuItem {
   menu_description: string;
   menu_price: number;
   menu_status: boolean;
+  prep_time_minutes?: number;
   thumb?: string;
   categories?: TICategory[];
   menu_options?: TIMenuOption[];
