@@ -2,8 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   HiOutlineShoppingBag, HiPlus, HiMinus, HiTrash, HiXMark, HiClock,
+  HiMagnifyingGlass, HiStar, HiArrowRight,
 } from 'react-icons/hi2';
-import { FiSearch } from 'react-icons/fi';
 import { BsWhatsapp } from 'react-icons/bs';
 import PageWrapper from '../components/PageWrapper';
 import { useApi } from '../hooks/useApi';
@@ -23,6 +23,17 @@ interface CartItem {
 
 const CATEGORIES = ['All', 'Ghanaian', 'Nigerian', 'Snacks', 'Sides', 'Fast Food', 'Continental'];
 
+function StarRating({ rating }: { rating: number }) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <HiStar key={i} size={12} className={i < Math.round(rating) ? 'text-[#F59E0B]' : 'text-[#D6D3D1]'} />
+      ))}
+      <span className="ml-1 text-[10px] font-bold text-[#78716C]">{rating.toFixed(1)}</span>
+    </div>
+  );
+}
+
 export default function MenuPage() {
   const { addToast } = usePageContext();
   const { data: items, loading, error, refetch } = useApi<TIMenuItem[]>(() => menuApi.getItems());
@@ -33,7 +44,6 @@ export default function MenuPage() {
   const [isCartOpen, setIsCartOpen]         = useState(false);
   const [cart, setCart]                     = useState<CartItem[]>([]);
 
-  // Merge prep times into items
   const enrichedItems = useMemo<TIMenuItem[]>(() => {
     if (!items) return [];
     if (!prepTimes) return items;
@@ -80,8 +90,6 @@ export default function MenuPage() {
   };
 
   const total = cart.reduce((acc, i) => acc + i.menu_price * i.quantity, 0);
-
-  // Dishes cook in parallel — estimated wait = max prep time + 5 min buffer
   const estimatedWait = cart.length > 0
     ? Math.max(...cart.map(i => i.prep_time_minutes)) + 5
     : 0;
@@ -91,180 +99,320 @@ export default function MenuPage() {
     window.open(`https://wa.me/233243379412?text=${encodeURIComponent(msg)}`);
   };
 
+  const totalQty = cart.reduce((acc, i) => acc + i.quantity, 0);
+
   return (
     <PageWrapper>
-      {/* Hero */}
-      <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
-        <img src={getImgUrl('/assets/flyer2.jpg')} className="absolute inset-0 w-full h-full object-cover opacity-50" alt="" />
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-black to-transparent" />
-        <h1 className="relative z-10 text-7xl md:text-9xl font-bold">Our <span className="italic font-normal text-brand-orange">Menu</span></h1>
-      </section>
-
-      <section className="py-20 bg-brand-black">
-        <div className="container mx-auto px-6">
-          {/* Filters */}
-          <div className="flex flex-col lg:flex-row justify-between items-center gap-8 mb-16">
-            <div className="flex flex-wrap justify-center gap-2">
-              {CATEGORIES.map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all ${activeCategory === cat ? 'bg-brand-orange text-white' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-            <div className="relative w-full lg:w-96">
-              <span className="absolute left-5 top-1/2 -translate-y-1/2 text-white/40"><FiSearch /></span>
-              <input
-                type="text"
-                placeholder="Search dishes..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-full pl-12 pr-6 py-3.5 focus:border-brand-orange outline-none"
-              />
-            </div>
-          </div>
-
-          {/* Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {loading ? (
-              Array(8).fill(0).map((_, i) => <div key={i} className="bg-white/5 rounded-[32px] h-[380px] animate-pulse" />)
-            ) : error ? (
-              <div className="col-span-full py-20 text-center space-y-4">
-                <p className="text-white/40">Failed to load menu</p>
-                <button onClick={refetch} className="text-brand-orange font-bold underline">Try Again</button>
-              </div>
-            ) : (
-              <AnimatePresence mode="popLayout">
-                {filteredItems.map((item, idx) => (
-                  <motion.div
-                    layout
-                    key={item.menu_id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ delay: idx * 0.05 }}
-                    className="bg-white/5 rounded-[32px] overflow-hidden group hover:border-brand-orange/30 border border-transparent transition-all"
-                  >
-                    <div className="h-48 relative overflow-hidden">
-                      <img
-                        src={getImgUrl(item.thumb ?? '/assets/jollof.jpg')}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        alt={item.menu_name}
-                      />
-                      {/* Prep time badge */}
-                      {item.prep_time_minutes && (
-                        <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
-                          <HiClock size={10} />
-                          ~{item.prep_time_minutes} min
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-8">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-display text-xl font-bold">{item.menu_name}</h3>
-                        <span className="text-brand-orange font-bold">₵{item.menu_price.toFixed(2)}</span>
-                      </div>
-                      <p className="text-white/40 text-xs font-body mb-6 leading-relaxed h-8 overflow-hidden">{item.menu_description}</p>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => addToCart(item)}
-                          className="flex-1 bg-white/5 hover:bg-brand-orange py-3 rounded-2xl text-[10px] font-bold transition-all flex items-center justify-center gap-2"
-                        >
-                          <HiPlus /> Add to Order
-                        </button>
-                        <button
-                          onClick={() => window.open(`https://wa.me/233243379412?text=${encodeURIComponent(`Hello! I'd like to order: ${item.menu_name} (₵${item.menu_price.toFixed(2)})`)}`)}
-                          className="px-4 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white py-3 rounded-2xl transition-all"
-                        >
-                          <BsWhatsapp size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            )}
-          </div>
+      {/* ── Page hero ─────────────────────────────────────────────────────── */}
+      <section className="pt-28 pb-12 bg-[#F5EFE8]">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+          <span className="text-[#1B5E20] text-[11px] font-bold uppercase tracking-[0.25em] block mb-3">
+            Our Menu
+          </span>
+          <h1 className="font-display text-5xl md:text-7xl font-bold text-[#1C1917]">
+            Our Taste-Bud <span className="text-[#1B5E20] italic font-normal">Heaven</span>
+          </h1>
+          <p className="text-[#78716C] text-lg mt-4 max-w-xl">
+            Explore our full menu of authentic West African dishes. Every bite tells a story.
+          </p>
         </div>
       </section>
 
-      {/* Floating cart button */}
-      <button
-        onClick={() => setIsCartOpen(true)}
-        className="fixed bottom-32 right-8 lg:top-32 lg:bottom-auto lg:right-10 z-[60] w-16 h-16 bg-brand-orange rounded-full flex items-center justify-center text-white shadow-2xl shadow-brand-orange/40 active:scale-95 transition-transform"
-      >
-        <HiOutlineShoppingBag size={28} />
-        {cart.length > 0 && (
-          <span className="absolute -top-1 -right-1 bg-white text-brand-orange w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2 border-brand-orange">
-            {cart.reduce((a, b) => a + b.quantity, 0)}
-          </span>
-        )}
-      </button>
+      {/* ── Sticky bar: search + cart ─────────────────────────────────────── */}
+      <div className="sticky top-[60px] z-40 bg-white/95 backdrop-blur-md border-b border-[#E8E0D8] shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-3 flex items-center gap-4">
+          {/* Search */}
+          <div className="relative flex-1 max-w-sm">
+            <HiMagnifyingGlass size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#78716C]" />
+            <input
+              type="text"
+              placeholder="Search dishes…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-[#F5EFE8] rounded-full text-sm text-[#1C1917] placeholder:text-[#A8A29E] border border-[#E8E0D8] focus:outline-none focus:border-[#1B5E20] transition-colors"
+            />
+          </div>
 
-      {/* Cart drawer */}
+          {/* Category pills — scroll on mobile */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar flex-1">
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
+                  activeCategory === cat
+                    ? 'bg-[#1B5E20] text-white shadow-sm'
+                    : 'bg-[#F5EFE8] text-[#78716C] hover:bg-[#DCFCE7] hover:text-[#14532D]'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Cart button */}
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="relative flex-shrink-0 bg-[#1B5E20] text-white rounded-full px-5 py-2.5 flex items-center gap-2 font-bold text-sm hover:bg-[#2D6A4F] transition-all"
+          >
+            <HiOutlineShoppingBag size={18} />
+            <span className="hidden sm:block">Cart</span>
+            {totalQty > 0 && (
+              <span className="absolute -top-2 -right-2 w-5 h-5 bg-[#F59E0B] text-[#1C1917] rounded-full text-[10px] font-black flex items-center justify-center">
+                {totalQty}
+              </span>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* ── Menu grid ─────────────────────────────────────────────────────── */}
+      <section className="py-12 bg-[#FFFBF7]">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+          {loading && (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="warm-card h-80 animate-pulse">
+                  <div className="h-44 bg-[#F5EFE8] rounded-t-[1.25rem]" />
+                  <div className="p-4 space-y-2">
+                    <div className="h-3 bg-[#F5EFE8] rounded-full w-1/2" />
+                    <div className="h-4 bg-[#F5EFE8] rounded-full w-3/4" />
+                    <div className="h-3 bg-[#F5EFE8] rounded-full w-full" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {error && !loading && (
+            <div className="text-center py-20">
+              <p className="text-[#78716C] mb-4">Failed to load menu. Please try again.</p>
+              <button onClick={refetch} className="warm-btn-primary text-sm px-6 py-3">
+                Retry
+              </button>
+            </div>
+          )}
+
+          {!loading && !error && (
+            <motion.div layout className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <AnimatePresence>
+                {filteredItems.map((item, idx) => {
+                  const inCart = cart.find(c => c.menu_id === item.menu_id);
+                  const categoryName = item.categories?.[0]?.name ?? 'Ghanaian';
+                  const rating = 4.3 + (item.menu_id % 5) * 0.1;
+
+                  return (
+                    <motion.div
+                      layout
+                      key={item.menu_id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ delay: (idx % 8) * 0.04 }}
+                      className="warm-card group overflow-hidden flex flex-col"
+                    >
+                      {/* Image */}
+                      <div className="relative h-44 overflow-hidden rounded-t-[1.25rem]">
+                        <img
+                          src={item.thumb ?? getImgUrl('/assets/jollof.jpg')}
+                          alt={item.menu_name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                        {/* Category pill */}
+                        <span className="absolute top-3 left-3 warm-pill">{categoryName}</span>
+                        {/* Prep time badge */}
+                        {item.prep_time_minutes && (
+                          <span className="absolute bottom-3 right-3 bg-white/90 text-[#1C1917] text-[9px] font-black px-2 py-1 rounded-full flex items-center gap-1">
+                            <HiClock size={10} /> {item.prep_time_minutes}min
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Body */}
+                      <div className="p-4 flex flex-col gap-2 flex-1">
+                        <StarRating rating={rating} />
+                        <h3 className="font-display font-bold text-[#1C1917] text-base leading-tight">
+                          {item.menu_name}
+                        </h3>
+                        {item.menu_description && (
+                          <p className="text-[11px] text-[#78716C] line-clamp-2 flex-1 leading-relaxed">
+                            {item.menu_description}
+                          </p>
+                        )}
+
+                        {/* Price + add-to-cart */}
+                        <div className="flex items-center justify-between mt-2 pt-3 border-t border-[#F5EFE8]">
+                          <span className="warm-price">GH₵{Number(item.menu_price).toFixed(2)}</span>
+                          {inCart ? (
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                onClick={() => updateQty(item.menu_id, -1)}
+                                className="w-7 h-7 rounded-full border border-[#E8E0D8] flex items-center justify-center text-[#1C1917] hover:bg-[#F5EFE8] transition"
+                              >
+                                <HiMinus size={12} />
+                              </button>
+                              <span className="text-sm font-bold text-[#1C1917] min-w-[1.25rem] text-center">
+                                {inCart.quantity}
+                              </span>
+                              <button
+                                onClick={() => addToCart(item)}
+                                className="w-7 h-7 rounded-full bg-[#1B5E20] text-white flex items-center justify-center hover:bg-[#2D6A4F] transition"
+                              >
+                                <HiPlus size={12} />
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => addToCart(item)}
+                              className="flex items-center gap-1.5 bg-[#1B5E20] text-white text-[11px] font-bold px-4 py-2 rounded-full hover:bg-[#2D6A4F] transition-all"
+                            >
+                              <HiPlus size={12} /> Add
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+
+              {filteredItems.length === 0 && (
+                <div className="col-span-full text-center py-20 text-[#78716C]">
+                  <p className="text-4xl mb-4">🍽</p>
+                  <p className="font-bold text-lg text-[#1C1917]">No dishes found</p>
+                  <p className="text-sm mt-1">Try a different category or search term.</p>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </div>
+      </section>
+
+      {/* ── Cart drawer ──────────────────────────────────────────────────────────── */}
       <AnimatePresence>
         {isCartOpen && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsCartOpen(false)} className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200]" />
-            <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} className="fixed top-0 right-0 h-full w-full lg:w-[450px] bg-brand-black z-[201] p-10 flex flex-col border-l border-white/10 shadow-[-20px_0_50px_rgba(0,0,0,0.5)]">
-              <div className="flex justify-between items-center mb-10">
-                <h2 className="text-3xl font-display font-bold">Your Order</h2>
-                <button onClick={() => setIsCartOpen(false)} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center"><HiXMark size={24} /></button>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsCartOpen(false)}
+              className="fixed inset-0 bg-black/30 z-[70] backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="fixed right-0 top-0 h-full w-full max-w-md bg-white z-[80] shadow-2xl flex flex-col"
+            >
+              {/* Drawer header */}
+              <div className="flex items-center justify-between px-6 py-5 border-b border-[#E8E0D8]">
+                <h2 className="font-display text-2xl font-bold text-[#1C1917]">
+                  Your Order
+                  {totalQty > 0 && (
+                    <span className="ml-2 text-sm font-body font-normal text-[#78716C]">({totalQty} items)</span>
+                  )}
+                </h2>
+                <button
+                  onClick={() => setIsCartOpen(false)}
+                  className="p-2 rounded-full hover:bg-[#F5EFE8] text-[#78716C] transition-colors"
+                >
+                  <HiXMark size={22} />
+                </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto no-scrollbar space-y-6">
+              {/* Items */}
+              <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
                 {cart.length === 0 ? (
-                  <div className="text-center py-20 opacity-20">
-                    <HiOutlineShoppingBag size={80} className="mx-auto mb-6" />
-                    <p className="font-bold">Your cart is empty</p>
+                  <div className="flex flex-col items-center justify-center h-full text-[#78716C] py-20">
+                    <HiOutlineShoppingBag size={48} className="mb-4 text-[#D6D3D1]" />
+                    <p className="font-bold text-[#1C1917]">Your cart is empty</p>
+                    <p className="text-sm mt-1">Add items from the menu to get started.</p>
+                    <button
+                      onClick={() => setIsCartOpen(false)}
+                      className="mt-6 warm-btn-outline text-sm px-6 py-2.5"
+                    >
+                      Browse Menu <HiArrowRight size={14} />
+                    </button>
                   </div>
                 ) : (
-                  cart.map(item => (
-                    <div key={item.menu_id} className="flex gap-4 bg-white/5 p-4 rounded-2xl items-center">
-                      <div className="flex-1">
-                        <h4 className="font-bold mb-1">{item.menu_name}</h4>
-                        <p className="text-brand-orange font-bold">₵{item.menu_price.toFixed(2)}</p>
-                        <p className="text-white/30 text-[10px] flex items-center gap-1 mt-0.5">
-                          <HiClock size={10} /> ~{item.prep_time_minutes} min
+                  cart.map(cartItem => (
+                    <div
+                      key={cartItem.menu_id}
+                      className="flex items-center gap-4 p-3 rounded-2xl border border-[#E8E0D8] bg-[#FFFBF7]"
+                    >
+                      <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-[#F5EFE8]">
+                        <img
+                          src={cartItem.thumb ?? getImgUrl('/assets/jollof.jpg')}
+                          className="w-full h-full object-cover"
+                          alt={cartItem.menu_name}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-sm text-[#1C1917] leading-tight truncate">{cartItem.menu_name}</p>
+                        <div className="flex items-center gap-1.5 text-[10px] text-[#78716C] mt-0.5">
+                          <HiClock size={11} /> ~{cartItem.prep_time_minutes}min
+                        </div>
+                        <p className="text-[#1B5E20] font-black text-sm mt-1">
+                          GH₵{(cartItem.menu_price * cartItem.quantity).toFixed(2)}
                         </p>
                       </div>
-                      <div className="flex items-center gap-3 bg-black/40 rounded-xl p-1">
-                        <button onClick={() => updateQty(item.menu_id, -1)} className="w-8 h-8 flex items-center justify-center hover:bg-white/5 rounded-lg"><HiMinus /></button>
-                        <span className="font-bold w-4 text-center">{item.quantity}</span>
-                        <button onClick={() => updateQty(item.menu_id, 1)} className="w-8 h-8 flex items-center justify-center hover:bg-white/5 rounded-lg"><HiPlus /></button>
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => updateQty(cartItem.menu_id, -1)}
+                            className="w-7 h-7 rounded-full border border-[#E8E0D8] flex items-center justify-center hover:bg-[#F5EFE8] transition"
+                          >
+                            <HiMinus size={12} />
+                          </button>
+                          <span className="text-sm font-bold w-5 text-center">{cartItem.quantity}</span>
+                          <button
+                            onClick={() => updateQty(cartItem.menu_id, 1)}
+                            className="w-7 h-7 rounded-full bg-[#1B5E20] text-white flex items-center justify-center hover:bg-[#2D6A4F] transition"
+                          >
+                            <HiPlus size={12} />
+                          </button>
+                        </div>
+                        <button
+                          onClick={() => removeFromCart(cartItem.menu_id)}
+                          className="text-[#EF4444] hover:text-[#DC2626] transition"
+                        >
+                          <HiTrash size={14} />
+                        </button>
                       </div>
-                      <button onClick={() => removeFromCart(item.menu_id)} className="text-white/20 hover:text-red-500 transition-colors"><HiTrash size={20} /></button>
                     </div>
                   ))
                 )}
               </div>
 
-              <div className="mt-8 pt-8 border-t border-white/5 space-y-4">
-                {/* Estimated wait */}
-                {cart.length > 0 && (
-                  <div className="flex items-center justify-between bg-white/5 rounded-xl px-5 py-3">
-                    <span className="flex items-center gap-2 text-white/40 text-xs font-bold uppercase tracking-widest">
-                      <HiClock size={14} /> Estimated Wait
-                    </span>
-                    <span className="text-brand-orange font-bold">~{estimatedWait} min</span>
+              {/* Footer */}
+              {cart.length > 0 && (
+                <div className="px-6 py-6 border-t border-[#E8E0D8] space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-xs text-[#78716C] font-bold uppercase tracking-wider">Total</p>
+                      <p className="text-2xl font-display font-black text-[#1C1917]">GH₵{total.toFixed(2)}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-[#78716C] font-bold uppercase tracking-wider">Est. Wait</p>
+                      <p className="text-lg font-bold text-[#1B5E20] flex items-center gap-1">
+                        <HiClock size={16} /> ~{estimatedWait}min
+                      </p>
+                    </div>
                   </div>
-                )}
-
-                <div className="flex justify-between items-center">
-                  <span className="text-white/40 font-bold uppercase text-xs">Total Amount</span>
-                  <span className="text-3xl font-display font-bold text-brand-orange">₵{total.toFixed(2)}</span>
+                  <button
+                    onClick={sendWhatsApp}
+                    className="w-full bg-[#25D366] hover:bg-[#1DAA55] text-white font-bold py-4 rounded-full flex items-center justify-center gap-2 transition-all"
+                  >
+                    <BsWhatsapp size={20} /> Order via WhatsApp
+                  </button>
+                  <p className="text-center text-[10px] text-[#A8A29E]">
+                    You'll be redirected to WhatsApp to confirm your order with our team.
+                  </p>
                 </div>
-                <button
-                  disabled={cart.length === 0}
-                  onClick={sendWhatsApp}
-                  className="w-full bg-brand-orange text-white py-5 rounded-2xl font-bold text-lg disabled:opacity-20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
-                >
-                  <BsWhatsapp size={24} /> Send via WhatsApp
-                </button>
-              </div>
+              )}
             </motion.div>
           </>
         )}
