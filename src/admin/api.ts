@@ -3,9 +3,10 @@
  * Token is read from localStorage on every request so it stays fresh
  * across tab reloads without needing a React provider.
  */
-import axios, { type AxiosInstance } from 'axios';
+import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 
 const TOKEN_KEY = 'cd_admin_token';
+const USER_KEY  = 'cd_admin_user';
 
 function createAdminApi(): AxiosInstance {
   const instance = axios.create({
@@ -14,11 +15,30 @@ function createAdminApi(): AxiosInstance {
     timeout: 15_000,
   });
 
-  instance.interceptors.request.use(config => {
+  // Attach Bearer token from localStorage on every outgoing request.
+  instance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem(TOKEN_KEY);
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   });
+
+  // SECURITY: If the server returns 401, the stored token has been revoked or
+  // has expired. Clear all admin credentials immediately so the user is
+  // redirected to the login page rather than continuing with a stale token.
+  instance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error?.response?.status === 401) {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(USER_KEY);
+        // Redirect to login — works in both hash and history routers.
+        if (typeof window !== 'undefined') {
+          window.location.replace('/admin/login');
+        }
+      }
+      return Promise.reject(error);
+    }
+  );
 
   return instance;
 }

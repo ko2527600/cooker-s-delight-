@@ -50,7 +50,7 @@ export default function PublicLayout() {
 
   return (
     <PageContext.Provider value={{ navigate, addToast }}>
-      <div className="min-h-screen bg-brand-black text-white selection:bg-brand-orange/30">
+      <div className="min-h-screen bg-[#FFFBF7] text-[#1C1917] selection:bg-[#DCFCE7]">
         <PWAUpdateBanner />
         <AnnouncementBar />
 
@@ -59,27 +59,36 @@ export default function PublicLayout() {
             <motion.div
               key="loader"
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[1000] bg-brand-black flex flex-col items-center justify-center p-10"
+              className="fixed inset-0 z-[1000] bg-[#FFFBF7] flex flex-col items-center justify-center p-10"
             >
-              <motion.h1
-                initial={{ scale: 0.8, opacity: 0 }}
+              {/* Decorative blobs */}
+              <div className="absolute top-16 left-16 w-72 h-72 rounded-full bg-[#DCFCE7] opacity-60 blur-3xl pointer-events-none" />
+              <div className="absolute bottom-16 right-16 w-56 h-56 rounded-full bg-[#FEF3C7] opacity-50 blur-3xl pointer-events-none" />
+
+              <motion.div
+                initial={{ scale: 0.85, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="text-5xl md:text-8xl font-bold mb-12"
+                className="relative text-center"
               >
-                Cookers <span className="text-brand-orange">Delight</span>
-              </motion.h1>
-              <div className="w-full max-w-md h-1 bg-white/5 rounded-full overflow-hidden">
+                <span className="text-4xl md:text-7xl font-display font-bold text-[#1C1917]">
+                  Cookers<span className="text-[#1B5E20]">Delight</span>
+                </span>
+                <p className="text-[#78716C] text-xs font-bold uppercase tracking-[0.25em] mt-3">
+                  Ghana's Favourite Restaurant
+                </p>
+              </motion.div>
+
+              <div className="w-full max-w-xs h-1 bg-[#E8E0D8] rounded-full overflow-hidden mt-10">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: '100%' }}
-                  transition={{ duration: 1.8 }}
-                  className="h-full bg-brand-orange"
+                  transition={{ duration: 1.6 }}
+                  className="h-full bg-[#1B5E20] rounded-full"
                 />
               </div>
             </motion.div>
           ) : (
             <div key="main" className="relative">
-              <div className="grain-overlay" />
               <Navbar />
               <Outlet />
               <Footer />
@@ -93,9 +102,9 @@ export default function PublicLayout() {
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0, opacity: 0 }}
                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                      className="w-16 h-16 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full flex items-center justify-center text-white hover:bg-brand-orange transition-all"
+                      className="w-14 h-14 bg-white border border-[#E8E0D8] shadow-lg rounded-full flex items-center justify-center text-[#1B5E20] hover:bg-[#1B5E20] hover:text-white transition-all"
                     >
-                      <HiArrowUp size={24} />
+                      <HiArrowUp size={22} />
                     </motion.button>
                   )}
                 </AnimatePresence>
@@ -103,9 +112,9 @@ export default function PublicLayout() {
                   href="https://wa.me/233243379412"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-16 h-16 bg-[#25D366] rounded-full flex items-center justify-center text-white shadow-2xl hover:scale-110 transition-transform animate-pulse-glow"
+                  className="w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center text-white shadow-2xl hover:scale-110 transition-transform"
                 >
-                  <BsWhatsapp size={32} />
+                  <BsWhatsapp size={28} />
                 </a>
               </div>
 

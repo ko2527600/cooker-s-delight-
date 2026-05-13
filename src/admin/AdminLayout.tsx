@@ -108,7 +108,7 @@ export default function AdminLayout() {
   );
 
   return (
-    <div className="min-h-screen bg-[#0d0d0d] text-white flex">
+    <div className="admin-panel min-h-screen bg-[#0d0d0d] text-white flex">
       {/* Desktop sidebar */}
       <div className="hidden lg:flex">
         <Sidebar />
