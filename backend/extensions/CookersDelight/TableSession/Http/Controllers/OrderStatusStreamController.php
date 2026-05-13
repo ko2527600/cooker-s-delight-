@@ -2,6 +2,7 @@
 
 namespace CookersDelight\TableSession\Http\Controllers;
 
+use CookersDelight\TableSession\Models\TableSession;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -25,6 +26,23 @@ class OrderStatusStreamController extends Controller
 
     public function stream(Request $request, int $orderId): StreamedResponse
     {
+        // SECURITY: Callers must prove they own this order by supplying the
+        // ephemeral session_token that was linked to the order at placement.
+        // This prevents unauthenticated users from enumerating order IDs and
+        // monitoring other customers' order status.
+        $sessionToken = $request->query('session_token');
+        if (!$sessionToken) {
+            abort(401, 'session_token query parameter is required.');
+        }
+
+        $session = TableSession::where('token', $sessionToken)
+            ->where('order_id', $orderId)
+            ->first();
+
+        if (!$session) {
+            abort(403, 'Session token does not match this order.');
+        }
+
         return response()->stream(function () use ($orderId) {
             $start       = time();
             $lastStatus  = null;

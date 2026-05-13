@@ -35,6 +35,12 @@ class CdSettingsController extends Controller
 
     public function set(Request $request, string $key): JsonResponse
     {
+        // SECURITY: Validate the key name so attackers cannot inject arbitrary
+        // characters (null bytes, slashes, etc.) into the settings store.
+        if (!preg_match('/^[a-z0-9_]{1,64}$/i', $key)) {
+            return response()->json(['message' => 'Invalid settings key.'], 422);
+        }
+
         $value = $request->validate(['value' => ['nullable']])['value'];
 
         CdSetting::setValue($key, is_array($value) ? json_encode($value) : $value);

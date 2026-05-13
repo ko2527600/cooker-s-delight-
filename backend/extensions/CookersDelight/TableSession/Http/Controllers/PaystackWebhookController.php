@@ -41,7 +41,8 @@ class PaystackWebhookController extends Controller
         $reference = $data['reference'] ?? null;
         $amount    = ($data['amount'] ?? 0) / 100; // Paystack sends kobo/pesewa
 
-        if (!$reference) return;
+        // Guard against missing or oversized references before regex evaluation.
+        if (!$reference || !is_string($reference) || strlen($reference) > 100) return;
 
         // Reference format we set during payment initiation: "CD-{order_id}-{timestamp}"
         if (!preg_match('/^CD-(\d+)-/', $reference, $m)) {
@@ -57,8 +58,9 @@ class PaystackWebhookController extends Controller
             return;
         }
 
-        // Idempotency — skip if already marked paid.
-        if ($order->processed == 1) return;
+        // Idempotency — skip if already marked paid. Strict comparison prevents
+        // PHP type-juggling from treating "0abc" or false as falsy/truthy differently.
+        if ($order->processed === 1 || $order->processed === '1' || $order->processed === true) return;
 
         // Advance status to "Received" (pending → received signals staff to start preparing).
         $receivedStatusId = DB::table('statuses')

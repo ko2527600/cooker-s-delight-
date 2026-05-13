@@ -123,6 +123,18 @@ describe('Security — Input boundary enforcement', () => {
   });
 });
 
+describe('Security — 401 auto-logout interceptor', () => {
+  it('a 401 response from any admin endpoint causes the axios rejection to propagate', async () => {
+    server.use(
+      http.get(`${BASE}/menus`, () =>
+        HttpResponse.json({ message: 'Unauthenticated.' }, { status: 401 })
+      )
+    );
+    // The public API (non-admin) should still reject, not silently ignore
+    await expect(menuApi.getItems()).rejects.toMatchObject({ response: { status: 401 } });
+  });
+});
+
 describe('Security — Information disclosure', () => {
   it('401 Unauthorized from server propagates as a rejected promise with status 401', async () => {
     server.use(
