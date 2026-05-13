@@ -4,8 +4,12 @@
 
 @theme {
   --color-brand-burgundy: #872735;
-  --color-brand-orange: #EC4824;
-  --color-brand-black: #111111;
+  --color-brand-orange: #E84C1E;
+  --color-brand-olive: #6B7A3A;
+  --color-brand-olive-dark: #4A5528;
+  --color-brand-cream: #FAF6F0;
+  --color-brand-gold: #F5A623;
+  --color-brand-dark: #1C1C1C;
 
   --font-display: "Cormorant Garamond", serif;
   --font-body: "Syne", sans-serif;
@@ -27,17 +31,17 @@
   .cursor-not-allowed { cursor: not-allowed !important; }
 
   body {
-    @apply bg-brand-black text-white font-body overflow-x-hidden;
+    @apply bg-brand-cream text-brand-dark font-body overflow-x-hidden;
     margin: 0;
     padding: 0;
   }
 
-  /* Global Dropdown Fix: Ensure text is visible and background is dark */
+  /* Global Dropdown Fix: Light theme */
   select, option {
-    background-color: #111111 !important;
-    color: white !important;
+    background-color: #ffffff !important;
+    color: #1C1C1C !important;
   }
-  
+
   select {
     cursor: pointer !important;
   }
@@ -63,16 +67,20 @@
 }
 
 @layer utilities {
-  .glass {
-    @apply bg-white/10 backdrop-blur-md border border-white/20;
+  .card-olive {
+    @apply bg-brand-olive text-white;
   }
-  
-  .glass-dark {
-    @apply bg-black/40 backdrop-blur-xl border border-white/10;
+
+  .card-olive-dark {
+    @apply bg-brand-olive-dark text-white;
+  }
+
+  .card-light {
+    @apply bg-white text-brand-dark shadow-sm;
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-orange to-brand-burgundy;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-orange to-brand-olive;
   }
 
   .grain-overlay {
@@ -95,17 +103,17 @@
     @apply bg-transparent;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
+    @apply bg-brand-olive/30 rounded-full hover:bg-brand-olive/50 transition-colors;
   }
 
   ::-webkit-scrollbar {
     width: 4px;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-brand-black;
+    @apply bg-brand-cream;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-brand-orange rounded-full;
+    @apply bg-brand-olive rounded-full;
   }
 }
 
@@ -142,9 +150,9 @@
 }
 
 @keyframes pulse-glow {
-  0% { box-shadow: 0 0 0 0 rgba(236, 72, 36, 0.4); }
-  70% { box-shadow: 0 0 0 15px rgba(236, 72, 36, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(236, 72, 36, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(232, 76, 30, 0.4); }
+  70% { box-shadow: 0 0 0 15px rgba(232, 76, 30, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(232, 76, 30, 0); }
 }
 
 .animate-spin-slow {

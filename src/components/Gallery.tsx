@@ -70,35 +70,34 @@ export function Gallery() {
 
   return (
     <>
-      <section id="gallery" className="py-24 bg-[#111111] border-t border-white/5 relative overflow-hidden">
+      <section id="gallery" className="py-24 bg-white relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-          {/* ... existing section content ... */}
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-8">
             <div className="max-w-xl">
-              <h2 className="font-serif text-4xl md:text-6xl font-normal text-white mb-6 leading-tight tracking-tighter">
+              <h2 className="font-display text-4xl md:text-6xl font-bold text-brand-dark mb-4 leading-tight tracking-tight">
                 Visual <br /><span className="text-brand-orange">Heritage.</span>
               </h2>
-              <p className="text-white/40 text-lg uppercase tracking-widest text-[10px] font-black">
+              <p className="text-brand-dark/50 text-sm font-semibold">
                 A feast for your eyes. Our culinary craftsmanship captured in high definition.
               </p>
             </div>
-            <div className="flex gap-4">
-              <button onClick={prev} className="p-4 rounded-sm border border-white/10 text-white hover:bg-brand-orange hover:border-brand-orange transition-all">
-                <HiChevronLeft size={24} />
+            <div className="flex gap-3">
+              <button onClick={prev} className="p-3.5 rounded-full border border-gray-200 text-brand-dark hover:bg-brand-olive hover:border-brand-olive hover:text-white transition-all">
+                <HiChevronLeft size={22} />
               </button>
-              <button onClick={next} className="p-4 rounded-sm border border-white/10 text-white hover:bg-brand-orange hover:border-brand-orange transition-all">
-                <HiChevronRight size={24} />
+              <button onClick={next} className="p-3.5 rounded-full border border-gray-200 text-brand-dark hover:bg-brand-olive hover:border-brand-olive hover:text-white transition-all">
+                <HiChevronRight size={22} />
               </button>
             </div>
           </div>
 
-          <div 
-            className="relative h-[400px] md:h-[600px] rounded-sm overflow-hidden glass-panel border-white/10 shadow-2xl cursor-pointer group/container"
+          <div
+            className="relative h-[400px] md:h-[600px] rounded-3xl overflow-hidden shadow-xl border border-gray-100 cursor-pointer group/container"
             onClick={toggleLightbox}
           >
-            <div className="absolute top-6 right-6 z-20 opacity-0 group-hover/container:opacity-100 transition-opacity">
-              <div className="bg-brand-orange p-3 rounded-sm text-white">
-                <HiArrowsPointingOut size={20} />
+            <div className="absolute top-5 right-5 z-20 opacity-0 group-hover/container:opacity-100 transition-opacity">
+              <div className="bg-brand-orange p-2.5 rounded-full text-white shadow-sm">
+                <HiArrowsPointingOut size={18} />
               </div>
             </div>
             <AnimatePresence initial={false} custom={direction}>

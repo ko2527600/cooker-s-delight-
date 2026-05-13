@@ -208,11 +208,11 @@ const Navbar = ({
         />
       </div>
 
-      <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'bg-black/80 backdrop-blur-md py-4' : 'bg-transparent py-6'}`}>
+      <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'bg-white/95 backdrop-blur-md border-b border-gray-100 py-4' : 'bg-white/95 backdrop-blur-md border-b border-gray-100 py-6'}`}>
         <div className="container mx-auto px-6 flex justify-between items-center">
           <div className="flex items-center cursor-pointer gap-3" onClick={() => { setCurrentPage('Home'); window.scrollTo({ top: 0 }); }}>
             <img src="/assets/logo.jpg" className="w-10 h-10 rounded-full object-cover" alt="Logo" />
-            <span className="font-display text-3xl font-bold text-white">Cookers <span className="text-brand-orange">Delight</span></span>
+            <span className="font-display text-3xl font-bold text-brand-dark">Cookers <span className="text-brand-orange">Delight</span></span>
           </div>
 
           {/* Desktop Links */}
@@ -221,7 +221,7 @@ const Navbar = ({
               <button
                 key={link}
                 onClick={() => { setCurrentPage(link); window.scrollTo({ top: 0 }); }}
-                className={`font-body text-sm font-medium transition-colors hover:text-brand-orange ${currentPage === link ? 'text-brand-orange' : 'text-white/80'}`}
+                className={`font-body text-sm font-medium transition-colors hover:text-brand-orange ${currentPage === link ? 'text-brand-orange' : 'text-brand-dark/60'}`}
               >
                 {link}
               </button>
@@ -230,7 +230,7 @@ const Navbar = ({
             {/* Customer Portal Link */}
             <Link 
               to={localStorage.getItem('cd_customer_token') ? "/portal/dashboard" : "/portal/login"}
-              className="text-white/80 hover:text-brand-orange transition-colors font-body text-sm font-medium flex items-center gap-2"
+              className="text-brand-dark/60 hover:text-brand-orange transition-colors font-body text-sm font-medium flex items-center gap-2"
             >
               <HiOutlineUser size={18} color="#EC4824" />
               {localStorage.getItem('cd_customer_token') ? 'My Account' : 'Sign In'}
@@ -254,7 +254,7 @@ const Navbar = ({
                  <span className="absolute -top-2 -right-2 bg-brand-orange text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">{cartCount}</span>
                </div>
              )}
-            <button className="text-white" onClick={() => setMobileMenuOpen(true)}>
+            <button className="text-brand-dark" onClick={() => setMobileMenuOpen(true)}>
               <HiBars3 size={28} />
             </button>
           </div>
@@ -380,7 +380,7 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
               alt="Slideshow"
             />
           </AnimatePresence>
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-burgundy/75 via-brand-black/90 to-brand-black/95"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-cream/80 via-brand-cream/70 to-brand-cream/85"></div>
         </motion.div>
 
         {/* Indicators */}
@@ -414,7 +414,7 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
                 <span className="overflow-hidden"><motion.span initial={{ y: '100%' }} animate={{ y: 0 }} transition={{ delay: 0.6, duration: 0.8 }} className="italic font-normal">Tasty<span className="text-brand-orange">.</span></motion.span></span>
               </h1>
             </div>
-            <p className="text-white/70 text-lg md:text-xl max-w-lg leading-relaxed font-body">
+            <p className="text-brand-dark/70 text-lg md:text-xl max-w-lg leading-relaxed font-body">
               Experience a world-class culinary journey through West Africa. Every dish is a masterpiece of spice, culture, and heritage.
             </p>
             <div className="flex flex-wrap gap-4">
@@ -426,7 +426,7 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
               </button>
               <a
                 href="https://wa.me/233243379412"
-                className="border-2 border-white/20 hover:bg-white hover:text-brand-black px-8 py-4 rounded-full font-bold text-lg transition-all transform hover:scale-105"
+                className="border-2 border-brand-dark/30 text-brand-dark hover:bg-brand-dark hover:text-white px-8 py-4 rounded-full font-bold text-lg transition-all transform hover:scale-105"
               >
                 Order via WhatsApp
               </a>
@@ -439,7 +439,7 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
                   <img src={formatImg("/assets/jollof2.jpg", 900)} className="w-full h-full object-cover" alt="Spinning Disk" />
                </div>
                <motion.div className="absolute -bottom-10 -right-10 bg-white p-6 rounded-2xl shadow-2xl animate-float max-w-[280px]">
-                  <span className="inline-block bg-brand-orange/10 text-brand-orange text-xs font-bold px-2 py-1 rounded mb-2">Chef's Special</span>
+                  <span className="inline-block bg-brand-olive/20 text-brand-olive text-xs font-bold px-2 py-1 rounded mb-2">Chef's Special</span>
                   <h3 className="text-brand-black font-bold text-lg mb-1 leading-tight">Gourmet Jollof with Grilled Tilapia</h3>
                   <p className="text-brand-orange font-bold text-xl">₵65.00</p>
                </motion.div>
@@ -448,7 +448,7 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
         </div>
 
         {/* Stats Strip */}
-        <div className="absolute bottom-0 left-0 w-full bg-black/40 backdrop-blur-xl border-t border-white/10 py-8">
+        <div className="absolute bottom-0 left-0 w-full bg-white border-t border-gray-100 py-8 shadow-sm">
           <div className="container mx-auto px-6 flex flex-nowrap overflow-x-auto lg:overflow-x-visible no-scrollbar lg:justify-around items-center gap-12 lg:gap-0">
              {[
                { label: 'Years Serving', val: years.count, ref: years.ref, suffix: '+' },
@@ -458,7 +458,7 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
              ].map((stat, i) => (
                <div key={i} ref={stat.ref} className="flex flex-col items-center lg:items-start min-w-[150px]">
                  <span className="text-4xl font-display font-bold text-brand-orange">{stat.val}{stat.suffix}</span>
-                 <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-white/40">{stat.label}</span>
+                 <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-brand-olive">{stat.label}</span>
                </div>
              ))}
           </div>
@@ -466,12 +466,12 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
       </section>
 
       {/* About Section */}
-      <section className="py-32 bg-[#0e0e0e] relative overflow-hidden">
+      <section className="py-32 bg-white relative overflow-hidden">
          <div className="container mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="space-y-10">
                <span className="text-brand-orange font-bold uppercase tracking-widest text-sm">Our Story</span>
-               <h2 className="text-6xl md:text-8xl font-bold leading-tight">Crafting <br/><span className="italic font-normal">Excellence.</span></h2>
-               <p className="text-white/60 text-lg leading-relaxed font-body max-w-xl">
+               <h2 className="text-6xl md:text-8xl font-bold leading-tight text-brand-dark">Crafting <br/><span className="italic font-normal">Excellence.</span></h2>
+               <p className="text-brand-dark/60 text-lg leading-relaxed font-body max-w-xl">
                   Cookers Delight is more than a restaurant; it's a celebration of West African culinary mastery. From our humble beginnings in Accra, we've remained dedicated to one mission: bringing you the soul of Ghana and Nigeria on a plate.
                </p>
                <button onClick={() => setCurrentPage('Menu')} className="bg-brand-burgundy hover:bg-brand-orange text-white px-10 py-5 rounded-full font-bold transition-all flex items-center gap-3">
@@ -491,12 +491,12 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
       </section>
 
       {/* Horizontal Scroll Categories */}
-      <section className="py-24 bg-brand-black overflow-hidden">
+      <section className="py-24 bg-brand-cream overflow-hidden">
         <div className="container mx-auto px-6 mb-12 flex justify-between items-end">
-           <h2 className="text-5xl font-display font-bold">Taste Our <span className="text-brand-orange">Heritage</span></h2>
+           <h2 className="text-5xl font-display font-bold text-brand-dark">Taste Our <span className="text-brand-orange">Heritage</span></h2>
            <div className="flex gap-2">
-              <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center"><HiChevronLeft /></div>
-              <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-brand-orange"><HiChevronRight /></div>
+              <div className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-brand-dark"><HiChevronLeft /></div>
+              <div className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-brand-orange"><HiChevronRight /></div>
            </div>
         </div>
         <motion.div 
@@ -520,37 +520,37 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
       </section>
 
       {/* Featured Menu Preview */}
-      <section className="py-32 bg-brand-black">
+      <section className="py-32 bg-brand-cream">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
             <div>
               <span className="text-brand-orange font-bold uppercase tracking-widest text-sm mb-4 block">Chef's Selection</span>
-              <h2 className="text-6xl md:text-8xl font-bold leading-tight">Featured <br/><span className="italic font-normal">Delicacies.</span></h2>
+              <h2 className="text-6xl md:text-8xl font-bold leading-tight text-brand-dark">Featured <br/><span className="italic font-normal">Delicacies.</span></h2>
             </div>
-            <button onClick={() => setCurrentPage('Menu')} className="border-2 border-white/20 hover:bg-white hover:text-black px-10 py-5 rounded-full font-bold transition-all">View Full Menu</button>
+            <button onClick={() => setCurrentPage('Menu')} className="border-2 border-brand-dark/30 text-brand-dark hover:bg-brand-dark hover:text-white px-10 py-5 rounded-full font-bold transition-all">View Full Menu</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {MENU_DATA.slice(0, 3).map((item, i) => (
-              <motion.div 
+              <motion.div
                 key={item.id}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="group relative bg-white/5 rounded-[40px] overflow-hidden border border-white/5 hover:border-brand-orange/30 transition-all"
+                className={`group relative rounded-[40px] overflow-hidden border border-transparent hover:border-brand-orange/30 transition-all ${i % 2 === 0 ? 'bg-brand-olive' : 'bg-brand-olive-dark'}`}
               >
                 <div className="h-72 overflow-hidden">
                   <img src={getImgUrl(item.image)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={item.name} />
                 </div>
                 <div className="p-10">
                   <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-2xl font-bold">{item.name}</h3>
-                    <span className="text-brand-orange font-bold text-xl">{item.price}</span>
+                    <h3 className="text-2xl font-bold text-white">{item.name}</h3>
+                    <span className="text-white font-bold text-xl">{item.price}</span>
                   </div>
-                  <p className="text-white/40 mb-8 line-clamp-2">{item.description}</p>
-                  <button 
+                  <p className="text-white/60 mb-8 line-clamp-2">{item.description}</p>
+                  <button
                     onClick={() => { setCurrentPage('Menu'); window.scrollTo({ top: 0 }); }}
-                    className="w-full bg-white/5 group-hover:bg-brand-orange py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
+                    className="w-full bg-white/10 group-hover:bg-brand-orange text-white py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
                   >
                     Order Now <HiArrowRight />
                   </button>
@@ -562,33 +562,33 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
       </section>
 
       {/* Reviews Preview */}
-      <section className="py-32 bg-brand-black">
+      <section className="py-32 bg-brand-cream">
         <div className="container mx-auto px-6">
            <div className="text-center mb-20">
               <span className="text-brand-orange font-bold uppercase tracking-widest text-sm mb-4 block">Testimonials</span>
-              <h2 className="text-5xl md:text-7xl font-bold">What Our <span className="italic font-normal">Guests Say.</span></h2>
+              <h2 className="text-5xl md:text-7xl font-bold text-brand-dark">What Our <span className="italic font-normal">Guests Say.</span></h2>
            </div>
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {REVIEWS.slice(0, 3).map((rev, i) => (
-                <motion.div 
+                <motion.div
                   key={rev.id}
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="bg-white/5 p-12 rounded-[40px] border border-white/5 flex flex-col justify-between h-full hover:bg-white/10 transition-all"
+                  className="bg-white shadow-sm p-12 rounded-[40px] border-l-4 border-brand-olive flex flex-col justify-between h-full transition-all"
                 >
                    <div>
-                      <div className="flex text-brand-orange mb-8">
+                      <div className="flex text-brand-gold mb-8">
                          {[...Array(5)].map((_, j) => <span key={j}><HiStar size={20} className={j >= rev.rating ? 'opacity-20' : ''} /></span>)}
                       </div>
-                      <p className="text-xl font-body italic text-white/70 leading-relaxed mb-10">"{rev.comment}"</p>
+                      <p className="text-xl font-body italic text-brand-dark/70 leading-relaxed mb-10">"{rev.comment}"</p>
                    </div>
-                   <div className="flex items-center gap-4 pt-8 border-t border-white/5">
+                   <div className="flex items-center gap-4 pt-8 border-t border-gray-100">
                       <div className="w-12 h-12 rounded-full bg-brand-orange text-white flex items-center justify-center font-bold">{rev.author.charAt(0)}</div>
                       <div>
-                         <h4 className="font-bold">{rev.author}</h4>
-                         <p className="text-xs text-white/20 uppercase tracking-widest">{rev.date}</p>
+                         <h4 className="font-bold text-brand-dark">{rev.author}</h4>
+                         <p className="text-xs text-brand-dark/50 uppercase tracking-widest">{rev.date}</p>
                       </div>
                    </div>
                 </motion.div>
@@ -603,10 +603,10 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
       </section>
 
       {/* Feature Section: Why Choose Us */}
-      <section className="py-32 bg-[#0a0a0a]">
+      <section className="py-32 bg-white">
          <div className="container mx-auto px-6">
             <div className="text-center mb-24">
-               <h2 className="text-5xl md:text-7xl font-bold">The Gold <span className="text-brand-orange italic font-normal">Standard</span></h2>
+               <h2 className="text-5xl md:text-7xl font-bold text-brand-dark">The Gold <span className="text-brand-orange italic font-normal">Standard</span></h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                {[
@@ -615,19 +615,19 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
                  { icon: <HiUsers />, title: 'Expert Chefs', desc: '10+ years of West African culinary mastery' },
                  { icon: <BsWhatsapp />, title: 'Easy Ordering', desc: 'One WhatsApp message and you\'re done' }
                ].map((item, i) => (
-                 <motion.div 
+                 <motion.div
                    key={i}
                    initial={{ opacity: 0, y: 30 }}
                    whileInView={{ opacity: 1, y: 0 }}
                    viewport={{ once: true }}
                    transition={{ delay: i * 0.1 }}
-                   className="bg-white/5 p-10 rounded-[40px] border border-white/5 hover:border-brand-orange/40 transition-all group"
+                   className="bg-white border border-gray-100 p-10 rounded-[40px] hover:border-brand-orange/40 transition-all group shadow-sm"
                  >
                     <div className="w-16 h-16 rounded-2xl bg-brand-orange/10 flex items-center justify-center text-brand-orange mb-8 group-hover:scale-110 transition-transform">
                        {item.icon}
                     </div>
-                    <h4 className="text-2xl font-bold mb-4">{item.title}</h4>
-                    <p className="text-white/40 leading-relaxed font-body">{item.desc}</p>
+                    <h4 className="text-2xl font-bold mb-4 text-brand-dark">{item.title}</h4>
+                    <p className="text-brand-dark/50 leading-relaxed font-body">{item.desc}</p>
                  </motion.div>
                ))}
             </div>
@@ -748,34 +748,34 @@ const MenuPage = ({ addToast, cart, setCart }: { addToast: (m: string) => void, 
     <PageWrapper>
       <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
         <img src={getImgUrl("/assets/flyer2.jpg")} className="absolute inset-0 w-full h-full object-cover opacity-50" alt="" />
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-black to-transparent"></div>
-        <h1 className="relative z-10 text-7xl md:text-9xl font-bold">Our <span className="italic font-normal text-brand-orange">Menu</span></h1>
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-olive-dark to-transparent"></div>
+        <h1 className="relative z-10 text-7xl md:text-9xl font-bold text-white">Our <span className="italic font-normal text-brand-orange">Menu</span></h1>
       </section>
 
-      <section className="py-20 bg-brand-black">
+      <section className="py-20 bg-brand-cream">
         <div className="container mx-auto px-6">
           <div className="flex flex-col lg:flex-row justify-between items-center gap-8 mb-16">
              <div className="flex flex-wrap justify-center gap-2">
                {categories.map(cat => (
-                 <button 
-                   key={cat} 
+                 <button
+                   key={cat}
                    onClick={() => setActiveCategory(cat)}
-                   className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all ${activeCategory === cat ? 'bg-brand-orange text-white' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
+                   className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all ${activeCategory === cat ? 'bg-brand-olive text-white' : 'bg-white border border-gray-200 text-brand-dark/60 hover:border-brand-olive/40'}`}
                  >
                    {cat}
                  </button>
                ))}
              </div>
              <div className="relative w-full lg:w-96">
-                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-white/40">
+                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-dark/40">
                    <FiSearch />
                 </span>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Search dishes..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-full pl-12 pr-6 py-3.5 focus:border-brand-orange outline-none"
+                  className="w-full bg-white border border-gray-200 rounded-full pl-12 pr-6 py-3.5 focus:border-brand-olive outline-none text-brand-dark"
                 />
              </div>
           </div>
@@ -783,11 +783,11 @@ const MenuPage = ({ addToast, cart, setCart }: { addToast: (m: string) => void, 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {loading ? (
               Array(8).fill(0).map((_, i) => (
-                <div key={i} className="bg-white/5 rounded-[32px] h-[350px] animate-pulse" />
+                <div key={i} className="bg-white rounded-[32px] h-[350px] animate-pulse" />
               ))
             ) : error ? (
               <div className="col-span-full py-20 text-center space-y-4">
-                <p className="text-white/40">Failed to load menu</p>
+                <p className="text-brand-dark/50">Failed to load menu</p>
                 <button onClick={() => refetch()} className="text-brand-orange font-bold underline">Try Again</button>
               </div>
             ) : (
@@ -1297,7 +1297,7 @@ function PublicWebsite() {
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <div className="min-h-screen bg-brand-black text-white selection:bg-brand-orange/30">
+    <div className="min-h-screen bg-brand-cream text-brand-dark selection:bg-brand-orange/30">
       <PWAUpdateBanner />
       <AnnouncementBar />
       

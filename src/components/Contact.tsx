@@ -4,13 +4,13 @@
  */
 
 import { motion } from 'motion/react';
-import { HiChatBubbleLeftRight, HiPaperAirplane } from 'react-icons/hi2';
-import { FiPhone, FiInstagram } from 'react-icons/fi';
+import { HiPaperAirplane } from 'react-icons/hi2';
+import { FiPhone } from 'react-icons/fi';
 import { CONTACT_INFO } from '../constants';
 
 export function Contact() {
   return (
-    <section id="contact" className="py-24 bg-[#111111] relative">
+    <section id="contact" className="py-24 bg-white relative">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         <div className="grid lg:grid-cols-2 gap-20 items-start">
           <motion.div
@@ -18,75 +18,76 @@ export function Contact() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="font-serif text-5xl md:text-6xl font-normal text-white mb-8 border-l-4 border-brand-orange pl-8 leading-tight tracking-tighter">
+            <h2 className="font-display text-5xl md:text-6xl font-bold text-brand-dark mb-6 border-l-4 border-brand-olive pl-6 leading-tight tracking-tight">
               Let's Talk <br /><span className="text-brand-orange">Food.</span>
             </h2>
-            <p className="text-white/50 text-lg mb-12 max-w-md">
-              Have questions about our menu, delivery, or catering services? 
+            <p className="text-brand-dark/60 text-lg mb-10 max-w-md leading-relaxed">
+              Have questions about our menu, delivery, or catering services?
               Reach out and our friendly team will get back to you shortly.
             </p>
 
-            <div className="space-y-6">
-              <div className="flex gap-6 p-6 glass-panel rounded-lg hover:border-brand-orange/40 transition-all border-white/5">
-                <div className="bg-brand-orange/20 p-4 rounded-sm text-brand-orange">
-                  <FiPhone size={24} />
+            <div className="space-y-4">
+              <div className="flex gap-5 p-6 bg-brand-cream rounded-2xl border border-gray-100 hover:border-brand-olive/30 transition-all">
+                <div className="bg-brand-olive/10 p-3.5 rounded-xl text-brand-olive flex-shrink-0">
+                  <FiPhone size={22} />
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase font-black text-white/30 tracking-widest mb-1">Call Us Anywhere</p>
-                  <p className="text-xl font-bold text-white">{CONTACT_INFO.phone}</p>
+                  <p className="text-xs font-bold uppercase text-brand-dark/40 tracking-widest mb-1">Call Us Anywhere</p>
+                  <p className="text-xl font-bold text-brand-dark">{CONTACT_INFO.phone}</p>
                 </div>
               </div>
             </div>
           </motion.div>
 
           <motion.div
-             initial={{ opacity: 0, x: 30 }}
-             whileInView={{ opacity: 1, x: 0 }}
-             viewport={{ once: true }}
-             className="glass-panel p-10 rounded-sm border-white/10"
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="bg-brand-cream rounded-3xl p-10 border border-gray-100"
           >
-            <h3 className="text-[10px] uppercase font-black tracking-[0.3em] text-white/30 mb-8 border-b border-white/5 pb-4">Secure Message Portal</h3>
-            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-              <div className="grid md:grid-cols-2 gap-6">
+            <h3 className="text-xs uppercase font-bold tracking-widest text-brand-dark/40 mb-6 border-b border-gray-200 pb-4">Send a Message</h3>
+            <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+              <div className="grid md:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-[10px] font-black uppercase text-white/30 mb-2 tracking-widest">Full Name</label>
-                  <input 
-                    type="text" 
+                  <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-2 tracking-widest">Full Name</label>
+                  <input
+                    type="text"
                     placeholder="John Doe"
-                    className="w-full bg-white/5 border border-white/10 rounded-sm px-5 py-3 text-white focus:outline-none focus:border-brand-orange transition-all placeholder:text-white/10"
+                    className="w-full bg-white border border-gray-200 rounded-xl px-5 py-3 text-brand-dark focus:outline-none focus:border-brand-olive transition-all placeholder:text-gray-300"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black uppercase text-white/30 mb-2 tracking-widest">Phone Number</label>
-                  <input 
-                    type="tel" 
+                  <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-2 tracking-widest">Phone Number</label>
+                  <input
+                    type="tel"
                     placeholder="+233 XXX XXX XXX"
-                    className="w-full bg-white/5 border border-white/10 rounded-sm px-5 py-3 text-white focus:outline-none focus:border-brand-orange transition-all placeholder:text-white/10"
+                    className="w-full bg-white border border-gray-200 rounded-xl px-5 py-3 text-brand-dark focus:outline-none focus:border-brand-olive transition-all placeholder:text-gray-300"
                   />
                 </div>
               </div>
-              
+
               <div>
-                <label className="block text-[10px] font-black uppercase text-white/30 mb-2 tracking-widest">Service Type</label>
-                <select className="w-full bg-white/5 border border-white/10 rounded-sm px-5 py-3 text-white focus:outline-none focus:border-brand-orange transition-all appearance-none cursor-pointer">
-                  <option className="bg-[#111]">Dine-in Information</option>
-                  <option className="bg-[#111]">Home/Office Delivery</option>
-                  <option className="bg-[#111]">Catering Enquiry</option>
-                  <option className="bg-[#111]">Feedback & Suggestions</option>
+                <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-2 tracking-widest">Service Type</label>
+                <select className="w-full bg-white border border-gray-200 rounded-xl px-5 py-3 text-brand-dark focus:outline-none focus:border-brand-olive transition-all appearance-none">
+                  <option>Dine-in Information</option>
+                  <option>Home/Office Delivery</option>
+                  <option>Catering Enquiry</option>
+                  <option>Feedback & Suggestions</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-[10px] font-black uppercase text-white/30 mb-2 tracking-widest">Your Message</label>
-                <textarea 
+                <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-2 tracking-widest">Your Message</label>
+                <textarea
                   rows={5}
                   placeholder="Tell us what you're thinking..."
-                  className="w-full bg-white/5 border border-white/10 rounded-sm px-5 py-3 text-white focus:outline-none focus:border-brand-orange transition-all resize-none placeholder:text-white/10"
+                  className="w-full bg-white border border-gray-200 rounded-xl px-5 py-3 text-brand-dark focus:outline-none focus:border-brand-olive transition-all resize-none placeholder:text-gray-300"
                 ></textarea>
               </div>
 
-              <button className="w-full bg-brand-orange text-white py-5 rounded-sm font-black uppercase tracking-widest text-[11px] hover:opacity-90 transition-all shadow-xl shadow-brand-orange/10">
+              <button className="w-full bg-brand-orange text-white py-4 rounded-full font-bold text-sm hover:bg-brand-orange/90 transition-all shadow-sm flex items-center justify-center gap-2">
                 Send Message
+                <HiPaperAirplane size={16} />
               </button>
             </form>
           </motion.div>
