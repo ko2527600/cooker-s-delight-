@@ -435,7 +435,7 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
 
           <div className="relative hidden lg:flex justify-end">
              <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1 }}>
-               <div className="w-[500px] h-[500px] rounded-full overflow-hidden border-[15px] border-white/5 animate-spin-slow">
+               <div className="w-[500px] h-[500px] rounded-full overflow-hidden border-[15px] border-brand-olive/20 animate-spin-slow">
                   <img src={formatImg("/assets/jollof2.jpg", 900)} className="w-full h-full object-cover" alt="Spinning Disk" />
                </div>
                <motion.div className="absolute -bottom-10 -right-10 bg-white p-6 rounded-2xl shadow-2xl animate-float max-w-[280px]">
@@ -637,7 +637,7 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
       {/* Catering Section */}
       <section className="relative py-48 overflow-hidden">
          <img src={formatImg("/assets/flyer1.jpg", 1920)} className="absolute inset-0 w-full h-full object-cover opacity-35" alt="Catering" />
-         <div className="absolute inset-0 bg-gradient-to-b from-brand-black via-transparent to-brand-black"></div>
+         <div className="absolute inset-0 bg-gradient-to-b from-brand-olive-dark/90 via-brand-olive-dark/50 to-brand-olive-dark/90"></div>
          <div className="container mx-auto px-6 relative z-10 text-center max-w-4xl">
             <h2 className="text-6xl md:text-8xl font-bold mb-8">We Cater for <br/> <span className="text-brand-orange italic font-normal">Your Events</span></h2>
             <p className="text-xl text-white/70 mb-12 font-body leading-relaxed">
@@ -654,8 +654,8 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
       </section>
 
       {/* Quote Banner */}
-      <section className="py-40 bg-[#0e0e0e] relative overflow-hidden flex items-center justify-center border-y border-white/5">
-         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[40vw] font-black text-white/[0.02] select-none pointer-events-none">
+      <section className="py-40 bg-brand-olive-dark relative overflow-hidden flex items-center justify-center border-y border-white/10">
+         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[40vw] font-black text-white/[0.04] select-none pointer-events-none">
             &rdquo;
          </div>
          <div className="container mx-auto px-6 relative z-10 text-center max-w-5xl">
@@ -666,7 +666,7 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
               className="space-y-12"
             >
                <div className="flex justify-center text-brand-orange mb-8">
-                  <div className="opacity-20">
+                  <div className="opacity-40">
                     <BsQuote size={80} />
                   </div>
                </div>
@@ -675,7 +675,7 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
                </h2>
                <div className="flex flex-col items-center gap-4">
                   <div className="w-16 h-1px bg-brand-orange" />
-                  <p className="uppercase tracking-[0.4em] text-xs font-bold text-white/40">The Cookers Delight Philosophy</p>
+                  <p className="uppercase tracking-[0.4em] text-xs font-bold text-white/60">The Cookers Delight Philosophy</p>
                </div>
             </motion.div>
          </div>
@@ -684,11 +684,11 @@ const Home = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => voi
       <CDBoatDownloadSection />
 
       {/* Footer Drift Marquee */}
-      <div className="bg-brand-black py-4 border-y border-white/5 overflow-hidden flex items-center">
+      <div className="bg-brand-olive py-4 border-y border-white/10 overflow-hidden flex items-center">
          <div className="animate-marquee-scroll whitespace-nowrap">
             {[...Array(10)].map((_, i) => (
-              <span key={i} className="text-4xl md:text-6xl font-display font-bold text-white/5 uppercase mx-12">
-                Ghana's Best Jollof • Authentic Nigerian Soups • Professional Catering • Hot Delivery 
+              <span key={i} className="text-4xl md:text-6xl font-display font-bold text-white/20 uppercase mx-12">
+                Ghana's Best Jollof • Authentic Nigerian Soups • Professional Catering • Hot Delivery
               </span>
             ))}
          </div>
@@ -800,21 +800,21 @@ const MenuPage = ({ addToast, cart, setCart }: { addToast: (m: string) => void, 
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ delay: idx * 0.05 }}
                     key={item.id || `menu-${idx}`}
-                    className="bg-white/5 rounded-[32px] overflow-hidden group hover:border-brand-orange/30 border border-transparent transition-all"
+                    className={`rounded-[32px] overflow-hidden group hover:border-brand-orange/30 border border-transparent transition-all ${idx % 2 === 0 ? 'bg-brand-olive' : 'bg-brand-olive-dark'}`}
                   >
                     <div className="h-48 relative overflow-hidden">
                       <img src={getImgUrl(item.image)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={item.name} />
                     </div>
                     <div className="p-8">
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-display text-xl font-bold">{item.name}</h3>
-                        <span className="text-brand-orange font-bold">{item.price}</span>
+                        <h3 className="font-display text-xl font-bold text-white">{item.name}</h3>
+                        <span className="text-white font-bold">{item.price}</span>
                       </div>
-                      <p className="text-white/40 text-xs font-body mb-6 leading-relaxed h-8 overflow-hidden">{item.description}</p>
+                      <p className="text-white/60 text-xs font-body mb-6 leading-relaxed h-8 overflow-hidden">{item.description}</p>
                       <div className="flex gap-2">
-                        <button 
+                        <button
                           onClick={() => addToCart(item)}
-                          className="flex-1 bg-white/5 hover:bg-brand-orange py-3 rounded-2xl text-[10px] font-bold transition-all flex items-center justify-center gap-2"
+                          className="flex-1 bg-white/10 hover:bg-brand-orange text-white py-3 rounded-2xl text-[10px] font-bold transition-all flex items-center justify-center gap-2"
                         >
                           <HiPlus /> Add to Order
                         </button>
@@ -929,21 +929,21 @@ const GalleryPage = () => {
     <PageWrapper>
       <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
         <img src={gallery?.[0]?.url || "/assets/flyer2.jpg"} className="absolute inset-0 w-full h-full object-cover opacity-50" alt="" />
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-black to-transparent"></div>
-        <h1 className="relative z-10 text-7xl md:text-9xl font-bold">Gal<span className="italic font-normal text-brand-orange">lery</span></h1>
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-olive-dark to-transparent"></div>
+        <h1 className="relative z-10 text-7xl md:text-9xl font-bold text-white">Gal<span className="italic font-normal text-brand-orange">lery</span></h1>
       </section>
 
-      <section className="py-20 bg-brand-black">
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-6">
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {Array(6).fill(0).map((_, i) => (
-                <div key={i} className="aspect-square bg-white/5 rounded-[32px] animate-pulse" />
+                <div key={i} className="aspect-square bg-gray-100 rounded-[32px] animate-pulse" />
               ))}
             </div>
           ) : error ? (
             <div className="text-center py-20">
-              <p className="text-white/40">Failed to load gallery</p>
+              <p className="text-brand-dark/50">Failed to load gallery</p>
               <button onClick={() => refetch()} className="text-brand-orange font-bold underline">Try Again</button>
             </div>
           ) : (
@@ -1009,42 +1009,42 @@ const BranchesPage = () => {
     <PageWrapper>
       <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
         <img src={formatImg("/assets/forcourt2.jpg", 1920)} className="absolute inset-0 w-full h-full object-cover opacity-50" alt="" />
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-black to-transparent"></div>
-        <h1 className="relative z-10 text-7xl md:text-9xl font-bold text-center">Our <span className="italic font-normal text-brand-orange">Locations</span></h1>
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-olive-dark to-transparent"></div>
+        <h1 className="relative z-10 text-7xl md:text-9xl font-bold text-center text-white">Our <span className="italic font-normal text-brand-orange">Locations</span></h1>
       </section>
-      <section className="py-24 bg-brand-black">
+      <section className="py-24 bg-brand-cream">
         <div className="container mx-auto px-6">
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               {Array(4).fill(0).map((_, i) => (
-                <div key={i} className="bg-white/5 h-[400px] rounded-[50px] animate-pulse" />
+                <div key={i} className="bg-white h-[400px] rounded-[50px] animate-pulse" />
               ))}
             </div>
           ) : error ? (
             <div className="text-center py-20">
-              <p className="text-white/40">Failed to load branches</p>
+              <p className="text-brand-dark/50">Failed to load branches</p>
               <button onClick={() => refetch()} className="text-brand-orange font-bold underline">Try Again</button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               {branches.map((branch, i) => (
-                <motion.div key={branch.id || `branch-${i}`} whileHover={{ y: -10 }} className="bg-white/5 p-12 rounded-[50px] border border-white/5 flex flex-col justify-between group h-full">
+                <motion.div key={branch.id || `branch-${i}`} whileHover={{ y: -10 }} className="bg-white p-12 rounded-[50px] border border-gray-100 flex flex-col justify-between group h-full shadow-sm">
                   <div>
                     <div className="flex justify-between items-start mb-4">
-                      <h3 className="text-6xl font-display font-bold group-hover:text-brand-orange transition-colors">{branch.name}</h3>
+                      <h3 className="text-6xl font-display font-bold text-brand-dark group-hover:text-brand-orange transition-colors">{branch.name}</h3>
                       <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${branch.isOpen ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
                         <div className={`w-1.5 h-1.5 rounded-full ${branch.isOpen ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
                         {branch.isOpen ? 'Open Now' : 'Closed'}
                       </div>
                     </div>
-                    <div className="space-y-2 mb-12 text-white/40 text-lg">
+                    <div className="space-y-2 mb-12 text-brand-dark/50 text-lg">
                       <p className="text-brand-orange font-bold uppercase text-xs tracking-widest mb-6">Branch Hub</p>
                       <p>{branch.landmark}</p>
                       <p>{branch.address}</p>
                     </div>
                   </div>
                   <div className="flex gap-4">
-                      <a href={`tel:${branch.phone}`} className="bg-white/5 hover:bg-white/10 px-8 py-4 rounded-full font-bold flex items-center gap-2 text-sm"><FiPhone /> Call Now</a>
+                      <a href={`tel:${branch.phone}`} className="bg-gray-100 hover:bg-gray-200 text-brand-dark px-8 py-4 rounded-full font-bold flex items-center gap-2 text-sm"><FiPhone /> Call Now</a>
                       <a href="https://wa.me/233243379412" className="bg-brand-orange/10 hover:bg-brand-orange/20 text-brand-orange px-8 py-4 rounded-full font-bold flex items-center gap-2 text-sm"><BsWhatsapp /> WhatsApp</a>
                   </div>
                 </motion.div>
@@ -1068,56 +1068,56 @@ const ReviewsPage = () => {
             {[...Array(20)].map((_, i) => <span key={i} className="mx-10">★ "The best Jollof in Accra" ★ "Authentic Nigerian taste" ★ "Professional service" ★ "Highly recommended" ★ </span>)}
          </div>
       </div>
-      <section className="py-24 bg-brand-black">
+      <section className="py-24 bg-brand-cream">
         <div className="container mx-auto px-6 text-center">
            <div className="flex flex-col items-center mb-32">
-              <span className="text-[150px] font-display font-bold leading-none mb-4">4.8</span>
-              <div className="flex text-brand-orange mb-6">
+              <span className="text-[150px] font-display font-bold leading-none mb-4 text-brand-dark">4.8</span>
+              <div className="flex text-brand-gold mb-6">
                  {[...Array(5)].map((_, i) => <span key={i}><HiStar size={50} /></span>)}
               </div>
-              <p className="text-white/40 font-bold uppercase tracking-[0.3em]">Community Rated Excellence</p>
+              <p className="text-brand-dark/50 font-bold uppercase tracking-[0.3em]">Community Rated Excellence</p>
            </div>
 
            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-40">
              {loading ? (
                Array(4).fill(0).map((_, i) => (
-                 <div key={i} className="bg-white/5 h-[300px] rounded-[60px] animate-pulse" />
+                 <div key={i} className="bg-white h-[300px] rounded-[60px] animate-pulse" />
                ))
              ) : error ? (
                <div className="col-span-full py-20">
-                 <p className="text-white/40">Failed to load reviews</p>
+                 <p className="text-brand-dark/50">Failed to load reviews</p>
                  <button onClick={() => refetch()} className="text-brand-orange font-bold underline">Try Again</button>
                </div>
              ) : (
                reviews.map((r, i) => (
-                 <motion.div key={r.id || `rev-${i}`} whileHover={{ rotateX: 5, rotateY: 5 }} className="bg-white/5 p-16 rounded-[60px] text-left border border-white/5">
-                    <div className="flex text-brand-orange mb-10">
+                 <motion.div key={r.id || `rev-${i}`} whileHover={{ rotateX: 5, rotateY: 5 }} className="bg-white shadow-sm p-16 rounded-[60px] text-left border-l-4 border-brand-olive">
+                    <div className="flex text-brand-gold mb-10">
                        {[...Array(5)].map((_, j) => <span key={j} className={j >= r.rating ? 'opacity-20' : ''}><HiStar size={24} /></span>)}
                     </div>
-                    <p className="text-3xl font-display italic font-light leading-relaxed mb-12">"{r.comment}"</p>
+                    <p className="text-3xl font-display italic font-light leading-relaxed mb-12 text-brand-dark/70">"{r.comment}"</p>
                     <div className="flex items-center gap-6">
                        <div className="w-16 h-16 rounded-full border-2 border-brand-orange flex items-center justify-center bg-brand-orange text-white font-bold text-xl">
                          {r.author.charAt(0)}
                        </div>
-                       <div><h4 className="font-bold text-xl">{r.author}</h4><p className="text-white/40">{new Date(r.createdAt).toLocaleDateString()}</p></div>
+                       <div><h4 className="font-bold text-xl text-brand-dark">{r.author}</h4><p className="text-brand-dark/50">{new Date(r.createdAt).toLocaleDateString()}</p></div>
                     </div>
                  </motion.div>
                ))
              )}
            </div>
 
-           <div className="py-24 border-t border-white/5 text-left">
-              <h2 className="text-5xl font-display font-bold mb-12 flex items-center gap-4">Follow us <span className="text-brand-orange"><BsInstagram size={40} /></span> <span className="text-white/20">@cookersdelightgh</span></h2>
+           <div className="py-24 border-t border-gray-100 text-left">
+              <h2 className="text-5xl font-display font-bold mb-12 flex items-center gap-4 text-brand-dark">Follow us <span className="text-brand-orange"><BsInstagram size={40} /></span> <span className="text-brand-dark/20">@cookersdelightgh</span></h2>
               <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                  {gallery?.slice(0, 6).map((img, i) => (
-                   <div key={img.id || `inst-${i}`} className="aspect-square bg-white/5 rounded-3xl overflow-hidden relative group">
-                      <img src={getImgUrl(img.url)} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700 opacity-50" alt="" />
+                   <div key={img.id || `inst-${i}`} className="aspect-square bg-gray-100 rounded-3xl overflow-hidden relative group">
+                      <img src={getImgUrl(img.url)} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700 opacity-70" alt="" />
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all bg-brand-orange/60 backdrop-blur-sm">
-                         <div className="flex flex-col items-center gap-2"><BsHeartFill size={16} /><span className="text-[10px] font-bold uppercase">Follow</span></div>
+                         <div className="flex flex-col items-center gap-2 text-white"><BsHeartFill size={16} /><span className="text-[10px] font-bold uppercase">Follow</span></div>
                       </div>
                    </div>
                  )) || [...Array(6)].map((_, i) => (
-                   <div key={i} className="aspect-square bg-white/5 rounded-3xl animate-pulse" />
+                   <div key={i} className="aspect-square bg-gray-100 rounded-3xl animate-pulse" />
                  ))}
               </div>
            </div>
@@ -1142,13 +1142,13 @@ const ContactPage = ({ addToast }: { addToast: (m: string) => void }) => {
     <PageWrapper>
       <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
         <img src={formatImg("/assets/fried rice and kelewala and chicken.jpg", 1920)} className="absolute inset-0 w-full h-full object-cover opacity-50" alt="" />
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-black to-transparent"></div>
-        <h1 className="relative z-10 text-7xl md:text-9xl font-bold">Con<span className="italic font-normal text-brand-orange">tact</span></h1>
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-olive-dark to-transparent"></div>
+        <h1 className="relative z-10 text-7xl md:text-9xl font-bold text-white">Con<span className="italic font-normal text-brand-orange">tact</span></h1>
       </section>
-      <section className="py-24 bg-brand-black">
+      <section className="py-24 bg-white">
         <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-20">
           <div className="space-y-12">
-            <h2 className="text-8xl font-display font-bold leading-none">Let's <br/><span className="text-brand-orange italic font-normal">Connect.</span></h2>
+            <h2 className="text-8xl font-display font-bold leading-none text-brand-dark">Let's <br/><span className="text-brand-orange italic font-normal">Connect.</span></h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {[
                 { label: 'WhatsApp', val: 'Chat Online', icon: <BsWhatsapp />, href: 'https://wa.me/233243379412' },
@@ -1156,27 +1156,27 @@ const ContactPage = ({ addToast }: { addToast: (m: string) => void }) => {
                 { label: 'Instagram', val: '@cookersdelightgh', icon: <BsInstagram />, href: 'https://instagram.com/cookersdelightgh' },
                 { label: 'Facebook', val: 'Cookers Delight', icon: <BsFacebook />, href: 'https://facebook.com/cookersdelightgh' }
               ].map(c => (
-                <a key={c.label} href={c.href} className="bg-white/5 p-8 rounded-[40px] border border-white/5 hover:border-brand-orange/40 transition-all">
+                <a key={c.label} href={c.href} className="bg-white p-8 rounded-[40px] border border-gray-100 hover:border-brand-orange/40 transition-all shadow-sm">
                   <div className="text-brand-orange mb-6">{c.icon}</div>
-                  <p className="text-white/40 uppercase text-xs font-bold tracking-widest mb-1">{c.label}</p>
-                  <p className="text-xl font-bold">{c.val}</p>
+                  <p className="text-brand-dark/50 uppercase text-xs font-bold tracking-widest mb-1">{c.label}</p>
+                  <p className="text-xl font-bold text-brand-dark">{c.val}</p>
                 </a>
               ))}
             </div>
           </div>
-          <div className="bg-white/5 p-16 rounded-[60px] border border-white/5">
+          <div className="bg-white p-16 rounded-[60px] border border-gray-100 shadow-sm">
              <form onSubmit={handleSubmit} className="space-y-8">
                 <div className="space-y-3">
-                   <label className="text-xs uppercase font-bold text-white/40 tracking-widest">Full Name</label>
-                   <input required name="name" type="text" className="w-full bg-black/40 border border-white/10 rounded-2xl p-5 focus:border-brand-orange outline-none" placeholder="Your Name" />
+                   <label className="text-xs uppercase font-bold text-brand-dark/50 tracking-widest">Full Name</label>
+                   <input required name="name" type="text" className="w-full bg-white border border-gray-200 rounded-2xl p-5 focus:border-brand-olive outline-none text-brand-dark" placeholder="Your Name" />
                 </div>
                 <div className="space-y-3">
-                   <label className="text-xs uppercase font-bold text-white/40 tracking-widest">Email Address</label>
-                   <input required name="email" type="email" className="w-full bg-black/40 border border-white/10 rounded-2xl p-5 focus:border-brand-orange outline-none" placeholder="you@example.com" />
+                   <label className="text-xs uppercase font-bold text-brand-dark/50 tracking-widest">Email Address</label>
+                   <input required name="email" type="email" className="w-full bg-white border border-gray-200 rounded-2xl p-5 focus:border-brand-olive outline-none text-brand-dark" placeholder="you@example.com" />
                 </div>
                 <div className="space-y-3">
-                   <label className="text-xs uppercase font-bold text-white/40 tracking-widest">Message</label>
-                   <textarea required name="message" rows={5} className="w-full bg-black/40 border border-white/10 rounded-2xl p-5 focus:border-brand-orange outline-none resize-none" placeholder="How can we help?"></textarea>
+                   <label className="text-xs uppercase font-bold text-brand-dark/50 tracking-widest">Message</label>
+                   <textarea required name="message" rows={5} className="w-full bg-white border border-gray-200 rounded-2xl p-5 focus:border-brand-olive outline-none resize-none text-brand-dark" placeholder="How can we help?"></textarea>
                 </div>
                 <button type="submit" className="w-full bg-brand-orange text-white py-6 rounded-2xl font-bold text-xl hover:scale-105 transition-all">Send Message</button>
              </form>
@@ -1200,7 +1200,7 @@ const Footer = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => v
   };
 
   return (
-    <footer className="bg-[#050505] pt-32 pb-16 relative overflow-hidden">
+    <footer className="bg-brand-olive-dark pt-32 pb-16 relative overflow-hidden">
       <div className="absolute inset-0 flex items-center overflow-hidden pointer-events-none">
          <div className="animate-marquee-drift whitespace-nowrap opacity-[0.02]">
             <span className="text-[25vw] font-display font-bold leading-none select-none px-20">COOKERS DELIGHT COOKERS DELIGHT COOKERS DELIGHT</span>
@@ -1222,7 +1222,7 @@ const Footer = ({ setCurrentPage, addToast }: { setCurrentPage: (p: string) => v
              <h4 className="text-xl font-bold uppercase text-brand-orange tracking-widest text-xs">Navigation</h4>
              <ul className="space-y-4 font-body text-white/60">
                 {['Home', 'Menu', 'Gallery', 'Branches', 'Reviews', 'Contact'].map(l => (
-                  <li key={l}><button onClick={() => { setCurrentPage(l); window.scrollTo({ top: 0 }); }} className="hover:text-brand-orange transition-colors">{l}</button></li>
+                  <li key={l}><button onClick={() => { setCurrentPage(l); window.scrollTo({ top: 0 }); }} className="hover:text-brand-gold transition-colors">{l}</button></li>
                 ))}
              </ul>
           </div>
@@ -1338,7 +1338,7 @@ function PublicWebsite() {
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0, opacity: 0 }}
                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    className="w-16 h-16 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full flex items-center justify-center text-white hover:bg-brand-orange transition-all"
+                    className="w-16 h-16 bg-white border border-gray-200 shadow-md rounded-full flex items-center justify-center text-brand-dark hover:bg-brand-orange hover:text-white hover:border-brand-orange transition-all"
                   >
                     <HiArrowUp size={24} />
                   </motion.button>
