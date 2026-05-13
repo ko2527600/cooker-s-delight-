@@ -1,0 +1,61 @@
+# STRESS TEST — Push API beyond normal limits
+# Deliberately ramps to extreme load to find breaking points.
+# Measures: at what arrival rate does the API begin to fail?
+#
+# Run: npm run test:stress
+# Requires: Server running at http://localhost:5000
+#
+# Expected behavior:
+#   - Low phases (≤ 50/s): All requests succeed
+#   - High phases (≥ 100/s): Some timeouts/errors expected
+#   - Extreme phase (200/s): Identify max throughput
+#   - Recovery phase: Verify server recovers after spike
+
+config:
+  target: "http://localhost:5000"
+  phases:
+    - name: "Baseline (10/s)"
+      duration: 30
+      arrivalRate: 10
+    - name: "Medium stress (50/s)"
+      duration: 60
+      arrivalRate: 50
+    - name: "High stress (100/s)"
+      duration: 60
+      arrivalRate: 100
+    - name: "Extreme load (200/s)"
+      duration: 60
+      arrivalRate: 200
+    - name: "Recovery check (10/s)"
+      duration: 30
+      arrivalRate: 10
+  http:
+    timeout: 30
+    pool: 50  # max concurrent connections
+
+scenarios:
+  # Use the lightest possible endpoints to measure raw throughput
+  - name: "Health Check Stress"
+    weight: 40
+    flow:
+      - get:
+          url: "/api/health"
+
+  - name: "Public Menu Stress"
+    weight: 40
+    flow:
+      - get:
+          url: "/api/menu"
+      - get:
+          url: "/api/branches"
+
+  # Auth endpoint stress (most expensive — bcrypt + DB)
+  - name: "Auth Endpoint Stress"
+    weight: 20
+    flow:
+      - post:
+          url: "/api/customers/auth/login"
+          json:
+            email: "stress-test-nonexistent@test.com"
+            password: "StressTest123!"
+          # Expect 401 (user not found) — still a valid server response
