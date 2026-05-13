@@ -53,7 +53,43 @@ class Extension extends BaseExtension
             Route::put('/{menuId}', [
                 \CookersDelight\TableSession\Http\Controllers\PrepTimeController::class,
                 'update',
-            ])->middleware(['admin']);
+            ])->middleware(['api']);
+        });
+
+        // Custom settings key-value store (React admin panel)
+        Route::prefix('api/cd/settings')->middleware(['api'])->group(function () {
+            Route::get('/', [
+                \CookersDelight\TableSession\Http\Controllers\CdSettingsController::class,
+                'index',
+            ]);
+            Route::put('/', [
+                \CookersDelight\TableSession\Http\Controllers\CdSettingsController::class,
+                'setMany',
+            ]);
+            Route::put('/{key}', [
+                \CookersDelight\TableSession\Http\Controllers\CdSettingsController::class,
+                'set',
+            ]);
+        });
+
+        // Admin JSON API for React panel Tables page
+        Route::prefix('api/admin/tables')->middleware(['api'])->group(function () {
+            Route::get('/', [
+                \CookersDelight\TableSession\Http\Controllers\AdminTablesApiController::class,
+                'index',
+            ]);
+            Route::post('/', [
+                \CookersDelight\TableSession\Http\Controllers\AdminTablesApiController::class,
+                'store',
+            ]);
+            Route::delete('/{id}', [
+                \CookersDelight\TableSession\Http\Controllers\AdminTablesApiController::class,
+                'destroy',
+            ]);
+            Route::get('/{id}/qr-print', [
+                \CookersDelight\TableSession\Http\Controllers\AdminTablesApiController::class,
+                'qrPrintUrl',
+            ]);
         });
     }
 
