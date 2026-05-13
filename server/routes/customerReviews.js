@@ -2,6 +2,7 @@ import express from "express";
 const router = express.Router();
 import prisma from "../lib/prisma.js";
 import customerAuth from "../middleware/customerAuth.js";
+import { validate, submitReviewSchema } from "../middleware/validate.js";
 
 router.use(customerAuth);
 
@@ -21,7 +22,7 @@ router.get("/", async (req, res) => {
 
 // @route   POST /api/customers/reviews
 // @desc    Submit a review and earn loyalty points
-router.post("/", async (req, res) => {
+router.post("/", validate(submitReviewSchema), async (req, res) => {
   try {
     const { menuItemId, menuItemName, branch, rating, comment } = req.body;
 
@@ -31,7 +32,7 @@ router.post("/", async (req, res) => {
         menuItemId,
         menuItemName,
         branch,
-        rating: parseInt(rating),
+        rating,
         comment,
         approved: false
       }

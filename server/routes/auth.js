@@ -4,11 +4,11 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import prisma from "../lib/prisma.js";
 import auth from "../middleware/auth.js";
+import { validate, adminLoginSchema, adminChangePasswordSchema } from "../middleware/validate.js";
 
 // @route   POST /api/auth/login
-// @desc    Authenticate user & get token
 // @access  Public
-router.post("/login", async (req, res) => {
+router.post("/login", validate(adminLoginSchema), async (req, res) => {
   const { email, password, rememberMe = true } = req.body;
 
   const user = await prisma.user.findUnique({ where: { email } });
@@ -55,7 +55,6 @@ router.post("/login", async (req, res) => {
 });
 
 // @route   POST /api/auth/logout
-// @desc    Logout user & clear cookie
 // @access  Public
 router.post("/logout", (req, res) => {
   res.clearCookie("cd_admin_token", {
@@ -67,10 +66,9 @@ router.post("/logout", (req, res) => {
 });
 
 // @route   GET /api/auth/me
-// @desc    Get current user
 // @access  Private
 router.get("/me", auth, async (req, res) => {
-  const user = await prisma.user.findUnique({ 
+  const user = await prisma.user.findUnique({
     where: { id: req.user.id },
     select: { id: true, name: true, email: true, role: true, lastLogin: true }
   });
@@ -78,7 +76,6 @@ router.get("/me", auth, async (req, res) => {
 });
 
 // @route   PUT /api/auth/me
-// @desc    Update user profile
 // @access  Private
 router.put("/me", auth, async (req, res) => {
   const user = await prisma.user.update({
@@ -90,9 +87,8 @@ router.put("/me", auth, async (req, res) => {
 });
 
 // @route   POST /api/auth/change-password
-// @desc    Change password
 // @access  Private
-router.post("/change-password", auth, async (req, res) => {
+router.post("/change-password", auth, validate(adminChangePasswordSchema), async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
   const user = await prisma.user.findUnique({ where: { id: req.user.id } });
@@ -103,7 +99,7 @@ router.post("/change-password", auth, async (req, res) => {
 
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(newPassword, salt);
-  
+
   await prisma.user.update({
     where: { id: req.user.id },
     data: { password: hashedPassword }

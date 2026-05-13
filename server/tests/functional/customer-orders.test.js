@@ -61,7 +61,7 @@ describe("FUNCTIONAL — POST /api/customers/orders", () => {
       .send({ type: "delivery", deliveryAddress: "123 St", items: [], paymentMethod: "cash" })
 
     expect(res.status).toBe(400)
-    expect(res.body.message).toMatch(/at least one item/i)
+    expect(res.body.errors[0].message).toMatch(/at least one item/i)
   })
 
   it("creates delivery order and adds delivery fee", async () => {

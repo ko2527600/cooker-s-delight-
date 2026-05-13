@@ -7,6 +7,7 @@ import morgan from "morgan"
 import cookieParser from "cookie-parser"
 import path from "path"
 import { fileURLToPath } from "url"
+import rateLimit from "express-rate-limit"
 
 // Routes
 import healthRoutes from "./routes/health.js"
@@ -69,6 +70,32 @@ app.use(morgan(
 app.use(express.json({ limit: "10mb" }))
 app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 app.use(cookieParser())
+
+// ─── RATE LIMITING ───
+// FINDING 1 FIX: Limit auth endpoints to prevent brute-force attacks.
+// Shared store — in production, swap for a Redis store (rate-limit-redis).
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,  // 15 minutes
+  max: 10,                     // 10 attempts per window
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: { message: "Too many login attempts. Please try again in 15 minutes." },
+  skip: () => process.env.NODE_ENV === "test",  // disable during automated tests
+})
+
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,  // 1 hour
+  max: 5,                      // 5 registrations per IP per hour
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: { message: "Too many accounts created from this IP. Please try again later." },
+  skip: () => process.env.NODE_ENV === "test",
+})
+
+// Apply before the route handlers so they fire first
+app.use("/api/auth/login", authLimiter)
+app.use("/api/customers/auth/login", authLimiter)
+app.use("/api/customers/auth/register", registerLimiter)
 
 // ─── STATIC FILES ───
 app.use("/uploads", express.static(path.join(__dirname, "uploads")))

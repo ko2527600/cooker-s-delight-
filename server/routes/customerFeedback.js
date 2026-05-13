@@ -4,6 +4,7 @@ import prisma from "../lib/prisma.js";
 import multer from "multer";
 import path from "path";
 import customerAuth from "../middleware/customerAuth.js";
+import { validate, submitFeedbackSchema } from "../middleware/validate.js";
 
 const storage = multer.diskStorage({
   destination: "./uploads/feedback/",
@@ -39,14 +40,14 @@ router.get("/", customerAuth, async (req, res) => {
 // @route   POST /api/customers/feedback
 // @desc    Submit new feedback
 // @access  Private
-router.post("/", customerAuth, upload.single("screenshot"), async (req, res) => {
+router.post("/", customerAuth, upload.single("screenshot"), validate(submitFeedbackSchema), async (req, res) => {
   try {
     const { rating, category, title, message } = req.body;
 
     const feedback = await prisma.feedback.create({
       data: {
         customerId: req.customer.id,
-        rating: parseInt(rating),
+        rating,
         category: category || "general",
         title,
         message,

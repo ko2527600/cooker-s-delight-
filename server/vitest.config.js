@@ -18,6 +18,8 @@ export default defineConfig({
         "index.js",
       ]
     },
+    // Exclude Playwright UI tests — they run via `npm run test:ui`, not Vitest
+    exclude: ["node_modules/**", "tests/ui/**"],
     // Run each test file in isolation so vi.mock() doesn't bleed
     isolate: true,
   }
