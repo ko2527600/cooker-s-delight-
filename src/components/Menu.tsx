@@ -5,39 +5,44 @@
 
 import { motion } from 'motion/react';
 import { useState } from 'react';
+import { HiStar } from 'react-icons/hi2';
 import { MENU_DATA } from '../constants';
-import { HiOutlineShoppingBag, HiPlus } from 'react-icons/hi2';
 
 export function Menu() {
   const categories = ['All', 'Ghanaian', 'Nigerian', 'Fast Food', 'Continental', 'Snacks', 'Sides'];
   const [activeTab, setActiveTab] = useState('All');
 
-  const filteredItems = activeTab === 'All' 
-    ? MENU_DATA 
+  const filteredItems = activeTab === 'All'
+    ? MENU_DATA
     : MENU_DATA.filter(item => item.category === activeTab);
 
+  // Alternate card backgrounds: olive and olive-dark
+  const cardBgs = ['card-olive', 'card-olive-dark'];
+
   return (
-    <section id="menu" className="py-24 bg-[#111111] immersive-gradient relative border-y border-white/5">
+    <section id="menu" className="py-24 bg-brand-cream">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-        <div className="text-center mb-16">
-          <h2 className="font-serif text-4xl md:text-5xl font-black text-white mb-4">
-            Our Taste-Bud <span className="text-brand-orange">Heaven</span>
+
+        {/* Section Heading */}
+        <div className="text-center mb-12">
+          <h2 className="font-display text-4xl md:text-5xl font-bold text-brand-dark mb-4">
+            Our <span className="text-brand-orange">Menu</span>
           </h2>
-          <p className="text-white/40 max-w-2xl mx-auto italic text-lg uppercase tracking-widest text-xs font-black">
-            "A perfect blend of tradition and modern mastery."
+          <p className="text-brand-dark/50 max-w-2xl mx-auto italic text-sm font-semibold tracking-wide">
+            A perfect blend of tradition and modern mastery.
           </p>
         </div>
 
-        {/* Categories */}
-        <div className="flex flex-wrap justify-center gap-4 mb-16">
+        {/* Category Filter Pills */}
+        <div className="flex flex-wrap justify-center gap-3 mb-12">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveTab(cat)}
-              className={`px-8 py-3 rounded-sm font-black text-[10px] uppercase tracking-widest transition-all duration-300 border ${
-                activeTab === cat 
-                  ? 'bg-brand-orange text-white border-brand-orange shadow-lg shadow-brand-orange/20 scale-105' 
-                  : 'bg-white/5 text-white/50 border-white/10 hover:bg-white/10 hover:text-white'
+              className={`px-5 py-2 rounded-full font-semibold text-sm transition-all duration-300 border ${
+                activeTab === cat
+                  ? 'bg-brand-olive text-white border-brand-olive shadow-sm scale-105'
+                  : 'bg-white border-gray-200 text-brand-dark/60 hover:border-brand-olive hover:text-brand-olive'
               }`}
             >
               {cat}
@@ -45,50 +50,65 @@ export function Menu() {
           ))}
         </div>
 
-        {/* Menu Grid */}
-        <motion.div 
+        {/* Menu Card Grid (3 columns) */}
+        <motion.div
           layout
-          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10"
+          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"
         >
-          {filteredItems.map((item) => (
-            <motion.div
-              layout
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              key={item.id}
-              className="group glass-panel rounded-lg overflow-hidden border-white/5 hover:border-brand-orange transition-all h-full flex flex-col"
-            >
-              <div className="aspect-[4/3] overflow-hidden relative group-hover:grayscale-0 transition-all duration-700">
-                <img 
-                  src={item.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800&fm=webp'} 
-                  alt={item.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  loading="lazy"
-                  decoding="async"
-                />
-                <div className="absolute top-4 left-4 bg-brand-orange px-3 py-1 rounded-sm text-[9px] font-black uppercase tracking-widest text-white">
-                  {item.category}
-                </div>
-              </div>
-              
-              <div className="p-8 flex flex-col flex-grow">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="font-serif text-2xl font-bold text-white leading-tight">{item.name}</h3>
-                  <span className="text-brand-orange font-black text-lg">{item.price}</span>
-                </div>
-                <p className="text-white/40 text-sm mb-8 flex-grow leading-relaxed">{item.description}</p>
-                <div className="flex items-center justify-between pt-6 border-t border-white/5">
-                  <div className="flex items-center gap-1 text-brand-orange/40 text-[10px]">
-                    {'GH-AUTH'.repeat(1)}
+          {filteredItems.map((item, idx) => {
+            const bgClass = cardBgs[idx % 2];
+            return (
+              <motion.div
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                key={item.id}
+                className={`${bgClass} rounded-2xl overflow-hidden flex flex-col group`}
+              >
+                {/* Image */}
+                <div className="relative h-48 overflow-hidden rounded-t-2xl flex-shrink-0">
+                  <img
+                    src={item.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=800&fm=webp'}
+                    alt={item.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  {/* Best Seller pill */}
+                  <div className="absolute top-3 left-3 bg-white/90 text-brand-olive px-2.5 py-0.5 rounded-full text-[10px] font-bold">
+                    Best Seller
                   </div>
-                  <button className="flex items-center gap-2 bg-transparent border border-white/20 text-white px-5 py-2.5 rounded-sm text-[10px] uppercase font-black tracking-widest hover:bg-white hover:text-black transition-colors">
-                    <HiPlus size={12} />
-                    Quick Add
-                  </button>
+                  {/* Price circle */}
+                  <div className="absolute top-3 right-3 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md">
+                    <span className="font-display font-bold text-brand-dark text-sm">{item.price}</span>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+
+                {/* Card Body */}
+                <div className="p-6 flex flex-col gap-2 flex-grow">
+                  {/* Stars */}
+                  <div className="flex items-center gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <HiStar key={i} size={13} color="#F5A623" />
+                    ))}
+                  </div>
+                  {/* Dish name */}
+                  <h3 className="font-display font-bold text-white text-xl leading-tight">{item.name}</h3>
+                  {/* Description */}
+                  <p className="text-white/60 text-sm leading-relaxed flex-grow">{item.description}</p>
+                  {/* ORDER NOW button */}
+                  <a
+                    href="https://wa.me/233243379412"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 bg-brand-orange text-white text-center py-3 rounded-full text-xs font-bold uppercase tracking-wide hover:bg-brand-orange/90 transition-all"
+                  >
+                    ORDER NOW
+                  </a>
+                </div>
+              </motion.div>
+            );
+          })}
         </motion.div>
       </div>
     </section>

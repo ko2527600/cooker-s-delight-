@@ -31,76 +31,76 @@ export function Reviews() {
   };
 
   return (
-    <section id="reviews" className="py-24 bg-[#111111] relative overflow-hidden border-t border-white/5">
+    <section id="reviews" className="py-24 bg-brand-cream relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
           <div className="max-w-xl">
-            <h2 className="font-serif text-4xl md:text-6xl font-normal text-white mb-6 leading-tight tracking-tighter">
+            <h2 className="font-display text-4xl md:text-6xl font-bold text-brand-dark mb-4 leading-tight tracking-tight">
               What Our <br /><span className="text-brand-orange">People Say.</span>
             </h2>
-            <p className="text-white/40 text-lg uppercase tracking-widest text-[10px] font-black">
+            <p className="text-brand-dark/50 text-sm font-semibold tracking-wide">
               Real feedback from our valued customers across Accra.
             </p>
           </div>
-          <button 
+          <button
             onClick={() => setShowForm(!showForm)}
-            className="group flex items-center gap-3 bg-brand-orange text-white px-8 py-4 rounded-sm font-black uppercase tracking-widest text-[11px] hover:opacity-90 transition-all shadow-xl shadow-brand-orange/10"
+            className="flex items-center gap-2 bg-brand-orange text-white px-8 py-3.5 rounded-full font-bold text-sm hover:bg-brand-orange/90 transition-all shadow-sm"
           >
             {showForm ? 'Cancel' : 'Share Your Experience'}
-            {!showForm && <HiPlus size={16} />}
+            {!showForm && <HiPlus size={15} />}
           </button>
         </div>
 
         {showForm && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-20 glass-panel p-10 rounded-sm border-brand-orange/20"
+            className="mb-16 bg-white rounded-2xl p-10 shadow-sm border border-gray-100"
           >
-            <h3 className="text-[10px] uppercase font-black tracking-[0.3em] text-white/30 mb-8 border-b border-white/5 pb-4">New Review Submission</h3>
+            <h3 className="text-xs uppercase font-bold tracking-widest text-brand-dark/40 mb-6 border-b border-gray-100 pb-4">New Review</h3>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-[10px] font-black uppercase text-white/30 mb-2 tracking-widest">Your Name</label>
-                  <input 
+                  <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-2 tracking-widest">Your Name</label>
+                  <input
                     required
-                    type="text" 
+                    type="text"
                     value={newReview.author}
                     onChange={(e) => setNewReview({...newReview, author: e.target.value})}
                     placeholder="E.g. Ama Serwaa"
-                    className="w-full bg-white/5 border border-white/10 rounded-sm px-5 py-3 text-white focus:outline-none focus:border-brand-orange transition-all placeholder:text-white/10"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-5 py-3 text-brand-dark focus:outline-none focus:border-brand-olive transition-all placeholder:text-gray-300"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black uppercase text-white/30 mb-2 tracking-widest">Rating (1-5)</label>
-                  <select 
+                  <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-2 tracking-widest">Rating (1-5)</label>
+                  <select
                     value={newReview.rating}
                     onChange={(e) => setNewReview({...newReview, rating: parseInt(e.target.value)})}
-                    className="w-full bg-white/5 border border-white/10 rounded-sm px-5 py-3 text-white focus:outline-none focus:border-brand-orange transition-all"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-5 py-3 text-brand-dark focus:outline-none focus:border-brand-olive transition-all"
                   >
-                    {[5, 4, 3, 2, 1].map(n => <option key={n} value={n} className="bg-[#111]">{n} Stars</option>)}
+                    {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} Stars</option>)}
                   </select>
                 </div>
               </div>
               <div>
-                <label className="block text-[10px] font-black uppercase text-white/30 mb-2 tracking-widest">Your Comment</label>
-                <textarea 
+                <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-2 tracking-widest">Your Comment</label>
+                <textarea
                   required
                   rows={4}
                   value={newReview.comment}
                   onChange={(e) => setNewReview({...newReview, comment: e.target.value})}
                   placeholder="Tell us about the food and service..."
-                  className="w-full bg-white/5 border border-white/10 rounded-sm px-5 py-3 text-white focus:outline-none focus:border-brand-orange transition-all resize-none placeholder:text-white/10"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-5 py-3 text-brand-dark focus:outline-none focus:border-brand-olive transition-all resize-none placeholder:text-gray-300"
                 ></textarea>
               </div>
-              <button type="submit" className="bg-white text-black py-4 px-10 rounded-sm font-black uppercase tracking-widest text-[11px] hover:bg-brand-orange hover:text-white transition-all shadow-xl">
+              <button type="submit" className="bg-brand-olive text-white py-3.5 px-10 rounded-full font-bold text-sm hover:bg-brand-olive-dark transition-all shadow-sm">
                 Submit Review
               </button>
             </form>
           </motion.div>
         )}
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 gap-6">
           {reviews.map((msg, i) => (
             <motion.div
               key={msg.id}
@@ -108,47 +108,42 @@ export function Reviews() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
               viewport={{ once: true }}
-              className="glass-panel p-8 rounded-lg relative border-white/5 flex flex-col h-full"
+              className="bg-white rounded-2xl p-8 shadow-sm border-l-4 border-brand-olive relative flex flex-col h-full"
             >
-              <span className="absolute top-6 right-6 text-white/5">
-                <BsQuote size={40} />
+              <span className="absolute top-5 right-5 text-gray-100">
+                <BsQuote size={36} />
               </span>
-              
-              <div className="flex items-center gap-1 mb-6">
+
+              <div className="flex items-center gap-0.5 mb-4">
                 {[...Array(5)].map((_, i) => (
                   <React.Fragment key={i}>
                     {i < msg.rating ? (
-                      <HiStar size={12} color="#EC4824" />
+                      <HiStar size={13} color="#F5A623" />
                     ) : (
-                      <HiOutlineStar size={12} color="rgba(255,255,255,0.1)" />
+                      <HiOutlineStar size={13} color="#D1D5DB" />
                     )}
                   </React.Fragment>
                 ))}
               </div>
 
-              <p className="text-white/70 text-lg italic mb-8 flex-grow leading-relaxed">
+              <p className="text-brand-dark/70 text-base italic mb-6 flex-grow leading-relaxed">
                 "{msg.comment}"
               </p>
 
-              <div className="flex items-center gap-4 pt-6 border-t border-white/5">
+              <div className="flex items-center gap-3 pt-5 border-t border-gray-100">
                 {msg.avatar ? (
-                  <img src={msg.avatar} alt={msg.author} className="w-10 h-10 rounded-full border border-white/10" />
+                  <img src={msg.avatar} alt={msg.author} className="w-10 h-10 rounded-full border border-gray-200" />
                 ) : (
-                  <HiUserCircle size={40} color="rgba(255,255,255,0.2)" />
+                  <HiUserCircle size={40} color="#D1D5DB" />
                 )}
                 <div>
-                  <h4 className="text-white font-bold text-sm tracking-tight">{msg.author}</h4>
-                  <p className="text-[9px] uppercase font-black text-white/30 tracking-[0.2em]">{msg.date}</p>
+                  <h4 className="text-brand-dark font-bold text-sm">{msg.author}</h4>
+                  <p className="text-xs text-gray-400 font-semibold">{msg.date}</p>
                 </div>
               </div>
             </motion.div>
           ))}
         </div>
-      </div>
-      
-      {/* Background large decorative quote */}
-      <div className="absolute top-1/2 left-0 -translate-y-1/2 text-[30vw] font-black text-white/[0.01] select-none pointer-events-none -ml-[10vw]">
-        &rdquo;
       </div>
     </section>
   );

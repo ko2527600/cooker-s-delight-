@@ -10,14 +10,14 @@ import { FiPhone, FiExternalLink } from 'react-icons/fi';
 
 export function Branches() {
   return (
-    <section id="branches" className="py-24 bg-[#111111] relative">
+    <section id="branches" className="py-24 bg-brand-cream relative">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
           <div className="max-w-xl">
-            <h2 className="font-serif text-4xl md:text-5xl font-black text-white mb-4">
+            <h2 className="font-display text-4xl md:text-5xl font-bold text-brand-dark mb-3">
               Find Us Near <span className="text-brand-orange">You</span>
             </h2>
-            <p className="text-white/40 text-lg uppercase tracking-widest text-[10px] font-black">
+            <p className="text-brand-dark/50 text-sm font-semibold">
               Strategically located branches across Accra.
             </p>
           </div>
@@ -31,35 +31,33 @@ export function Branches() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
               viewport={{ once: true }}
-              className="glass-panel p-8 rounded-lg border-white/5 hover:border-brand-orange/50 transition-all flex flex-col h-full"
+              className="bg-white rounded-2xl p-7 border border-gray-100 shadow-sm hover:border-brand-olive/40 transition-all flex flex-col h-full"
             >
-              <div className="bg-brand-orange/10 w-12 h-12 rounded-sm flex items-center justify-center mb-6">
-                <HiMapPin size={24} color="#EC4824" />
+              <div className="bg-brand-olive/10 w-11 h-11 rounded-xl flex items-center justify-center mb-5">
+                <HiMapPin size={22} color="#6B7A3A" />
               </div>
-              <h3 className="font-serif text-2xl font-bold text-white mb-2">{branch.name}</h3>
-              <p className="text-brand-orange font-black text-[10px] uppercase tracking-widest mb-4">{branch.area}</p>
-              
-              <div className="space-y-3 mb-8 flex-grow">
-                <div className="flex items-center gap-3 text-white/40 text-xs">
-                   <div className="w-1 h-1 rounded-full bg-brand-orange" />
-                   {branch.landmark}
+              <h3 className="font-display text-xl font-bold text-brand-dark mb-1">{branch.name}</h3>
+              <p className="text-brand-olive font-bold text-xs uppercase tracking-widest mb-4">{branch.area}</p>
+
+              <div className="space-y-2.5 mb-6 flex-grow">
+                <div className="flex items-center gap-2.5 text-brand-dark/50 text-xs">
+                  <div className="w-1.5 h-1.5 rounded-full bg-brand-olive flex-shrink-0" />
+                  {branch.landmark}
                 </div>
-                <div className="flex items-center gap-3 text-white/40 text-xs">
-                   <FiPhone size={12} />
-                   {branch.phone}
+                <div className="flex items-center gap-2.5 text-brand-dark/50 text-xs">
+                  <FiPhone size={11} className="flex-shrink-0 text-brand-olive" />
+                  {branch.phone}
                 </div>
               </div>
 
-              <a 
-                href={`https://www.google.com/maps/search/Cookers+Delight+${branch.name}+Accra`} 
+              <a
+                href={`https://www.google.com/maps/search/Cookers+Delight+${branch.name}+Accra`}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center justify-center gap-2 w-full py-3 bg-white/5 text-white/70 font-black uppercase tracking-widest text-[10px] rounded-sm border border-white/10 hover:bg-white hover:text-black transition-all group"
+                className="flex items-center justify-center gap-2 w-full py-2.5 bg-brand-cream text-brand-dark font-bold text-xs rounded-full border border-gray-200 hover:bg-brand-olive hover:text-white hover:border-brand-olive transition-all group"
               >
                 Get Directions
-                <span className="group-hover:scale-110 transition-transform">
-                  <FiExternalLink size={12} />
-                </span>
+                <FiExternalLink size={11} className="group-hover:scale-110 transition-transform" />
               </a>
             </motion.div>
           ))}
@@ -70,16 +68,16 @@ export function Branches() {
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="mt-20 bg-brand-black rounded-[2.5rem] p-12 text-center text-white relative overflow-hidden shadow-2xl"
+          className="mt-16 bg-brand-olive-dark rounded-3xl p-12 text-center text-white relative overflow-hidden shadow-xl"
         >
-          <div className="absolute top-0 right-0 w-64 h-64 bg-brand-burgundy rounded-full blur-[100px] opacity-40 -translate-y-1/2 translate-x-1/2" />
-          <h3 className="font-serif text-3xl md:text-4xl font-bold mb-6 relative z-10">Hosting an Event?</h3>
-          <p className="text-white/60 text-lg mb-10 max-w-2xl mx-auto relative z-10 italic">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-brand-orange/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
+          <h3 className="font-display text-3xl md:text-4xl font-bold mb-4 relative z-10">Hosting an Event?</h3>
+          <p className="text-white/70 text-base mb-8 max-w-2xl mx-auto relative z-10 italic">
             "Professional service delivery for all your catering needs. Corporate events, weddings, and private parties."
           </p>
           <a
             href="#contact"
-            className="inline-flex items-center gap-3 bg-brand-orange text-white px-10 py-4 rounded-2xl font-bold hover:scale-105 transition-transform relative z-10"
+            className="inline-flex items-center gap-2 bg-brand-orange text-white px-10 py-3.5 rounded-full font-bold text-sm hover:bg-brand-orange/90 transition-all relative z-10 shadow-sm"
           >
             Enquire about Catering
           </a>
