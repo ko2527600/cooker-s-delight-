@@ -2,8 +2,8 @@ import express from "express";
 const router = express.Router();
 import prisma from "../lib/prisma.js";
 import customerAuth from "../middleware/customerAuth.js";
+import { validate, createOrderSchema, rateOrderSchema } from "../middleware/validate.js";
 
-// Helper — generate order number
 function generateOrderNumber() {
   const date = new Date();
   const dateStr = date.toISOString().slice(0, 10).replace(/-/g, "");
@@ -11,7 +11,6 @@ function generateOrderNumber() {
   return `CD-${dateStr}-${random}`;
 }
 
-// Helper — calculate loyalty points earned
 function calcPoints(totalAmount) {
   return Math.floor(totalAmount / 10);
 }
@@ -19,7 +18,6 @@ function calcPoints(totalAmount) {
 router.use(customerAuth);
 
 // @route   GET /api/customers/orders
-// @desc    Get all orders for the logged-in customer
 router.get("/", async (req, res) => {
   try {
     const { status } = req.query;
@@ -38,7 +36,6 @@ router.get("/", async (req, res) => {
 });
 
 // @route   GET /api/customers/orders/:id
-// @desc    Get order details
 router.get("/:id", async (req, res) => {
   try {
     const order = await prisma.customerOrder.findUnique({
@@ -57,33 +54,27 @@ router.get("/:id", async (req, res) => {
 });
 
 // @route   POST /api/customers/orders
-// @desc    Create a new order
-router.post("/", async (req, res) => {
+router.post("/", validate(createOrderSchema), async (req, res) => {
   try {
-    const { 
-      type, branch, deliveryAddress, deliveryArea, deliveryLandmark, 
+    const {
+      type, branch, deliveryAddress, deliveryArea, deliveryLandmark,
       items, paymentMethod, note, latitude, longitude
     } = req.body;
 
-    // Validate
+    // Business-logic checks (Zod already ensures type/items/paymentMethod are present)
     if (type === "delivery" && !deliveryAddress) {
       return res.status(400).json({ message: "Delivery address required" });
     }
     if (type === "pickup" && !branch) {
       return res.status(400).json({ message: "Please select a branch" });
     }
-    if (!items || items.length === 0) {
-      return res.status(400).json({ message: "Order must contain at least one item" });
-    }
 
-    // Calculate
     const subtotal = items.reduce((sum, i) => sum + (i.price * i.quantity), 0);
     const deliveryFee = type === "delivery" ? 15 : 0;
     const totalAmount = subtotal + deliveryFee;
     const pointsEarned = calcPoints(totalAmount);
     const orderNumber = generateOrderNumber();
 
-    // Create order
     const order = await prisma.customerOrder.create({
       data: {
         customerId: req.customer.id,
@@ -116,7 +107,6 @@ router.post("/", async (req, res) => {
       include: { items: true }
     });
 
-    // Update customer stats
     await prisma.customer.update({
       where: { id: req.customer.id },
       data: {
@@ -126,7 +116,6 @@ router.post("/", async (req, res) => {
       }
     });
 
-    // Add loyalty history
     await prisma.loyaltyHistory.create({
       data: {
         customerId: req.customer.id,
@@ -136,7 +125,6 @@ router.post("/", async (req, res) => {
       }
     });
 
-    // Create notification
     await prisma.notification.create({
       data: {
         customerId: req.customer.id,
@@ -154,10 +142,12 @@ router.post("/", async (req, res) => {
 });
 
 // @route   POST /api/customers/orders/:id/cancel
-// @desc    Cancel an order
 router.post("/:id/cancel", async (req, res) => {
   try {
-    const { cancelReason } = req.body;
+    const cancelReason = typeof req.body?.cancelReason === "string"
+      ? req.body.cancelReason.slice(0, 500)
+      : undefined;
+
     const order = await prisma.customerOrder.findUnique({
       where: { id: req.params.id }
     });
@@ -175,7 +165,6 @@ router.post("/:id/cancel", async (req, res) => {
       data: { status: "cancelled", cancelReason }
     });
 
-    // Reverse loyalty points and stats
     const pointsToReverse = calcPoints(order.totalAmount);
     await prisma.customer.update({
       where: { id: req.customer.id },
@@ -195,7 +184,6 @@ router.post("/:id/cancel", async (req, res) => {
       }
     });
 
-    // Notification
     await prisma.notification.create({
       data: {
         customerId: req.customer.id,
@@ -212,8 +200,7 @@ router.post("/:id/cancel", async (req, res) => {
 });
 
 // @route   POST /api/customers/orders/:id/rate
-// @desc    Rate a delivered order
-router.post("/:id/rate", async (req, res) => {
+router.post("/:id/rate", validate(rateOrderSchema), async (req, res) => {
   try {
     const { rating, ratingComment } = req.body;
     const order = await prisma.customerOrder.findUnique({

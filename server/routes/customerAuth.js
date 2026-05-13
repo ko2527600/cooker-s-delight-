@@ -4,11 +4,16 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import prisma from "../lib/prisma.js";
 import customerAuth from "../middleware/customerAuth.js";
+import {
+  validate,
+  customerRegisterSchema,
+  customerLoginSchema,
+  customerChangePasswordSchema,
+} from "../middleware/validate.js";
 
 // @route   POST /api/customers/auth/register
-// @desc    Register a new customer
 // @access  Public
-router.post("/register", async (req, res) => {
+router.post("/register", validate(customerRegisterSchema), async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
 
@@ -32,7 +37,6 @@ router.post("/register", async (req, res) => {
       omit: { password: true }
     });
 
-    // Create welcome notification
     await prisma.notification.create({
       data: {
         customerId: customer.id,
@@ -43,7 +47,6 @@ router.post("/register", async (req, res) => {
       }
     });
 
-    // Add loyalty history entry
     await prisma.loyaltyHistory.create({
       data: {
         customerId: customer.id,
@@ -53,7 +56,7 @@ router.post("/register", async (req, res) => {
       }
     });
 
-    const cookieMaxAge = 30 * 24 * 60 * 60 * 1000; // Default 30 days for registration
+    const cookieMaxAge = 30 * 24 * 60 * 60 * 1000;
     const token = jwt.sign(
       { id: customer.id, email: customer.email, role: "customer" },
       process.env.JWT_SECRET,
@@ -74,11 +77,10 @@ router.post("/register", async (req, res) => {
 });
 
 // @route   POST /api/customers/auth/login
-// @desc    Login customer
 // @access  Public
-router.post("/login", async (req, res) => {
+router.post("/login", validate(customerLoginSchema), async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, rememberMe = true } = req.body;
 
     const customer = await prisma.customer.findUnique({ where: { email } });
     if (!customer) {
@@ -100,7 +102,6 @@ router.post("/login", async (req, res) => {
       omit: { password: true }
     });
 
-    const { rememberMe = true } = req.body;
     const cookieMaxAge = rememberMe ? 30 * 24 * 60 * 60 * 1000 : undefined;
     const tokenExpiry = rememberMe ? "30d" : "24h";
 
@@ -127,19 +128,21 @@ import { OAuth2Client } from "google-auth-library";
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // @route   POST /api/customers/auth/google
-// @desc    Google OAuth login/register
 // @access  Public
 router.post("/google", async (req, res) => {
   try {
     const { credential } = req.body;
-    
-    // Verify Google Token
+
+    if (!credential || typeof credential !== "string") {
+      return res.status(400).json({ message: "Google credential required" });
+    }
+
     const ticket = await client.verifyIdToken({
-        idToken: credential,
-        audience: process.env.GOOGLE_CLIENT_ID
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID
     });
     const payload = ticket.getPayload();
-    
+
     const { sub: googleId, email, name, picture: avatar } = payload;
 
     let customer = await prisma.customer.findUnique({ where: { email } });
@@ -174,7 +177,6 @@ router.post("/google", async (req, res) => {
         omit: { password: true }
       });
 
-      // Welcome rewards for new Google users
       await prisma.notification.create({
         data: {
           customerId: customer.id,
@@ -215,8 +217,8 @@ router.post("/google", async (req, res) => {
     res.status(500).json({ message: "Google Authentication failed" });
   }
 });
+
 // @route   POST /api/customers/auth/logout
-// @desc    Logout customer & clear cookie
 // @access  Public
 router.post("/logout", (req, res) => {
   res.clearCookie("cd_customer_token", {
@@ -228,17 +230,14 @@ router.post("/logout", (req, res) => {
 });
 
 // @route   GET /api/customers/auth/me
-// @desc    Get current customer profile
-// @access  Private (Customer)
+// @access  Private
 router.get("/me", customerAuth, async (req, res) => {
   try {
     const customer = await prisma.customer.findUnique({
       where: { id: req.customer.id },
       include: {
         addresses: true,
-        _count: {
-          select: { orders: true, reviews: true }
-        }
+        _count: { select: { orders: true, reviews: true } }
       },
       omit: { password: true }
     });
@@ -249,8 +248,7 @@ router.get("/me", customerAuth, async (req, res) => {
 });
 
 // @route   PUT /api/customers/auth/profile
-// @desc    Update customer profile
-// @access  Private (Customer)
+// @access  Private
 router.put("/profile", customerAuth, async (req, res) => {
   try {
     const { name, phone, avatar } = req.body;
@@ -266,33 +264,37 @@ router.put("/profile", customerAuth, async (req, res) => {
 });
 
 // @route   POST /api/customers/auth/change-password
-// @desc    Change customer password
-// @access  Private (Customer)
-router.post("/change-password", customerAuth, async (req, res) => {
-  try {
-    const { currentPassword, newPassword } = req.body;
+// @access  Private
+router.post(
+  "/change-password",
+  customerAuth,
+  validate(customerChangePasswordSchema),
+  async (req, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
 
-    if (!req.customer.password) {
-      return res.status(400).json({ message: "Use Google to sign in" });
+      if (!req.customer.password) {
+        return res.status(400).json({ message: "Use Google to sign in" });
+      }
+
+      const isMatch = await bcrypt.compare(currentPassword, req.customer.password);
+      if (!isMatch) {
+        return res.status(401).json({ message: "Current password incorrect" });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+      await prisma.customer.update({
+        where: { id: req.customer.id },
+        data: { password: hashedPassword }
+      });
+
+      res.json({ message: "Password updated" });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
     }
-
-    const isMatch = await bcrypt.compare(currentPassword, req.customer.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Current password incorrect" });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-    await prisma.customer.update({
-      where: { id: req.customer.id },
-      data: { password: hashedPassword }
-    });
-
-    res.json({ message: "Password updated" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
   }
-});
+);
 
 export default router;

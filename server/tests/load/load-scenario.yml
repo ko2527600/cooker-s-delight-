@@ -1,0 +1,118 @@
+# LOAD TEST — Realistic concurrent user load
+# Simulates realistic traffic patterns for the Cookers Delight API.
+#
+# Run: npm run test:load
+# Requires: Server running at http://localhost:5000
+#           TEST_ADMIN_TOKEN and TEST_CUSTOMER_TOKEN env vars set
+#
+# Success thresholds:
+#   - p95 response time < 500ms
+#   - Error rate < 1%
+#   - HTTP 200/201 rate > 95%
+
+config:
+  target: "http://localhost:5000"
+  phases:
+    - name: "Warm-up"
+      duration: 30
+      arrivalRate: 2
+    - name: "Ramp up"
+      duration: 60
+      arrivalRate: 5
+      rampTo: 20
+    - name: "Sustained load"
+      duration: 120
+      arrivalRate: 20
+    - name: "Cool down"
+      duration: 30
+      arrivalRate: 5
+  environments:
+    production:
+      target: "https://cookers-delight-api.onrender.com"
+  plugins:
+    ensure: {}
+  ensure:
+    thresholds:
+      - http.response_time.p95: 500
+      - http.codes.200: 95
+  http:
+    timeout: 10
+
+scenarios:
+  # 50% — Public browsing (most common use case)
+  - name: "Public Menu Browsing"
+    weight: 50
+    flow:
+      - get:
+          url: "/api/health"
+          expect:
+            - statusCode: 200
+      - get:
+          url: "/api/menu"
+          expect:
+            - statusCode: 200
+      - get:
+          url: "/api/branches"
+      - get:
+          url: "/api/announcements"
+      - get:
+          url: "/api/reviews"
+      - get:
+          url: "/api/gallery"
+
+  # 30% — Customer login + order
+  - name: "Customer Order Flow"
+    weight: 30
+    flow:
+      - post:
+          url: "/api/customers/auth/login"
+          json:
+            email: "{{ $processEnvironment.TEST_CUSTOMER_EMAIL }}"
+            password: "{{ $processEnvironment.TEST_CUSTOMER_PASSWORD }}"
+          capture:
+            - json: "$.token"
+              as: "customerToken"
+          expect:
+            - statusCode: 200
+      - get:
+          url: "/api/menu"
+      - post:
+          url: "/api/customers/orders"
+          headers:
+            Authorization: "Bearer {{ customerToken }}"
+          json:
+            type: "delivery"
+            deliveryAddress: "Load Test Address, Accra"
+            items:
+              - name: "Jollof Rice"
+                price: 45
+                quantity: 1
+                subtotal: 45
+            paymentMethod: "cash"
+          expect:
+            - statusCode: 200
+      - get:
+          url: "/api/customers/notifications"
+          headers:
+            Authorization: "Bearer {{ customerToken }}"
+
+  # 20% — Admin dashboard activity
+  - name: "Admin Dashboard"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/analytics/summary"
+          headers:
+            Authorization: "Bearer {{ $processEnvironment.TEST_ADMIN_TOKEN }}"
+          expect:
+            - statusCode: 200
+      - get:
+          url: "/api/orders"
+          headers:
+            Authorization: "Bearer {{ $processEnvironment.TEST_ADMIN_TOKEN }}"
+      - get:
+          url: "/api/admin/customers"
+          headers:
+            Authorization: "Bearer {{ $processEnvironment.TEST_ADMIN_TOKEN }}"
+      - get:
+          url: "/api/menu"
