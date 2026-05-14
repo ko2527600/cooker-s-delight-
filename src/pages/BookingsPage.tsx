@@ -14,6 +14,7 @@ import {
 import { reservationApi } from '../lib/api';
 import { usePageContext } from './PublicLayout';
 import PageWrapper from '../components/PageWrapper';
+import SEOHead from '../components/SEOHead';
 
 // ─── Static branch data (4 Cookers Delight locations) ────────────────────────
 const BRANCHES = [
@@ -187,6 +188,11 @@ export default function BookingsPage() {
   // ── Form ──────────────────────────────────────────────────────────────────
   return (
     <PageWrapper>
+      <SEOHead
+        title="Book a Table | Cookers Delight"
+        description="Reserve a table at Cookers Delight in Accra. Book online in minutes — choose your branch, date, time, and party size. We'll confirm your reservation promptly."
+        canonical="https://cookers-delight.vercel.app/bookings"
+      />
       {/* Hero */}
       <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
         <img

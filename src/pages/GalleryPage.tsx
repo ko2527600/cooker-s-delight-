@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { HiXMark, HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
 import PageWrapper from '../components/PageWrapper';
+import SEOHead from '../components/SEOHead';
 import { GALLERY_IMAGES } from '../constants';
 import { getImgUrl } from '../utils/image';
 
@@ -21,6 +22,11 @@ export default function GalleryPage() {
 
   return (
     <PageWrapper>
+      <SEOHead
+        title="Gallery | Cookers Delight"
+        description="See our food, ambiance, and dining experience at Cookers Delight. Authentic Ghanaian and Nigerian cuisine served with passion in Accra."
+        canonical="https://cookers-delight.vercel.app/gallery"
+      />
       <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
         <img src={getImgUrl(GALLERY_IMAGES[0].url)} className="absolute inset-0 w-full h-full object-cover opacity-50" alt="" />
         <div className="absolute inset-0 bg-gradient-to-t from-brand-black to-transparent" />

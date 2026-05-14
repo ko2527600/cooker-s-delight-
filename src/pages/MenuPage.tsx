@@ -6,6 +6,7 @@ import {
 } from 'react-icons/hi2';
 import { BsWhatsapp } from 'react-icons/bs';
 import PageWrapper from '../components/PageWrapper';
+import SEOHead from '../components/SEOHead';
 import { useApi } from '../hooks/useApi';
 import { menuApi, prepTimeApi } from '../lib/api';
 import { getImgUrl } from '../utils/image';
@@ -103,6 +104,11 @@ export default function MenuPage() {
 
   return (
     <PageWrapper>
+      <SEOHead
+        title="Our Menu | Cookers Delight"
+        description="Explore our full menu of authentic Ghanaian and Nigerian dishes — jollof rice, waakye, fufu, egusi soup, grilled meats and more. Order online for fast delivery in Accra."
+        canonical="https://cookers-delight.vercel.app/menu"
+      />
       {/* ── Page hero ─────────────────────────────────────────────────────── */}
       <section className="pt-28 pb-12 bg-[#F5EFE8]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
