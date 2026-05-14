@@ -52,9 +52,9 @@ export const reservationApi = {
 // ─── Prep times ───────────────────────────────────────────────────────────────
 
 export const prepTimeApi = {
-  // Returns { data: { [menu_id]: prep_time_minutes } }
+  // Trick 08 — versioned path: /v1/cd/prep-times
   getAll: () =>
-    api.get<{ data: Record<string, number> }>('/cd/prep-times', {
+    api.get<{ data: Record<string, number> }>('/v1/cd/prep-times', {
       baseURL: import.meta.env.VITE_TI_BASE_URL ?? import.meta.env.VITE_TI_API_URL?.replace('/api', ''),
     }),
 };

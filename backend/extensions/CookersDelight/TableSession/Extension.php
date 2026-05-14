@@ -34,33 +34,35 @@ class Extension extends BaseExtension
     }
 
     // -----------------------------------------------------------------------
-    // API routes (consumed by kawax and React site)
+    // API routes — Trick 08: versioned from day one (/v1/)
     // -----------------------------------------------------------------------
 
     protected function registerApiRoutes(): void
     {
-        // QR table-session routes — public-facing; rate-limited to 60 req/min
-        // to prevent brute-force enumeration of stable tokens.
-        Route::prefix('api/table-sessions')
+        // QR table-session routes — public-facing; rate-limited to 60 req/min.
+        // Trick 03: POST routes carry 'idempotency' middleware so double-taps
+        // return the cached first response instead of creating duplicate sessions.
+        Route::prefix('api/v1/table-sessions')
             ->middleware(['api', 'throttle:60,1'])
             ->group(function () {
                 Route::post('/by-table/{stableToken}', [
                     \CookersDelight\TableSession\Http\Controllers\TableSessionController::class,
                     'resolveByStableToken',
-                ]);
+                ])->middleware('idempotency');
+
                 Route::get('/{token}', [
                     \CookersDelight\TableSession\Http\Controllers\TableSessionController::class,
                     'show',
                 ]);
-                // Linking an order to a session is a write operation — also rate-limited.
+
                 Route::post('/{token}/order', [
                     \CookersDelight\TableSession\Http\Controllers\TableSessionController::class,
                     'placeOrder',
-                ]);
+                ])->middleware('idempotency');
             });
 
-        // Prep times — public GET is fine; PUT is admin-only and requires a valid admin token.
-        Route::prefix('api/cd/prep-times')->group(function () {
+        // Prep times
+        Route::prefix('api/v1/cd/prep-times')->group(function () {
             Route::get('/', [
                 \CookersDelight\TableSession\Http\Controllers\PrepTimeController::class,
                 'index',
@@ -69,12 +71,11 @@ class Extension extends BaseExtension
             Route::put('/{menuId}', [
                 \CookersDelight\TableSession\Http\Controllers\PrepTimeController::class,
                 'update',
-            ])->middleware(['api', 'admin.api']);     // SECURITY: admin token required
+            ])->middleware(['api', 'admin.api']);
         });
 
-        // Settings — GET is intentionally public (no secrets stored here);
-        // all writes are admin-only.
-        Route::prefix('api/cd/settings')->middleware(['api'])->group(function () {
+        // Settings
+        Route::prefix('api/v1/cd/settings')->middleware(['api'])->group(function () {
             Route::get('/', [
                 \CookersDelight\TableSession\Http\Controllers\CdSettingsController::class,
                 'index',
@@ -82,17 +83,17 @@ class Extension extends BaseExtension
             Route::put('/', [
                 \CookersDelight\TableSession\Http\Controllers\CdSettingsController::class,
                 'setMany',
-            ])->middleware('admin.api');              // SECURITY: admin token required
+            ])->middleware('admin.api');
 
             Route::put('/{key}', [
                 \CookersDelight\TableSession\Http\Controllers\CdSettingsController::class,
                 'set',
-            ])->middleware('admin.api');              // SECURITY: admin token required
+            ])->middleware('admin.api');
         });
 
-        // Admin JSON API for React panel Tables page — all operations are admin-only.
-        Route::prefix('api/admin/tables')
-            ->middleware(['api', 'admin.api'])         // SECURITY: admin token required on all
+        // Admin JSON API for React panel
+        Route::prefix('api/v1/admin/tables')
+            ->middleware(['api', 'admin.api'])
             ->group(function () {
                 Route::get('/', [
                     \CookersDelight\TableSession\Http\Controllers\AdminTablesApiController::class,
@@ -114,7 +115,7 @@ class Extension extends BaseExtension
     }
 
     // -----------------------------------------------------------------------
-    // Admin routes
+    // Admin routes (Blade / TI admin panel — not versioned, internal only)
     // -----------------------------------------------------------------------
 
     protected function registerAdminRoutes(): void
@@ -140,16 +141,12 @@ class Extension extends BaseExtension
     }
 
     // -----------------------------------------------------------------------
-    // SSE + Paystack
+    // SSE + Paystack — also versioned
     // -----------------------------------------------------------------------
 
     protected function registerSseRoute(): void
     {
-        // SECURITY: requires session_token query param so callers can only
-        // stream orders that belong to their own table session.
-        // Rate-limited: one SSE connection per IP per minute (mitigates DoS via
-        // open-connection flooding).
-        Route::get('api/orders/{orderId}/status-stream', [
+        Route::get('api/v1/orders/{orderId}/status-stream', [
             \CookersDelight\TableSession\Http\Controllers\OrderStatusStreamController::class,
             'stream',
         ])->middleware(['api', 'throttle:10,1']);
@@ -157,7 +154,9 @@ class Extension extends BaseExtension
 
     protected function registerWebhookRoutes(): void
     {
-        Route::post('webhooks/paystack', [
+        // Trick 08 — webhook path versioned too so future breaking changes
+        // (e.g. switching from Paystack to Stripe) can coexist.
+        Route::post('webhooks/v1/paystack', [
             \CookersDelight\TableSession\Http\Controllers\PaystackWebhookController::class,
             'handle',
         ])->middleware(['api']);

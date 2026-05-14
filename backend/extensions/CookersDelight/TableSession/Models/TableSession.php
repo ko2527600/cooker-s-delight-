@@ -3,12 +3,15 @@
 namespace CookersDelight\TableSession\Models;
 
 use Igniter\Flame\Database\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * One QR scan session. Token is a UUID, unguessable, expires after 4 hours.
  */
 class TableSession extends Model
 {
+    // Trick 09 — Don't DELETE. Mark it gone.
+    use SoftDeletes;
     protected $table = 'cd_table_sessions';
 
     protected $fillable = [
