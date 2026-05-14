@@ -4,11 +4,11 @@
  */
 
 import { motion } from 'motion/react';
-// Lucide imports removed as they were unused
+import { Link } from 'react-router-dom';
 
 export function Hero() {
   return (
-    <section className="relative h-screen min-h-[768px] pt-20 flex items-center overflow-hidden immersive-gradient">
+    <section className="relative h-screen min-h-[600px] pt-20 flex items-center overflow-hidden immersive-gradient">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 grid lg:grid-cols-2 gap-12 items-center w-full">
         <motion.div
           initial={{ opacity: 0, x: -30 }}
@@ -28,12 +28,18 @@ export function Hero() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4">
-            <button className="bg-brand-burgundy text-white px-10 py-5 font-bold uppercase tracking-widest text-xs hover:bg-white hover:text-brand-burgundy transition-all">
+            <Link
+              to="/menu"
+              className="min-h-[56px] flex items-center justify-center bg-brand-burgundy text-white px-10 py-4 font-bold uppercase tracking-widest text-xs hover:bg-white hover:text-brand-burgundy transition-all"
+            >
               Order Online
-            </button>
-            <button className="bg-transparent text-white border border-white/30 px-10 py-5 font-bold uppercase tracking-widest text-xs hover:bg-white/10 transition-all">
+            </Link>
+            <Link
+              to="/menu"
+              className="min-h-[56px] flex items-center justify-center bg-transparent text-white border border-white/30 px-10 py-4 font-bold uppercase tracking-widest text-xs hover:bg-white/10 transition-all"
+            >
               View Menu
-            </button>
+            </Link>
           </div>
         </motion.div>
 
@@ -76,9 +82,9 @@ export function Hero() {
         <div><span className="text-white mr-2">Circle</span> American Mall</div>
       </div>
 
-      <a 
+      <a
         href={`https://wa.me/233243379412`}
-        className="fixed bottom-10 right-10 z-[100] bg-[#25D366] text-white px-8 py-4 rounded-full flex flex-col items-center gap-0.5 shadow-[0_10px_30px_rgba(37,211,102,0.3)] hover:scale-105 transition-transform"
+        className="fixed bottom-6 right-4 sm:bottom-10 sm:right-10 z-[100] bg-[#25D366] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full flex flex-col items-center gap-0.5 shadow-[0_10px_30px_rgba(37,211,102,0.3)] hover:scale-105 transition-transform min-h-[44px] justify-center"
       >
         <span className="text-[10px] font-black uppercase tracking-widest opacity-80">Order via WhatsApp</span>
         <span className="text-sm font-black">+233 24 337 9412</span>
