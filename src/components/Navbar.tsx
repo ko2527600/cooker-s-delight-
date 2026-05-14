@@ -77,7 +77,7 @@ export default function Navbar() {
 
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 rounded-lg text-[#1C1917] hover:bg-[#F5EFE8] transition-colors"
+            className="md:hidden min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-[#1C1917] hover:bg-[#F5EFE8] transition-colors"
             aria-label="Toggle menu"
           >
             {isOpen ? <HiXMark size={24} /> : <HiBars3 size={24} />}
@@ -93,13 +93,13 @@ export default function Navbar() {
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden overflow-hidden bg-white border-b border-[#E8E0D8]"
           >
-            <div className="px-6 py-6 flex flex-col gap-5">
+            <div className="px-6 py-6 flex flex-col gap-1">
               {NAV_LINKS.map(link => (
                 <Link
                   key={link.name}
                   to={link.to}
                   onClick={() => setIsOpen(false)}
-                  className={`text-base font-bold uppercase tracking-widest transition-colors ${
+                  className={`min-h-[44px] flex items-center text-base font-bold uppercase tracking-widest transition-colors ${
                     pathname === link.to ? 'text-[#1B5E20]' : 'text-[#78716C] hover:text-[#1B5E20]'
                   }`}
                 >

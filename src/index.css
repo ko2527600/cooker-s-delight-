@@ -35,6 +35,7 @@
   /* Ensure interactive elements still have the pointer cursor */
   a, button, [role="button"], input, label, select, textarea, .cursor-pointer, [onclick] {
     cursor: pointer !important;
+    touch-action: manipulation;
   }
 
   .cursor-grab { cursor: grab !important; }
@@ -45,6 +46,11 @@
     @apply bg-brand-black text-white font-body overflow-x-hidden;
     margin: 0;
     padding: 0;
+  }
+
+  /* Prevent iOS auto-zoom on input focus (requires ≥ 16px font-size) */
+  input, select, textarea {
+    font-size: 1rem;
   }
 
   /* Global Dropdown Fix: admin panel keeps dark selects; public site overrides per-component */

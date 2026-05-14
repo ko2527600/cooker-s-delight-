@@ -52,7 +52,7 @@ export default function Footer() {
                 href="https://www.instagram.com/cookersdelightgh/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:bg-[#1B5E20] hover:text-white hover:border-[#1B5E20] transition-all"
+                className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:bg-[#1B5E20] hover:text-white hover:border-[#1B5E20] transition-all"
               >
                 <BsInstagram size={16} />
               </a>
@@ -60,7 +60,7 @@ export default function Footer() {
                 href="https://www.facebook.com/cookersdelightgh/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:bg-[#1B5E20] hover:text-white hover:border-[#1B5E20] transition-all"
+                className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:bg-[#1B5E20] hover:text-white hover:border-[#1B5E20] transition-all"
               >
                 <BsFacebook size={16} />
               </a>
@@ -83,7 +83,7 @@ export default function Footer() {
                 <li key={l.label}>
                   <Link
                     to={l.to}
-                    className="text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1.5 group"
+                    className="min-h-[44px] text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1.5 group"
                   >
                     <HiArrowRight size={12} className="opacity-0 group-hover:opacity-100 text-[#F59E0B] transition-opacity" />
                     {l.label}

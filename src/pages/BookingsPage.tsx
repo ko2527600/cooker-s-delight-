@@ -26,7 +26,7 @@ const BRANCHES = [
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const inputClass =
-  'w-full bg-black/40 border border-white/10 rounded-2xl p-5 text-white focus:border-brand-orange outline-none transition-colors placeholder:text-white/30';
+  'w-full bg-black/40 border border-white/10 rounded-2xl p-5 text-base text-white focus:border-brand-orange outline-none transition-colors placeholder:text-white/30 min-h-[44px]';
 
 const labelClass = 'block text-xs uppercase font-bold text-white/40 tracking-widest mb-2';
 
@@ -375,7 +375,7 @@ export default function BookingsPage() {
                         key={slot}
                         type="button"
                         onClick={() => set('reserve_time', slot)}
-                        className={`px-5 py-3 rounded-xl text-sm font-bold border transition-all ${
+                        className={`px-5 py-3 min-h-[44px] rounded-xl text-sm font-bold border transition-all ${
                           form.reserve_time === slot
                             ? 'bg-brand-orange border-brand-orange text-white'
                             : 'bg-white/5 border-white/10 text-white/70 hover:border-brand-orange/50 hover:text-white'
