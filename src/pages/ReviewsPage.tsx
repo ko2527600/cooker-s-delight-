@@ -18,7 +18,7 @@ export default function ReviewsPage() {
       <div className="bg-brand-orange py-3 overflow-hidden flex whitespace-nowrap">
         <div className="animate-marquee-scroll flex font-bold uppercase text-xs tracking-tighter">
           {[...Array(20)].map((_, i) => (
-            <span key={i} className="mx-10">★ "The best Jollof in Accra" ★ "Authentic Nigerian taste" ★ "Professional service" ★ "Highly recommended" ★ </span>
+            <span key={i} className="mx-10">★ "The Jollof here is genuinely the best I've had in Accra" ★ "The egusi soup tastes exactly like my mum's" ★ "Ordered at 12:30, food arrived before 1pm — still hot" ★ "We catered our whole funeral with these guys, not one complaint" ★ </span>
           ))}
         </div>
       </div>
@@ -30,7 +30,7 @@ export default function ReviewsPage() {
             <div className="flex text-brand-orange mb-6">
               {[...Array(5)].map((_, i) => <span key={i}><HiStar size={50} /></span>)}
             </div>
-            <p className="text-white/40 font-bold uppercase tracking-[0.3em]">Community Rated Excellence</p>
+            <p className="text-white/40 font-bold uppercase tracking-[0.3em]">Rated by Real Customers</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-40">

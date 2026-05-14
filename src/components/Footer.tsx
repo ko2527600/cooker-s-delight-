@@ -45,7 +45,7 @@ export default function Footer() {
               Cookers<span className="text-[#F59E0B]">Delight</span>
             </span>
             <p className="text-white/50 text-sm leading-relaxed max-w-xs">
-              Great Foods. Great People. Delivering authentic West African flavours since 2016.
+              Good food, no shortcuts. Four locations across Accra since 2016.
             </p>
             <div className="flex gap-3">
               <a
@@ -160,7 +160,7 @@ export default function Footer() {
             © 2026 Cookers Delight. Accra, Ghana.
           </p>
           <p className="text-[#F59E0B] text-xs font-bold uppercase tracking-widest">
-            Professional Service Delivery
+            Accra's Favourite Since 2016
           </p>
         </div>
       </div>

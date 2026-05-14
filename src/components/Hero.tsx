@@ -24,7 +24,7 @@ export function Hero() {
             <span className="text-white">Tasty<span className="text-brand-orange">.</span></span>
           </h1>
           <p className="text-white/80 text-lg mb-10 max-w-md leading-relaxed font-medium">
-            Experience authentic Ghanaian delicacies and Nigerian specials, crafted with love and professional service delivery.
+            Jollof that hits differently. Soups that take you home. Served hot across four spots in Accra since 2016.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4">

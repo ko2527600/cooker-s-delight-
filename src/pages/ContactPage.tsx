@@ -37,7 +37,7 @@ const ContactPage = () => {
       <section className="py-24 bg-brand-black">
         <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-20">
           <div className="space-y-12">
-            <h2 className="text-8xl font-display font-bold leading-none">Let's <br/><span className="text-brand-orange italic font-normal">Connect.</span></h2>
+            <h2 className="text-8xl font-display font-bold leading-none">We'd Love<br/><span className="text-brand-orange italic font-normal">to Hear.</span></h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {[
                 { label: 'WhatsApp', val: 'Chat Online', icon: <BsWhatsapp />, href: `https://wa.me/${config.whatsapp}` },

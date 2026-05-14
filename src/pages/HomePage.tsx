@@ -137,7 +137,7 @@ export default function HomePage() {
             </h1>
 
             <p className="text-[#78716C] text-lg max-w-md leading-relaxed">
-              Experience authentic Ghanaian delicacies and Nigerian specials, crafted with love and served with professional excellence.
+              Jollof that hits differently. Soups that take you home. Served hot across four spots in Accra since 2016.
             </p>
 
             {/* Star proof */}
@@ -307,18 +307,18 @@ export default function HomePage() {
       <section className="py-24 bg-[#F5EFE8]">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="text-center mb-16">
-            <span className="warm-section-label block mb-3">Why Cookers Delight</span>
+            <span className="warm-section-label block mb-3">What Sets Us Apart</span>
             <h2 className="font-display text-4xl md:text-6xl font-bold text-[#1C1917]">
-              The Gold <span className="text-[#1B5E20] italic font-normal">Standard</span>
+              Four Reasons <span className="text-[#1B5E20] italic font-normal">People Come Back.</span>
             </h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: <HiRocketLaunch size={28} />, title: 'Fast Delivery',     desc: 'Hot food at your door in 30–45 mins' },
-              { icon: <HiSparkles size={28} />,     title: 'Fresh Ingredients', desc: 'Sourced daily from local markets' },
-              { icon: <HiUsers size={28} />,        title: 'Expert Chefs',      desc: '10+ years of West African culinary mastery' },
-              { icon: <BsWhatsapp size={28} />,     title: 'Easy Ordering',     desc: "One WhatsApp message and you're done" },
+              { icon: <HiRocketLaunch size={28} />, title: 'Fast Delivery',     desc: 'Your food leaves our kitchen hot. It arrives the same way — 30 to 45 minutes, across Greater Accra.' },
+              { icon: <HiSparkles size={28} />,     title: 'Fresh Ingredients', desc: 'We buy from Accra markets every morning. The food you eat today was never sitting in a freezer.' },
+              { icon: <HiUsers size={28} />,        title: 'Expert Chefs',      desc: 'Our cooks have been making Ghanaian and Nigerian food their whole lives. This is not a fusion experiment.' },
+              { icon: <BsWhatsapp size={28} />,     title: 'Easy Ordering',     desc: 'Send one WhatsApp message and your order is in. No app to download, no account to create.' },
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -350,10 +350,10 @@ export default function HomePage() {
           >
             <span className="warm-section-label block">Our Story</span>
             <h2 className="font-display text-5xl md:text-7xl font-bold text-[#1C1917] leading-tight">
-              Crafting<br /><span className="text-[#1B5E20] italic font-normal">Excellence.</span>
+              Built in<br /><span className="text-[#1B5E20] italic font-normal">Accra.</span>
             </h2>
             <p className="text-[#78716C] text-lg leading-relaxed max-w-xl">
-              Cookers Delight is more than a restaurant — it's a celebration of West African culinary mastery. From our humble beginnings in Accra, we've remained dedicated to one mission: bringing you the soul of Ghana and Nigeria on a plate.
+              We started with one kitchen and a menu built around dishes people grew up eating. A decade on, four locations and 200+ reviews later, the food is still cooked the same way: properly, with no shortcuts.
             </p>
             <div className="flex items-center gap-5 pt-2">
               <button onClick={goMenu} className="warm-btn-primary text-sm px-7 py-3.5">
@@ -398,10 +398,10 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto px-6 relative z-10 text-center text-white">
           <span className="warm-section-label text-[#DCFCE7] block mb-4">Catering Services</span>
           <h2 className="font-display text-5xl md:text-7xl font-bold mb-6">
-            We Cater for<br /><span className="text-[#F59E0B] italic font-normal">Your Events</span>
+            We Handle<br /><span className="text-[#F59E0B] italic font-normal">Your Feast.</span>
           </h2>
           <p className="text-white/80 text-lg mb-10 leading-relaxed max-w-2xl mx-auto">
-            Corporate events, weddings, funerals, parties — we bring the feast to you across Greater Accra.
+            Weddings, funerals, office parties, birthdays — tell us how many guests and we bring the kitchen to you. We cover all of Greater Accra.
           </p>
           <div className="flex flex-wrap justify-center gap-5">
             <a
@@ -427,7 +427,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 text-center">
           <span className="warm-section-label block mb-3">Stay Connected</span>
           <h2 className="font-display text-4xl font-bold text-[#1C1917] mb-8">
-            Follow Us on Social Media
+            See What's Cooking
           </h2>
           <div className="flex justify-center gap-5">
             <a
@@ -465,7 +465,7 @@ export default function HomePage() {
         <div className="animate-marquee-scroll whitespace-nowrap">
           {[...Array(10)].map((_, i) => (
             <span key={i} className="text-3xl md:text-5xl font-display font-bold text-white/10 uppercase mx-10">
-              Ghana's Best Jollof • Authentic Nigerian Soups • Professional Catering • Hot Delivery
+              Accra's Jollof Since 2016 • Nigerian Soups Done Right • Catering Across Greater Accra • Hot in 30–45 Minutes
             </span>
           ))}
         </div>

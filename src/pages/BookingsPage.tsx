@@ -223,7 +223,7 @@ export default function BookingsPage() {
             className="text-center mb-16"
           >
             <p className="text-white/40 text-lg max-w-xl mx-auto">
-              Book your table in under a minute. We'll hold it just for you.
+              Pick your branch, choose a time, and your table is yours. Takes about a minute.
             </p>
           </motion.div>
 
@@ -410,7 +410,7 @@ export default function BookingsPage() {
                 whileTap={{ scale: 0.97 }}
                 className="w-full bg-brand-orange text-white py-6 rounded-2xl font-bold text-xl hover:scale-105 transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
               >
-                {submitting ? 'Confirming Reservation…' : 'Confirm Reservation'}
+                {submitting ? 'Securing Your Table…' : 'Hold My Table'}
               </motion.button>
 
             </form>

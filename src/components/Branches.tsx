@@ -75,7 +75,7 @@ export function Branches() {
           <div className="absolute top-0 right-0 w-64 h-64 bg-brand-burgundy rounded-full blur-[100px] opacity-40 -translate-y-1/2 translate-x-1/2" />
           <h3 className="font-serif text-3xl md:text-4xl font-bold mb-6 relative z-10">Hosting an Event?</h3>
           <p className="text-white/60 text-lg mb-10 max-w-2xl mx-auto relative z-10 italic">
-            "Professional service delivery for all your catering needs. Corporate events, weddings, and private parties."
+            "Tell us how many guests and we bring the kitchen to you — weddings, funerals, office parties, and everything in between."
           </p>
           <a
             href="#contact"
