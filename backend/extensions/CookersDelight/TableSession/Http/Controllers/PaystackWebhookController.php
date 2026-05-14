@@ -2,10 +2,10 @@
 
 namespace CookersDelight\TableSession\Http\Controllers;
 
+use App\Jobs\ProcessChargeSuccessJob;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -13,6 +13,14 @@ use Illuminate\Support\Facades\Log;
  *
  * CRITICAL RULE: Never mark an order as paid from the QR frontend.
  * Only this webhook (with HMAC signature verification) marks payment complete.
+ *
+ * Trick 06 — The controller validates the signature and dispatches a job
+ * immediately. The HTTP response is returned in ~1ms; all DB work happens
+ * asynchronously in the queue worker.
+ *
+ * Trick 11 — Paystack retries on non-200. We always return 200 after
+ * signature validation so their retry logic doesn't hammer us — the job
+ * handles its own retry and graceful degradation.
  *
  * Docs: https://paystack.com/docs/payments/webhooks/
  */
@@ -28,64 +36,15 @@ class PaystackWebhookController extends Controller
         $payload = $request->json()->all();
         $event   = $payload['event'] ?? '';
 
+        // Trick 06 — dispatch async; return 200 in milliseconds.
+        // Trick 11 — returning 200 here means Paystack won't retry endlessly;
+        //            the queued job handles its own retry with a +5m delay.
         match ($event) {
-            'charge.success' => $this->handleChargeSuccess($payload['data']),
+            'charge.success' => ProcessChargeSuccessJob::dispatch($payload['data']),
             default          => null,
         };
 
         return response('OK', 200);
-    }
-
-    private function handleChargeSuccess(array $data): void
-    {
-        $reference = $data['reference'] ?? null;
-        $amount    = ($data['amount'] ?? 0) / 100; // Paystack sends kobo/pesewa
-
-        if (!$reference) return;
-
-        // Reference format we set during payment initiation: "CD-{order_id}-{timestamp}"
-        if (!preg_match('/^CD-(\d+)-/', $reference, $m)) {
-            Log::warning('Paystack webhook: unrecognised reference format', ['ref' => $reference]);
-            return;
-        }
-
-        $orderId = (int) $m[1];
-
-        $order = DB::table('orders')->where('order_id', $orderId)->first();
-        if (!$order) {
-            Log::error('Paystack webhook: order not found', ['order_id' => $orderId]);
-            return;
-        }
-
-        // Idempotency — skip if already marked paid.
-        if ($order->processed == 1) return;
-
-        // Advance status to "Received" (pending → received signals staff to start preparing).
-        $receivedStatusId = DB::table('statuses')
-            ->where('status_name', 'Received')
-            ->where('status_for', 'order')
-            ->value('status_id');
-
-        DB::table('orders')->where('order_id', $orderId)->update([
-            'processed'      => 1,
-            'payment'        => $data['channel'] ?? 'paystack',
-            'status_id'      => $receivedStatusId,
-            'total_items_tax'=> $amount,
-            'updated_at'     => now(),
-        ]);
-
-        // Insert status history so admin can see the transition.
-        DB::table('status_history')->insert([
-            'object_id'  => $orderId,
-            'object_type'=> 'order',
-            'status_id'  => $receivedStatusId,
-            'comment'    => 'Payment confirmed via Paystack webhook. Ref: ' . $reference,
-            'notify'     => 1,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        Log::info('Paystack: order paid', ['order_id' => $orderId, 'ref' => $reference, 'amount' => $amount]);
     }
 
     private function signatureIsValid(Request $request): bool

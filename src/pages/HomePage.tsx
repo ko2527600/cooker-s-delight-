@@ -1,315 +1,471 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
-  HiArrowRight, HiStar, HiChevronLeft, HiChevronRight,
-  HiRocketLaunch, HiSparkles, HiUsers,
+  HiArrowRight, HiStar, HiRocketLaunch, HiSparkles, HiUsers,
 } from 'react-icons/hi2';
-import { BsWhatsapp, BsQuote } from 'react-icons/bs';
+import { BsWhatsapp, BsInstagram, BsFacebook } from 'react-icons/bs';
 import PageWrapper from '../components/PageWrapper';
+import SEOHead from '../components/SEOHead';
 import CDBoatDownloadSection from '../components/CDBoatDownloadSection';
 import { useCountUp } from '../hooks/useCountUp';
 import { formatImg } from '../utils/image';
-import { getImgUrl } from '../utils/image.js';
 import { useApi } from '../hooks/useApi';
-import { menuApi, locationApi } from '../lib/api';
+import { menuApi } from '../lib/api';
 import { usePageContext } from './PublicLayout';
 import type { TIMenuItem } from '../types';
 
-const slides = [
-  '/assets/cookers delight1.webp',
-  '/assets/forcourt2.jpg',
-  '/assets/jollof.jpg',
-  '/assets/cookers delight4.webp',
-];
+// ─── Star rating helper ───────────────────────────────────────────────────────
+function StarRating({ rating, max = 5 }: { rating: number; max?: number }) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {Array.from({ length: max }).map((_, i) => (
+        <HiStar
+          key={i}
+          size={14}
+          className={i < Math.round(rating) ? 'text-[#F59E0B]' : 'text-[#D6D3D1]'}
+        />
+      ))}
+      <span className="ml-1.5 text-xs font-bold text-[#78716C]">{rating.toFixed(1)}</span>
+    </div>
+  );
+}
 
+// ─── Dish card (featured + hero float card) ───────────────────────────────────
+function DishCard({
+  item,
+  onOrder,
+  delay = 0,
+}: {
+  item: TIMenuItem;
+  onOrder: () => void;
+  delay?: number;
+}) {
+  const categoryName = item.categories?.[0]?.name ?? 'Ghanaian';
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay, duration: 0.55 }}
+      className="warm-card group overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1"
+    >
+      {/* Image */}
+      <div className="relative h-52 overflow-hidden rounded-t-[1.25rem]">
+        <img
+          src={item.thumb ?? '/assets/jollof.jpg'}
+          alt={item.menu_name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-600"
+          loading="lazy"
+        />
+        <span className="absolute top-3 left-3 warm-pill">{categoryName}</span>
+        <span className="absolute top-3 right-3 warm-price">GH₵{Number(item.menu_price).toFixed(2)}</span>
+      </div>
+
+      {/* Body */}
+      <div className="p-5 flex flex-col gap-3 flex-1">
+        <StarRating rating={4.5 + Math.random() * 0.5} />
+        <h3 className="font-display text-lg font-bold text-[#1C1917] leading-tight">
+          {item.menu_name}
+        </h3>
+        <p className="text-sm text-[#78716C] line-clamp-2 flex-1">
+          {item.menu_description || 'A classic West African dish prepared with the freshest local ingredients.'}
+        </p>
+        <button
+          onClick={onOrder}
+          className="warm-btn-primary justify-center text-sm mt-1"
+        >
+          Order Now <HiArrowRight size={16} />
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 export default function HomePage() {
-  const { navigate, addToast } = usePageContext();
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const { scrollY } = useScroll();
-  const yParallax = useTransform(scrollY, [0, 1000], [0, 400]);
+  const { navigate } = usePageContext();
+  const [heroSlide, setHeroSlide] = useState(0);
 
   const { data: menuItems } = useApi<TIMenuItem[]>(() => menuApi.getItems());
-  const featured = menuItems?.slice(0, 3) ?? [];
+  const featured = (menuItems ?? []).slice(0, 3);
 
   const years    = useCountUp(10);
   const branches = useCountUp(4);
   const reviews  = useCountUp(200);
   const dishes   = useCountUp(50);
 
+  const heroImages = [
+    '/assets/jollof2.jpg',
+    '/assets/cookers delight1.webp',
+    '/assets/forcourt2.jpg',
+  ];
+
   useEffect(() => {
-    const timer = setInterval(() => setCurrentSlide(s => (s + 1) % slides.length), 5000);
-    return () => clearInterval(timer);
+    const t = setInterval(() => setHeroSlide(s => (s + 1) % heroImages.length), 5000);
+    return () => clearInterval(t);
   }, []);
+
+  const goMenu = () => navigate('menu');
+  const goBook = () => navigate('bookings');
 
   return (
     <PageWrapper>
-      {/* ── Hero ─────────────────────────────────────────────────── */}
-      <section className="relative h-screen w-full flex items-center overflow-hidden">
-        <motion.div style={{ y: yParallax }} className="absolute inset-0 z-0 scale-110">
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={currentSlide}
-              src={formatImg(slides[currentSlide], 1920)}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.3 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.5 }}
-              className="w-full h-full object-cover"
-              alt=""
-            />
-          </AnimatePresence>
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-burgundy/75 via-brand-black/90 to-brand-black/95" />
-        </motion.div>
+      <SEOHead
+        title="Cookers Delight | Authentic Ghanaian & Nigerian Food in Accra"
+        description="Order authentic Ghanaian and Nigerian food from Cookers Delight. Fast delivery across Accra. Dine in, take away, or order online. Great Foods. Great People."
+        canonical="https://cookers-delight.vercel.app/"
+      />
+      {/* ── HERO ──────────────────────────────────────────────────────────── */}
+      <section className="min-h-screen bg-[#FFFBF7] pt-20 flex items-center overflow-hidden relative">
+        {/* Decorative background blobs */}
+        <div className="absolute top-24 right-0 w-[480px] h-[480px] rounded-full bg-[#DCFCE7] opacity-50 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[320px] h-[320px] rounded-full bg-[#FEF3C7] opacity-40 blur-3xl pointer-events-none" />
 
-        {/* Slide indicators */}
-        <div className="absolute right-10 top-1/2 -translate-y-1/2 flex flex-col gap-4 z-20">
-          {slides.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => setCurrentSlide(idx)}
-              className={`w-2 rounded-full transition-all duration-500 ${currentSlide === idx ? 'bg-brand-orange h-8' : 'bg-white/20 h-2'}`}
-            />
-          ))}
-        </div>
-
-        <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-16">
+          {/* Left: text */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
+            initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="space-y-8"
+            transition={{ duration: 0.75, delay: 0.1 }}
+            className="space-y-7 relative z-10"
           >
-            <div className="space-y-2">
-              <motion.span
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-brand-orange font-bold tracking-[0.2em] uppercase text-sm font-body block"
-              >
-                Ghana's Favourite Restaurant
-              </motion.span>
-              <h1 className="text-8xl md:text-[140px] leading-[0.9] font-light flex flex-col">
-                <span className="overflow-hidden">
-                  <motion.span initial={{ y: '100%' }} animate={{ y: 0 }} transition={{ delay: 0.4, duration: 0.8 }}>Hot &</motion.span>
-                </span>
-                <span className="overflow-hidden">
-                  <motion.span initial={{ y: '100%' }} animate={{ y: 0 }} transition={{ delay: 0.6, duration: 0.8 }} className="italic font-normal">
-                    Tasty<span className="text-brand-orange">.</span>
-                  </motion.span>
-                </span>
-              </h1>
-            </div>
-            <p className="text-white/70 text-lg md:text-xl max-w-lg leading-relaxed font-body">
-              Experience a world-class culinary journey through West Africa. Every dish is a masterpiece of spice, culture, and heritage.
+            <span className="warm-section-label">Ghana's Favourite Restaurant</span>
+
+            <h1 className="font-display text-[72px] md:text-[96px] lg:text-[108px] leading-[0.88] font-bold text-[#1C1917]">
+              Hot &<br />
+              <span className="text-[#1B5E20] italic font-normal">Tasty.</span>
+            </h1>
+
+            <p className="text-[#78716C] text-lg max-w-md leading-relaxed">
+              Jollof that hits differently. Soups that take you home. Served hot across four spots in Accra since 2016.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <button
-                onClick={() => navigate('menu')}
-                className="bg-brand-orange hover:bg-brand-orange/90 text-white px-8 py-4 rounded-full font-bold text-lg transition-all transform hover:scale-105 active:scale-95"
-              >
-                Explore Menu
+
+            {/* Star proof */}
+            <div className="flex items-center gap-3">
+              <div className="flex -space-x-2">
+                {[1, 2, 3, 4].map(i => (
+                  <div
+                    key={i}
+                    className="w-9 h-9 rounded-full border-2 border-white bg-[#E8E0D8] overflow-hidden"
+                    style={{ backgroundImage: `url(${'/assets/cookers delight1.webp'})`, backgroundSize: 'cover' }}
+                  />
+                ))}
+              </div>
+              <div>
+                <div className="flex gap-0.5">
+                  {[...Array(5)].map((_, i) => <HiStar key={i} size={14} className="text-[#F59E0B]" />)}
+                </div>
+                <p className="text-xs text-[#78716C] font-bold">200+ happy customers</p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-4 pt-2">
+              <button onClick={goMenu} className="warm-btn-primary text-sm px-7 py-3.5">
+                Explore Menu <HiArrowRight size={16} />
               </button>
-              <a
-                href="https://wa.me/233243379412"
-                className="border-2 border-white/20 hover:bg-white hover:text-brand-black px-8 py-4 rounded-full font-bold text-lg transition-all transform hover:scale-105"
-              >
-                Order via WhatsApp
-              </a>
+              <button onClick={goBook} className="warm-btn-outline text-sm px-7 py-3.5">
+                Reserve a Table
+              </button>
             </div>
           </motion.div>
 
-          <div className="relative hidden lg:flex justify-end">
-            <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1 }}>
-              <div className="w-[500px] h-[500px] rounded-full overflow-hidden border-[15px] border-white/5 animate-spin-slow">
-                <img src={formatImg('/assets/jollof2.jpg', 900)} className="w-full h-full object-cover" alt="" />
+          {/* Right: circular food image + floating cards */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.9, delay: 0.3 }}
+            className="relative flex justify-center items-center lg:justify-end"
+          >
+            {/* Main circle */}
+            <div className="relative w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] lg:w-[460px] lg:h-[460px]">
+              <div className="absolute inset-0 rounded-full overflow-hidden border-[10px] border-white shadow-2xl">
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={heroSlide}
+                    src={formatImg(heroImages[heroSlide], 900)}
+                    initial={{ opacity: 0, scale: 1.08 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.9 }}
+                    className="w-full h-full object-cover"
+                    alt="Featured dish"
+                  />
+                </AnimatePresence>
               </div>
-              <motion.div className="absolute -bottom-10 -right-10 bg-white p-6 rounded-2xl shadow-2xl animate-float max-w-[280px]">
-                <span className="inline-block bg-brand-orange/10 text-brand-orange text-xs font-bold px-2 py-1 rounded mb-2">Chef's Special</span>
-                <h3 className="text-brand-black font-bold text-lg mb-1 leading-tight">Gourmet Jollof with Grilled Tilapia</h3>
-                <p className="text-brand-orange font-bold text-xl">₵65.00</p>
+
+              {/* Price badge — top right of circle */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.9 }}
+                className="absolute -top-4 -right-4 bg-[#FEF3C7] border-2 border-white rounded-2xl px-5 py-3 shadow-lg"
+              >
+                <p className="text-xs font-bold text-[#78716C] uppercase tracking-wider">Chef's Pick</p>
+                <p className="text-2xl font-display font-black text-[#92400E]">GH₵65</p>
               </motion.div>
-            </motion.div>
-          </div>
+
+              {/* Star rating card — bottom left */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.1 }}
+                className="absolute -bottom-6 -left-6 bg-white rounded-2xl px-5 py-4 shadow-xl border border-[#E8E0D8] max-w-[200px]"
+              >
+                <StarRating rating={4.8} />
+                <p className="text-sm font-bold text-[#1C1917] mt-1 leading-tight">Jollof Rice Special</p>
+                <p className="text-xs text-[#78716C] mt-0.5">Grilled Tilapia & Shito</p>
+              </motion.div>
+
+              {/* Delivery badge — right */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 1.3 }}
+                className="absolute top-1/2 -right-8 -translate-y-1/2 bg-[#1B5E20] rounded-2xl px-4 py-3 shadow-xl text-white text-center hidden lg:block"
+              >
+                <HiRocketLaunch size={18} className="mx-auto mb-1" />
+                <p className="text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">Fast Delivery</p>
+                <p className="text-xs font-bold">30–45 min</p>
+              </motion.div>
+            </div>
+
+            {/* Slide dots */}
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 lg:hidden">
+              {heroImages.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setHeroSlide(i)}
+                  className={`rounded-full transition-all ${i === heroSlide ? 'w-6 h-2 bg-[#1B5E20]' : 'w-2 h-2 bg-[#D6D3D1]'}`}
+                />
+              ))}
+            </div>
+          </motion.div>
         </div>
 
         {/* Stats strip */}
-        <div className="absolute bottom-0 left-0 w-full bg-black/40 backdrop-blur-xl border-t border-white/10 py-8">
-          <div className="container mx-auto px-6 flex flex-nowrap overflow-x-auto lg:overflow-x-visible no-scrollbar lg:justify-around items-center gap-12">
+        <div className="absolute bottom-0 left-0 w-full bg-white border-t border-[#E8E0D8]">
+          <div className="max-w-7xl mx-auto px-6 py-5 flex flex-nowrap overflow-x-auto no-scrollbar lg:overflow-visible lg:justify-around items-center gap-10">
             {[
               { label: 'Years Serving', val: years.count, ref: years.ref, suffix: '+' },
               { label: 'Branches',      val: branches.count, ref: branches.ref, suffix: '' },
               { label: 'Happy Reviews', val: reviews.count, ref: reviews.ref, suffix: '+' },
-              { label: 'Unique Dishes', val: dishes.count, ref: dishes.ref, suffix: '+' },
+              { label: 'Unique Dishes', val: dishes.count,  ref: dishes.ref,  suffix: '+' },
             ].map((stat, i) => (
-              <div key={i} ref={stat.ref} className="flex flex-col items-center lg:items-start min-w-[150px]">
-                <span className="text-4xl font-display font-bold text-brand-orange">{stat.val}{stat.suffix}</span>
-                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-white/40">{stat.label}</span>
+              <div key={i} ref={stat.ref} className="flex flex-col items-center min-w-[130px]">
+                <span className="text-3xl font-display font-black text-[#1B5E20]">{stat.val}{stat.suffix}</span>
+                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#78716C]">{stat.label}</span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── About ────────────────────────────────────────────────── */}
-      <section className="py-32 bg-[#0e0e0e] relative overflow-hidden">
-        <div className="container mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-          <motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="space-y-10">
-            <span className="text-brand-orange font-bold uppercase tracking-widest text-sm">Our Story</span>
-            <h2 className="text-6xl md:text-8xl font-bold leading-tight">Crafting <br /><span className="italic font-normal">Excellence.</span></h2>
-            <p className="text-white/60 text-lg leading-relaxed font-body max-w-xl">
-              Cookers Delight is more than a restaurant; it's a celebration of West African culinary mastery. From our humble beginnings in Accra, we've remained dedicated to one mission: bringing you the soul of Ghana and Nigeria on a plate.
-            </p>
-            <button
-              onClick={() => navigate('menu')}
-              className="bg-brand-burgundy hover:bg-brand-orange text-white px-10 py-5 rounded-full font-bold transition-all flex items-center gap-3"
-            >
-              View Full Menu <HiArrowRight />
-            </button>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="relative">
-            <div className="rounded-[50px] overflow-hidden shadow-2xl h-[700px]">
-              <img src={formatImg('/assets/forcourt.jpg', 1200)} className="w-full h-full object-cover" alt="Interior" />
-            </div>
-            <div className="absolute -bottom-10 -left-10 bg-brand-orange p-10 rounded-[40px] shadow-2xl">
-              <p className="text-6xl font-bold text-white mb-2">10+</p>
-              <p className="text-white/80 font-bold uppercase text-xs tracking-widest">Years of Taste</p>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ── Featured Menu Preview ────────────────────────────────── */}
-      <section className="py-32 bg-brand-black">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
+      {/* ── FEATURED MENU ──────────────────────────────────────────────────── */}
+      <section className="py-28 bg-[#FFFBF7]">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-14 gap-6">
             <div>
-              <span className="text-brand-orange font-bold uppercase tracking-widest text-sm mb-4 block">Chef's Selection</span>
-              <h2 className="text-6xl md:text-8xl font-bold leading-tight">Featured <br /><span className="italic font-normal">Delicacies.</span></h2>
+              <span className="warm-section-label block mb-3">Chef's Selection</span>
+              <h2 className="font-display text-5xl md:text-6xl font-bold text-[#1C1917] leading-tight">
+                Featured<br /><span className="text-[#1B5E20] italic font-normal">Delicacies.</span>
+              </h2>
             </div>
             <button
-              onClick={() => navigate('menu')}
-              className="border-2 border-white/20 hover:bg-white hover:text-black px-10 py-5 rounded-full font-bold transition-all"
+              onClick={goMenu}
+              className="warm-btn-outline text-sm px-7 py-3"
             >
-              View Full Menu
+              View Full Menu <HiArrowRight size={16} />
             </button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {featured.map((item, i) => (
-              <motion.div
-                key={item.menu_id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="group relative bg-white/5 rounded-[40px] overflow-hidden border border-white/5 hover:border-brand-orange/30 transition-all"
-              >
-                <div className="h-72 overflow-hidden">
-                  <img
-                    src={item.thumb ?? getImgUrl('/assets/jollof.jpg')}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    alt={item.menu_name}
-                  />
-                </div>
-                <div className="p-10">
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-2xl font-bold">{item.menu_name}</h3>
-                    <span className="text-brand-orange font-bold text-xl">₵{item.menu_price}</span>
-                  </div>
-                  <p className="text-white/40 mb-8 line-clamp-2">{item.menu_description}</p>
-                  <button
-                    onClick={() => navigate('menu')}
-                    className="w-full bg-white/5 group-hover:bg-brand-orange py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featured.length > 0
+              ? featured.map((item, i) => (
+                  <DishCard key={item.menu_id} item={item} onOrder={goMenu} delay={i * 0.1} />
+                ))
+              : /* Skeleton placeholders */ Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="warm-card h-[420px] animate-pulse"
+                    style={{ animationDelay: `${i * 0.15}s` }}
                   >
-                    Order Now <HiArrowRight />
-                  </button>
-                </div>
-              </motion.div>
-            ))}
+                    <div className="h-52 bg-[#F5EFE8] rounded-t-[1.25rem]" />
+                    <div className="p-5 space-y-3">
+                      <div className="h-3 bg-[#F5EFE8] rounded-full w-2/3" />
+                      <div className="h-5 bg-[#F5EFE8] rounded-full w-3/4" />
+                      <div className="h-3 bg-[#F5EFE8] rounded-full w-full" />
+                      <div className="h-3 bg-[#F5EFE8] rounded-full w-5/6" />
+                    </div>
+                  </div>
+                ))
+            }
           </div>
         </div>
       </section>
 
-      {/* ── Why Choose Us ────────────────────────────────────────── */}
-      <section className="py-32 bg-[#0a0a0a]">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-24">
-            <h2 className="text-5xl md:text-7xl font-bold">The Gold <span className="text-brand-orange italic font-normal">Standard</span></h2>
+      {/* ── WHY CHOOSE US ──────────────────────────────────────────────────── */}
+      <section className="py-24 bg-[#F5EFE8]">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+          <div className="text-center mb-16">
+            <span className="warm-section-label block mb-3">What Sets Us Apart</span>
+            <h2 className="font-display text-4xl md:text-6xl font-bold text-[#1C1917]">
+              Four Reasons <span className="text-[#1B5E20] italic font-normal">People Come Back.</span>
+            </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: <HiRocketLaunch />, title: 'Fast Delivery',       desc: 'Hot food at your door in 30–45 mins' },
-              { icon: <HiSparkles />,     title: 'Fresh Ingredients',   desc: 'Sourced daily from local markets' },
-              { icon: <HiUsers />,        title: 'Expert Chefs',        desc: '10+ years of West African culinary mastery' },
-              { icon: <BsWhatsapp />,     title: 'Easy Ordering',       desc: "One WhatsApp message and you're done" },
+              { icon: <HiRocketLaunch size={28} />, title: 'Fast Delivery',     desc: 'Your food leaves our kitchen hot. It arrives the same way — 30 to 45 minutes, across Greater Accra.' },
+              { icon: <HiSparkles size={28} />,     title: 'Fresh Ingredients', desc: 'We buy from Accra markets every morning. The food you eat today was never sitting in a freezer.' },
+              { icon: <HiUsers size={28} />,        title: 'Expert Chefs',      desc: 'Our cooks have been making Ghanaian and Nigerian food their whole lives. This is not a fusion experiment.' },
+              { icon: <BsWhatsapp size={28} />,     title: 'Easy Ordering',     desc: 'Send one WhatsApp message and your order is in. No app to download, no account to create.' },
             ].map((item, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="bg-white/5 p-10 rounded-[40px] border border-white/5 hover:border-brand-orange/40 transition-all group"
+                className="bg-white rounded-2xl p-8 border border-[#E8E0D8] hover:border-[#1B5E20]/30 hover:shadow-lg transition-all group"
               >
-                <div className="w-16 h-16 rounded-2xl bg-brand-orange/10 flex items-center justify-center text-brand-orange mb-8 group-hover:scale-110 transition-transform">
+                <div className="w-14 h-14 rounded-xl bg-[#DCFCE7] flex items-center justify-center text-[#1B5E20] mb-6 group-hover:scale-110 transition-transform">
                   {item.icon}
                 </div>
-                <h4 className="text-2xl font-bold mb-4">{item.title}</h4>
-                <p className="text-white/40 leading-relaxed font-body">{item.desc}</p>
+                <h4 className="font-display text-xl font-bold text-[#1C1917] mb-2">{item.title}</h4>
+                <p className="text-sm text-[#78716C] leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Catering CTA ─────────────────────────────────────────── */}
-      <section className="relative py-48 overflow-hidden">
-        <img src={formatImg('/assets/flyer1.jpg', 1920)} className="absolute inset-0 w-full h-full object-cover opacity-35" alt="" />
-        <div className="absolute inset-0 bg-gradient-to-b from-brand-black via-transparent to-brand-black" />
-        <div className="container mx-auto px-6 relative z-10 text-center max-w-4xl">
-          <h2 className="text-6xl md:text-8xl font-bold mb-8">
-            We Cater for <br /><span className="text-brand-orange italic font-normal">Your Events</span>
+      {/* ── ABOUT ──────────────────────────────────────────────────────────── */}
+      <section className="py-28 bg-[#FFFBF7]">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="space-y-8"
+          >
+            <span className="warm-section-label block">Our Story</span>
+            <h2 className="font-display text-5xl md:text-7xl font-bold text-[#1C1917] leading-tight">
+              Built in<br /><span className="text-[#1B5E20] italic font-normal">Accra.</span>
+            </h2>
+            <p className="text-[#78716C] text-lg leading-relaxed max-w-xl">
+              We started with one kitchen and a menu built around dishes people grew up eating. A decade on, four locations and 200+ reviews later, the food is still cooked the same way: properly, with no shortcuts.
+            </p>
+            <div className="flex items-center gap-5 pt-2">
+              <button onClick={goMenu} className="warm-btn-primary text-sm px-7 py-3.5">
+                View Full Menu <HiArrowRight size={16} />
+              </button>
+              <button onClick={goBook} className="warm-btn-outline text-sm px-7 py-3.5">
+                Make a Reservation
+              </button>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="relative"
+          >
+            <div className="rounded-3xl overflow-hidden shadow-2xl h-[520px] border-4 border-white">
+              <img
+                src={formatImg('/assets/forcourt.jpg', 1200)}
+                className="w-full h-full object-cover"
+                alt="Cookers Delight interior"
+              />
+            </div>
+            {/* Badge overlay */}
+            <div className="absolute -bottom-6 -left-6 bg-[#1B5E20] text-white p-8 rounded-2xl shadow-2xl">
+              <p className="text-5xl font-display font-black">10+</p>
+              <p className="text-sm font-bold uppercase tracking-widest text-[#DCFCE7] mt-1">Years of Taste</p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── CATERING CTA ──────────────────────────────────────────────────── */}
+      <section className="relative py-36 overflow-hidden">
+        <img
+          src={formatImg('/assets/flyer1.jpg', 1920)}
+          className="absolute inset-0 w-full h-full object-cover opacity-20"
+          alt=""
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#1B5E20]/80 to-[#1C1917]/90" />
+        <div className="max-w-4xl mx-auto px-6 relative z-10 text-center text-white">
+          <span className="warm-section-label text-[#DCFCE7] block mb-4">Catering Services</span>
+          <h2 className="font-display text-5xl md:text-7xl font-bold mb-6">
+            We Handle<br /><span className="text-[#F59E0B] italic font-normal">Your Feast.</span>
           </h2>
-          <p className="text-xl text-white/70 mb-12 font-body leading-relaxed">
-            Corporate events, weddings, funerals, parties — we bring the feast to you across Greater Accra.
+          <p className="text-white/80 text-lg mb-10 leading-relaxed max-w-2xl mx-auto">
+            Weddings, funerals, office parties, birthdays — tell us how many guests and we bring the kitchen to you. We cover all of Greater Accra.
           </p>
-          <div className="flex flex-wrap justify-center gap-6 mb-16">
+          <div className="flex flex-wrap justify-center gap-5">
             <a
               href="https://wa.me/233243379412?text=Hi, I'd like a catering quote"
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-brand-orange text-white px-10 py-5 rounded-full font-bold text-lg hover:scale-105 transition-all"
+              className="bg-[#F59E0B] text-[#1C1917] font-black px-9 py-4 rounded-full hover:bg-[#FCD34D] transition-all flex items-center gap-2"
             >
-              Get a Quote on WhatsApp
+              <BsWhatsapp size={20} /> Get a Quote on WhatsApp
             </a>
-            <a href="tel:+233243379412" className="border-2 border-white/20 px-10 py-5 rounded-full font-bold text-lg hover:bg-white hover:text-black transition-all">
+            <a
+              href="tel:+233243379412"
+              className="border-2 border-white/40 text-white font-bold px-9 py-4 rounded-full hover:bg-white/10 transition-all"
+            >
               Call Us Now
             </a>
           </div>
         </div>
       </section>
 
-      {/* ── Quote banner ─────────────────────────────────────────── */}
-      <section className="py-40 bg-[#0e0e0e] relative overflow-hidden flex items-center justify-center border-y border-white/5">
-        <div className="container mx-auto px-6 relative z-10 text-center max-w-5xl">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="space-y-12">
-            <div className="flex justify-center text-brand-orange mb-8 opacity-20">
-              <BsQuote size={80} />
-            </div>
-            <h2 className="text-4xl md:text-7xl font-display italic font-light leading-tight text-white/90">
-              "Food is not just fuel, it's <span className="text-brand-orange font-normal not-italic">information</span>. It talks to your DNA and tells it what to do."
-            </h2>
-            <p className="uppercase tracking-[0.4em] text-xs font-bold text-white/40">The Cookers Delight Philosophy</p>
-          </motion.div>
+      {/* ── SOCIAL / CONNECT ──────────────────────────────────────────────── */}
+      <section className="py-20 bg-[#F5EFE8]">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 text-center">
+          <span className="warm-section-label block mb-3">Stay Connected</span>
+          <h2 className="font-display text-4xl font-bold text-[#1C1917] mb-8">
+            See What's Cooking
+          </h2>
+          <div className="flex justify-center gap-5">
+            <a
+              href="https://www.instagram.com/cookersdelightgh/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 bg-white border border-[#E8E0D8] text-[#1C1917] px-7 py-3.5 rounded-full font-bold hover:border-[#1B5E20] hover:text-[#1B5E20] transition-all"
+            >
+              <BsInstagram size={18} /> Instagram
+            </a>
+            <a
+              href="https://www.facebook.com/cookersdelightgh/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 bg-white border border-[#E8E0D8] text-[#1C1917] px-7 py-3.5 rounded-full font-bold hover:border-[#1B5E20] hover:text-[#1B5E20] transition-all"
+            >
+              <BsFacebook size={18} /> Facebook
+            </a>
+            <a
+              href="https://wa.me/233243379412"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 bg-[#25D366] text-white px-7 py-3.5 rounded-full font-bold hover:bg-[#1DAA55] transition-all"
+            >
+              <BsWhatsapp size={18} /> WhatsApp
+            </a>
+          </div>
         </div>
       </section>
 
       <CDBoatDownloadSection />
 
-      {/* Marquee */}
-      <div className="bg-brand-black py-4 border-y border-white/5 overflow-hidden flex items-center">
+      {/* ── MARQUEE ──────────────────────────────────────────────────────── */}
+      <div className="bg-[#1B5E20] py-4 overflow-hidden">
         <div className="animate-marquee-scroll whitespace-nowrap">
           {[...Array(10)].map((_, i) => (
-            <span key={i} className="text-4xl md:text-6xl font-display font-bold text-white/5 uppercase mx-12">
-              Ghana's Best Jollof • Authentic Nigerian Soups • Professional Catering • Hot Delivery
+            <span key={i} className="text-3xl md:text-5xl font-display font-bold text-white/10 uppercase mx-10">
+              Accra's Jollof Since 2016 • Nigerian Soups Done Right • Catering Across Greater Accra • Hot in 30–45 Minutes
             </span>
           ))}
         </div>

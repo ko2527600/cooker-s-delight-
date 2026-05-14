@@ -43,11 +43,23 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email, password }),
       });
 
-      if (!res.ok) throw new Error('Invalid credentials');
+      // SECURITY: Distinguish auth failures from server errors so callers can
+      // surface the right message without leaking internal details.
+      if (res.status === 401 || res.status === 403) {
+        throw new Error('Invalid credentials');
+      }
+      if (!res.ok) {
+        throw new Error('Login failed. Please try again later.');
+      }
 
       const data = await res.json();
       const tok  = data.token ?? data.access_token ?? data.data?.token;
-      const usr  = data.user  ?? data.data?.user ?? { id: 1, name: email, email, role: 'admin' };
+
+      if (!tok || typeof tok !== 'string') {
+        throw new Error('Login failed. No token received.');
+      }
+
+      const usr  = data.user ?? data.data?.user ?? { id: 1, name: email, email, role: 'admin' };
 
       localStorage.setItem(TOKEN_KEY, tok);
       localStorage.setItem(USER_KEY, JSON.stringify(usr));

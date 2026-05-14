@@ -3,6 +3,7 @@ import { BsWhatsapp, BsInstagram, BsFacebook } from 'react-icons/bs';
 import { FiPhone } from 'react-icons/fi';
 import { usePageContext } from './PublicLayout';
 import PageWrapper from '../components/PageWrapper';
+import SEOHead from '../components/SEOHead';
 
 // Inline image formatter (mirrors the one in App.tsx)
 const formatImg = (src: string, w: number) => src;
@@ -23,6 +24,11 @@ const ContactPage = () => {
 
   return (
     <PageWrapper>
+      <SEOHead
+        title="Contact Us | Cookers Delight"
+        description="Get in touch with Cookers Delight. Call, WhatsApp, or message us to enquire about orders, reservations, catering, or any questions about our Accra restaurants."
+        canonical="https://cookers-delight.vercel.app/contact"
+      />
       <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
         <img src={formatImg("/assets/fried rice and kelewala and chicken.jpg", 1920)} className="absolute inset-0 w-full h-full object-cover opacity-50" alt="" />
         <div className="absolute inset-0 bg-gradient-to-t from-brand-black to-transparent"></div>
@@ -31,7 +37,7 @@ const ContactPage = () => {
       <section className="py-24 bg-brand-black">
         <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-20">
           <div className="space-y-12">
-            <h2 className="text-8xl font-display font-bold leading-none">Let's <br/><span className="text-brand-orange italic font-normal">Connect.</span></h2>
+            <h2 className="text-8xl font-display font-bold leading-none">We'd Love<br/><span className="text-brand-orange italic font-normal">to Hear.</span></h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {[
                 { label: 'WhatsApp', val: 'Chat Online', icon: <BsWhatsapp />, href: `https://wa.me/${config.whatsapp}` },

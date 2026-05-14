@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { HiBars3, HiXMark } from 'react-icons/hi2';
 
 const NAV_LINKS = [
@@ -15,74 +15,108 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { pathname } = useLocation();
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-panel border-b-0">
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-[#E8E0D8]'
+          : 'bg-white/80 backdrop-blur-sm'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-        <div className="flex justify-between items-center h-20">
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-2">
-            <Link to="/" className="font-serif text-3xl font-bold text-white uppercase tracking-tighter">
-              Cookers<span className="text-brand-orange">Delight</span>
+        <div className="flex justify-between items-center py-4">
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+            <Link to="/" className="flex items-center">
+              <span className="font-display text-2xl font-bold text-[#1C1917] leading-none">
+                Cookers<span className="text-[#1B5E20]">Delight</span>
+              </span>
             </Link>
           </motion.div>
 
-          <div className="hidden md:flex items-center gap-10">
+          <div className="hidden md:flex items-center gap-8">
             {NAV_LINKS.map(link => (
               <Link
                 key={link.name}
                 to={link.to}
-                className={`text-[11px] font-bold uppercase tracking-[0.2em] transition-colors ${pathname === link.to ? 'text-brand-orange' : 'text-white/70 hover:text-white'}`}
+                className={`text-[11px] font-bold uppercase tracking-[0.15em] transition-colors ${
+                  pathname === link.to
+                    ? 'text-[#1B5E20]'
+                    : 'text-[#78716C] hover:text-[#1C1917]'
+                }`}
               >
                 {link.name}
               </Link>
             ))}
           </div>
 
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center gap-4">
+            <a
+              href="https://wa.me/233243379412"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[11px] font-bold uppercase tracking-widest text-[#1B5E20] hover:text-[#14532D] transition-colors"
+            >
+              WhatsApp
+            </a>
             <Link
               to="/menu"
-              className="bg-brand-orange text-white px-8 py-2.5 rounded-sm text-[11px] font-extrabold uppercase tracking-widest hover:opacity-90 transition-all"
+              className="bg-[#1B5E20] text-white px-6 py-2.5 rounded-full text-[11px] font-extrabold uppercase tracking-widest hover:bg-[#2D6A4F] transition-all"
             >
               Order Online
             </Link>
           </div>
 
-          <div className="md:hidden">
-            <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-white">
-              {isOpen ? <HiXMark size={24} /> : <HiBars3 size={24} />}
-            </button>
-          </div>
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-[#1C1917] hover:bg-[#F5EFE8] transition-colors"
+            aria-label="Toggle menu"
+          >
+            {isOpen ? <HiXMark size={24} /> : <HiBars3 size={24} />}
+          </button>
         </div>
       </div>
 
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="md:hidden glass-panel border-b border-white/5 px-6 py-10"
-        >
-          <div className="flex flex-col gap-6">
-            {NAV_LINKS.map(link => (
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden overflow-hidden bg-white border-b border-[#E8E0D8]"
+          >
+            <div className="px-6 py-6 flex flex-col gap-1">
+              {NAV_LINKS.map(link => (
+                <Link
+                  key={link.name}
+                  to={link.to}
+                  onClick={() => setIsOpen(false)}
+                  className={`min-h-[44px] flex items-center text-base font-bold uppercase tracking-widest transition-colors ${
+                    pathname === link.to ? 'text-[#1B5E20]' : 'text-[#78716C] hover:text-[#1B5E20]'
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              ))}
               <Link
-                key={link.name}
-                to={link.to}
+                to="/menu"
                 onClick={() => setIsOpen(false)}
-                className={`text-lg font-bold uppercase tracking-widest ${pathname === link.to ? 'text-brand-orange' : 'text-white/70 hover:text-brand-orange'}`}
+                className="mt-2 bg-[#1B5E20] text-white text-center py-4 rounded-full font-extrabold uppercase tracking-widest text-xs"
               >
-                {link.name}
+                Order Online
               </Link>
-            ))}
-            <Link
-              to="/menu"
-              onClick={() => setIsOpen(false)}
-              className="bg-brand-orange text-white text-center py-4 rounded-sm font-black uppercase tracking-widest text-xs"
-            >
-              Order Online
-            </Link>
-          </div>
-        </motion.div>
-      )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }

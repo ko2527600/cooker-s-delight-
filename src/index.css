@@ -3,9 +3,24 @@
 @import "tailwindcss";
 
 @theme {
+  /* Original brand palette (kept for admin dark theme) */
   --color-brand-burgundy: #872735;
   --color-brand-orange: #EC4824;
   --color-brand-black: #111111;
+
+  /* KANIGIRI-inspired warm public-site palette */
+  --color-warm-bg: #FFFBF7;
+  --color-warm-bg-alt: #F5EFE8;
+  --color-warm-green: #1B5E20;
+  --color-warm-green-mid: #2D6A4F;
+  --color-warm-green-light: #DCFCE7;
+  --color-warm-green-dark: #14532D;
+  --color-warm-amber: #D97706;
+  --color-warm-amber-light: #FEF3C7;
+  --color-warm-text: #1C1917;
+  --color-warm-muted: #78716C;
+  --color-warm-card: #FFFFFF;
+  --color-warm-border: #E8E0D8;
 
   --font-display: "Cormorant Garamond", serif;
   --font-body: "Syne", sans-serif;
@@ -20,6 +35,7 @@
   /* Ensure interactive elements still have the pointer cursor */
   a, button, [role="button"], input, label, select, textarea, .cursor-pointer, [onclick] {
     cursor: pointer !important;
+    touch-action: manipulation;
   }
 
   .cursor-grab { cursor: grab !important; }
@@ -32,12 +48,17 @@
     padding: 0;
   }
 
-  /* Global Dropdown Fix: Ensure text is visible and background is dark */
-  select, option {
+  /* Prevent iOS auto-zoom on input focus (requires ≥ 16px font-size) */
+  input, select, textarea {
+    font-size: 1rem;
+  }
+
+  /* Global Dropdown Fix: admin panel keeps dark selects; public site overrides per-component */
+  .admin-panel select, .admin-panel option {
     background-color: #111111 !important;
     color: white !important;
   }
-  
+
   select {
     cursor: pointer !important;
   }
@@ -66,13 +87,94 @@
   .glass {
     @apply bg-white/10 backdrop-blur-md border border-white/20;
   }
-  
+
   .glass-dark {
     @apply bg-black/40 backdrop-blur-xl border border-white/10;
   }
 
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-orange to-brand-burgundy;
+  }
+
+  /* Warm public-site utilities */
+  .warm-card {
+    background: #FFFFFF;
+    border: 1px solid #E8E0D8;
+    border-radius: 1.25rem;
+    box-shadow: 0 2px 16px rgba(100, 70, 40, 0.07);
+  }
+
+  .warm-card:hover {
+    box-shadow: 0 8px 32px rgba(100, 70, 40, 0.13);
+    transform: translateY(-2px);
+  }
+
+  .warm-pill {
+    background: #DCFCE7;
+    color: #14532D;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .warm-price {
+    background: #FEF3C7;
+    color: #92400E;
+    font-weight: 900;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.95rem;
+  }
+
+  .warm-btn-primary {
+    background: #1B5E20;
+    color: #FFFFFF;
+    font-weight: 800;
+    padding: 0.75rem 1.75rem;
+    border-radius: 999px;
+    transition: background 0.2s, transform 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .warm-btn-primary:hover {
+    background: #2D6A4F;
+    transform: scale(1.03);
+  }
+
+  .warm-btn-outline {
+    border: 2px solid #1B5E20;
+    color: #1B5E20;
+    font-weight: 800;
+    padding: 0.75rem 1.75rem;
+    border-radius: 999px;
+    transition: background 0.2s, color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .warm-btn-outline:hover {
+    background: #1B5E20;
+    color: #FFFFFF;
+  }
+
+  .warm-section-label {
+    color: #1B5E20;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+  }
+
+  .warm-star {
+    color: #F59E0B;
   }
 
   .grain-overlay {

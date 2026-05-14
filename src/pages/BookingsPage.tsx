@@ -14,6 +14,7 @@ import {
 import { reservationApi } from '../lib/api';
 import { usePageContext } from './PublicLayout';
 import PageWrapper from '../components/PageWrapper';
+import SEOHead from '../components/SEOHead';
 
 // ─── Static branch data (4 Cookers Delight locations) ────────────────────────
 const BRANCHES = [
@@ -25,7 +26,7 @@ const BRANCHES = [
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const inputClass =
-  'w-full bg-black/40 border border-white/10 rounded-2xl p-5 text-white focus:border-brand-orange outline-none transition-colors placeholder:text-white/30';
+  'w-full bg-black/40 border border-white/10 rounded-2xl p-5 text-base text-white focus:border-brand-orange outline-none transition-colors placeholder:text-white/30 min-h-[44px]';
 
 const labelClass = 'block text-xs uppercase font-bold text-white/40 tracking-widest mb-2';
 
@@ -187,6 +188,11 @@ export default function BookingsPage() {
   // ── Form ──────────────────────────────────────────────────────────────────
   return (
     <PageWrapper>
+      <SEOHead
+        title="Book a Table | Cookers Delight"
+        description="Reserve a table at Cookers Delight in Accra. Book online in minutes — choose your branch, date, time, and party size. We'll confirm your reservation promptly."
+        canonical="https://cookers-delight.vercel.app/bookings"
+      />
       {/* Hero */}
       <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
         <img
@@ -217,7 +223,7 @@ export default function BookingsPage() {
             className="text-center mb-16"
           >
             <p className="text-white/40 text-lg max-w-xl mx-auto">
-              Book your table in under a minute. We'll hold it just for you.
+              Pick your branch, choose a time, and your table is yours. Takes about a minute.
             </p>
           </motion.div>
 
@@ -369,7 +375,7 @@ export default function BookingsPage() {
                         key={slot}
                         type="button"
                         onClick={() => set('reserve_time', slot)}
-                        className={`px-5 py-3 rounded-xl text-sm font-bold border transition-all ${
+                        className={`px-5 py-3 min-h-[44px] rounded-xl text-sm font-bold border transition-all ${
                           form.reserve_time === slot
                             ? 'bg-brand-orange border-brand-orange text-white'
                             : 'bg-white/5 border-white/10 text-white/70 hover:border-brand-orange/50 hover:text-white'
@@ -404,7 +410,7 @@ export default function BookingsPage() {
                 whileTap={{ scale: 0.97 }}
                 className="w-full bg-brand-orange text-white py-6 rounded-2xl font-bold text-xl hover:scale-105 transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
               >
-                {submitting ? 'Confirming Reservation…' : 'Confirm Reservation'}
+                {submitting ? 'Securing Your Table…' : 'Hold My Table'}
               </motion.button>
 
             </form>

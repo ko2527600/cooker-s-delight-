@@ -166,8 +166,17 @@ export default function MenuPage() {
       menu_category_id: parseInt(form.menu_category_id, 10),
       menu_status: form.menu_status ? 1 : 0,
     };
-    if (form.image_url.trim()) {
-      payload.image = { thumb_url: form.image_url.trim() };
+    const imageUrl = form.image_url.trim();
+    if (imageUrl) {
+      // SECURITY: Only allow http/https URLs to prevent javascript: and data: URI injection.
+      // An <img src="javascript:..."> can execute JS in some legacy browsers.
+      const lowerUrl = imageUrl.toLowerCase();
+      if (!lowerUrl.startsWith('http://') && !lowerUrl.startsWith('https://')) {
+        setFormError('Image URL must start with http:// or https://');
+        setSaving(false);
+        return;
+      }
+      payload.image = { thumb_url: imageUrl };
     }
 
     const newPrepTime = parseInt(form.prep_time_minutes, 10) || 15;

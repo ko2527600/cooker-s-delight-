@@ -1,7 +1,18 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BsInstagram, BsFacebook } from 'react-icons/bs';
+import { BsInstagram, BsFacebook, BsWhatsapp } from 'react-icons/bs';
+import { HiArrowRight } from 'react-icons/hi2';
 import { usePageContext } from '../pages/PublicLayout';
+
+const NAV = [
+  { label: 'Home', to: '/' },
+  { label: 'Menu', to: '/menu' },
+  { label: 'Gallery', to: '/gallery' },
+  { label: 'Branches', to: '/branches' },
+  { label: 'Reviews', to: '/reviews' },
+  { label: 'Bookings', to: '/bookings' },
+  { label: 'Contact', to: '/contact' },
+];
 
 export default function Footer() {
   const { addToast } = usePageContext();
@@ -15,73 +26,142 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-[#050505] pt-32 pb-16 relative overflow-hidden">
-      <div className="absolute inset-0 flex items-center overflow-hidden pointer-events-none">
-        <div className="animate-marquee-drift whitespace-nowrap opacity-[0.02]">
-          <span className="text-[25vw] font-display font-bold leading-none select-none px-20">COOKERS DELIGHT COOKERS DELIGHT COOKERS DELIGHT</span>
-        </div>
+    <footer className="bg-[#1C1917] text-white pt-20 pb-10 relative overflow-hidden">
+      {/* Subtle green top accent */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#1B5E20] via-[#F59E0B] to-[#1B5E20]" />
+
+      {/* Background text watermark */}
+      <div className="absolute inset-0 flex items-center overflow-hidden pointer-events-none select-none">
+        <span className="text-[20vw] font-display font-black text-white/[0.025] whitespace-nowrap">
+          COOKERS DELIGHT
+        </span>
       </div>
 
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24">
-          <div className="space-y-8">
-            <span className="font-display text-4xl font-bold">Cookers <span className="text-brand-orange">Delight</span></span>
-            <p className="text-white/40 font-body leading-relaxed max-w-xs">Great Foods. Great People. Delivering authentic West African flavours since 2016.</p>
-            <div className="flex gap-4">
-              <a href="https://www.instagram.com/cookersdelightgh/" target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-brand-orange transition-all"><BsInstagram /></a>
-              <a href="https://www.facebook.com/cookersdelightgh/" target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-brand-orange transition-all"><BsFacebook /></a>
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-14 mb-16">
+          {/* Brand */}
+          <div className="space-y-6">
+            <span className="font-display text-3xl font-bold">
+              Cookers<span className="text-[#F59E0B]">Delight</span>
+            </span>
+            <p className="text-white/50 text-sm leading-relaxed max-w-xs">
+              Good food, no shortcuts. Four locations across Accra since 2016.
+            </p>
+            <div className="flex gap-3">
+              <a
+                href="https://www.instagram.com/cookersdelightgh/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:bg-[#1B5E20] hover:text-white hover:border-[#1B5E20] transition-all"
+              >
+                <BsInstagram size={16} />
+              </a>
+              <a
+                href="https://www.facebook.com/cookersdelightgh/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:bg-[#1B5E20] hover:text-white hover:border-[#1B5E20] transition-all"
+              >
+                <BsFacebook size={16} />
+              </a>
+              <a
+                href="https://wa.me/233243379412"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:bg-[#25D366] hover:text-white hover:border-[#25D366] transition-all"
+              >
+                <BsWhatsapp size={16} />
+              </a>
             </div>
           </div>
 
-          <div className="space-y-8">
-            <h4 className="text-xl font-bold uppercase text-brand-orange tracking-widest text-xs">Navigation</h4>
-            <ul className="space-y-4 font-body text-white/60">
-              {[
-                { label: 'Home', to: '/' },
-                { label: 'Menu', to: '/menu' },
-                { label: 'Gallery', to: '/gallery' },
-                { label: 'Branches', to: '/branches' },
-                { label: 'Reviews', to: '/reviews' },
-                { label: 'Contact', to: '/contact' },
-              ].map(l => (
+          {/* Navigation */}
+          <div className="space-y-6">
+            <h4 className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#F59E0B]">Navigation</h4>
+            <ul className="space-y-3">
+              {NAV.map(l => (
                 <li key={l.label}>
-                  <Link to={l.to} className="hover:text-brand-orange transition-colors">{l.label}</Link>
+                  <Link
+                    to={l.to}
+                    className="min-h-[44px] text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1.5 group"
+                  >
+                    <HiArrowRight size={12} className="opacity-0 group-hover:opacity-100 text-[#F59E0B] transition-opacity" />
+                    {l.label}
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="space-y-8">
-            <h4 className="text-xl font-bold uppercase text-brand-orange tracking-widest text-xs">Opening Hours</h4>
-            <div className="space-y-2 text-white/60 font-body">
-              <p className="font-bold">Monday – Sunday</p>
-              <p>7:00 AM – 10:00 PM</p>
-              <div className="pt-6">
-                <p className="text-brand-orange font-bold uppercase text-[10px] mb-2">Support Line</p>
-                <a href="tel:+233243379412" className="text-2xl font-display font-bold">+233 24 337 9412</a>
+          {/* Hours */}
+          <div className="space-y-6">
+            <h4 className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#F59E0B]">Opening Hours</h4>
+            <div className="space-y-3 text-sm text-white/50">
+              <div className="flex justify-between gap-4">
+                <span>Monday – Friday</span>
+                <span className="text-white font-bold">7AM – 10PM</span>
               </div>
+              <div className="flex justify-between gap-4">
+                <span>Saturday</span>
+                <span className="text-white font-bold">7AM – 11PM</span>
+              </div>
+              <div className="flex justify-between gap-4">
+                <span>Sunday</span>
+                <span className="text-white font-bold">8AM – 10PM</span>
+              </div>
+            </div>
+            <div className="pt-4 border-t border-white/10">
+              <p className="text-[#F59E0B] text-[10px] font-bold uppercase tracking-wider mb-1">Support</p>
+              <a href="tel:+233243379412" className="text-xl font-display font-bold text-white hover:text-[#F59E0B] transition-colors">
+                +233 24 337 9412
+              </a>
             </div>
           </div>
 
-          <div className="space-y-8">
-            <h4 className="text-xl font-bold uppercase text-brand-orange tracking-widest text-xs">Newsletter</h4>
-            <p className="text-white/40 text-sm">Join for weekly specials & new dish alerts.</p>
-            <form onSubmit={subscribe} className="flex bg-white/5 p-1 rounded-2xl border border-white/10">
-              <input
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                type="email"
-                placeholder="Your email"
-                className="bg-transparent flex-1 px-4 py-3 outline-none text-sm"
-              />
-              <button type="submit" className="bg-brand-orange text-white px-6 py-3 rounded-xl font-bold text-sm">Join</button>
+          {/* Newsletter */}
+          <div className="space-y-6">
+            <h4 className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#F59E0B]">Newsletter</h4>
+            <p className="text-sm text-white/50 leading-relaxed">
+              Join for weekly specials and new dish alerts.
+            </p>
+            <form onSubmit={subscribe} className="space-y-2">
+              <div className="flex bg-white/5 border border-white/10 rounded-2xl p-1 focus-within:border-[#1B5E20] transition-colors">
+                <input
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  type="email"
+                  placeholder="Your email"
+                  className="bg-transparent flex-1 px-4 py-2.5 outline-none text-sm text-white placeholder:text-white/30"
+                />
+                <button
+                  type="submit"
+                  className="bg-[#1B5E20] hover:bg-[#2D6A4F] text-white px-5 py-2.5 rounded-xl font-bold text-xs transition-colors"
+                >
+                  Join
+                </button>
+              </div>
             </form>
+
+            {/* Location pills */}
+            <div className="space-y-2 pt-2">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-white/30">Locations</p>
+              {['Kaneshie', 'East Legon', 'Circle', 'Tema'].map(loc => (
+                <span key={loc} className="inline-block mr-2 mb-1 px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-white/50">
+                  {loc}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-white/20 text-xs font-bold uppercase tracking-widest">
-          <p>© 2026 Cookers Delight. Accra, Ghana.</p>
-          <p className="text-brand-orange">Professional Service Delivery</p>
+        {/* Bottom bar */}
+        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-white/25 text-xs font-bold uppercase tracking-widest">
+            © 2026 Cookers Delight. Accra, Ghana.
+          </p>
+          <p className="text-[#F59E0B] text-xs font-bold uppercase tracking-widest">
+            Accra's Favourite Since 2016
+          </p>
         </div>
       </div>
     </footer>

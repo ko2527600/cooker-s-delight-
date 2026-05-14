@@ -12,17 +12,17 @@ export function About() {
     {
       icon: <FiTarget size={32} color="#872735" />,
       title: "Our Mission",
-      desc: "To deliver authentic, hot, and tasty meals that celebrate the rich culinary heritage of Ghana and Nigeria."
+      desc: "Every plate we send out should taste like it was made for someone who matters. That has been the only rule since day one."
     },
     {
       icon: <HiUsers size={32} color="#872735" />,
       title: "Great People",
-      desc: "Our team is built on professionalism and a passion for service excellence, making every guest feel at home."
+      desc: "The people behind the counter know your order by the third visit. That kind of familiarity is something we hire for."
     },
     {
       icon: <HiCheckBadge size={32} color="#872735" />,
       title: "Quality First",
-      desc: "We prioritize hygiene and fresh local ingredients to ensure the highest standards of food safety."
+      desc: "We source from Accra markets every morning, so the tomatoes in your soup were on a market stall this morning. You taste the difference."
     }
   ];
 
@@ -39,11 +39,10 @@ export function About() {
               Our Story
             </span>
             <h2 className="font-serif text-5xl md:text-7xl font-normal mb-8 leading-[0.9] tracking-tighter">
-              Crafting <br />Excellence<span>.</span>
+              Started in <br />Accra<span>.</span>
             </h2>
             <p className="text-white/50 text-lg mb-12 leading-relaxed font-medium">
-              At Cookers Delight, we believe that food is a celebration of culture. 
-              Starting in Accra, we have grown into a legacy known for our signature dishes and professional delivery.
+              We opened our first kitchen in Accra in 2016 with one goal: cook food the way it should taste. No shortcuts, no frozen bases. A decade later, four locations and 200+ five-star reviews haven't changed that.
             </p>
             
             <div className="grid gap-4">

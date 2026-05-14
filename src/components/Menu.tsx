@@ -81,7 +81,7 @@ export function Menu() {
                   <div className="flex items-center gap-1 text-brand-orange/40 text-[10px]">
                     {'GH-AUTH'.repeat(1)}
                   </div>
-                  <button className="flex items-center gap-2 bg-transparent border border-white/20 text-white px-5 py-2.5 rounded-sm text-[10px] uppercase font-black tracking-widest hover:bg-white hover:text-black transition-colors">
+                  <button className="flex items-center gap-2 bg-transparent border border-white/20 text-white px-5 py-3 min-h-[44px] rounded-sm text-[10px] uppercase font-black tracking-widest hover:bg-white hover:text-black transition-colors">
                     <HiPlus size={12} />
                     Quick Add
                   </button>
