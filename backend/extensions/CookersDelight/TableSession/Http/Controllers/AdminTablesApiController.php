@@ -2,9 +2,9 @@
 
 namespace CookersDelight\TableSession\Http\Controllers;
 
+use CookersDelight\TableSession\Http\Requests\StoreTableRequest;
 use CookersDelight\TableSession\Models\DiningTable;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -37,8 +37,8 @@ class AdminTablesApiController extends Controller
         ->get();
 
         // Shape each table and attach the active session/order summary.
-        $shaped = $tables->map(function (DiningTable $t) {
-            $session = $t->sessions->first();
+        $shaped = $tables->map(function (DiningTable $table) {
+            $session = $table->sessions->first();
             $order   = $session?->order;
 
             $activeSession = $session ? [
@@ -49,12 +49,12 @@ class AdminTablesApiController extends Controller
             ] : null;
 
             return [
-                'table_id'       => $t->table_id,
-                'table_number'   => $t->table_number,
-                'capacity'       => $t->capacity,
-                'stable_token'   => $t->stable_token,
-                'location_id'    => $t->location_id,
-                'location_name'  => $t->location->location_name ?? 'Unknown',
+                'table_id'       => $table->table_id,
+                'table_number'   => $table->table_number,
+                'capacity'       => $table->capacity,
+                'stable_token'   => $table->stable_token,
+                'location_id'    => $table->location_id,
+                'location_name'  => $table->location->location_name ?? 'Unknown',
                 'active_session' => $activeSession,
             ];
         });
@@ -69,13 +69,9 @@ class AdminTablesApiController extends Controller
         return response()->json(['data' => $grouped]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreTableRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'location_id'  => ['required', 'integer', 'exists:locations,location_id'],
-            'table_number' => ['required', 'integer', 'min:1'],
-            'capacity'     => ['required', 'integer', 'min:1', 'max:50'],
-        ]);
+        $validated = $request->validated();
 
         // Reject duplicate table numbers within the same location.
         $exists = DiningTable::where('location_id', $validated['location_id'])

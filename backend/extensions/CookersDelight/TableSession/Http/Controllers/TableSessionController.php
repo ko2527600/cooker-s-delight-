@@ -2,14 +2,25 @@
 
 namespace CookersDelight\TableSession\Http\Controllers;
 
+use App\Http\Concerns\FiltersFields;
+use App\Services\BusinessMetricsService;
+use App\Services\FeatureFlagService;
+use CookersDelight\TableSession\Http\Requests\PlaceOrderRequest;
 use CookersDelight\TableSession\Models\DiningTable;
 use CookersDelight\TableSession\Models\TableSession;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
 class TableSessionController extends Controller
 {
+    // Trick 01 — send less; honour ?fields= per caller.
+    use FiltersFields;
+
+    public function __construct(
+        private readonly BusinessMetricsService $metrics,
+        private readonly FeatureFlagService $flags,
+    ) {}
+
     /**
      * Called when a customer scans the printed QR code.
      *
@@ -26,13 +37,33 @@ class TableSessionController extends Controller
 
         $session = $table->createSession();
 
-        return response()->json([
-            'session_token' => $session->token,
+        // Trick 10 — business metric: every scan is a potential order.
+        $this->metrics->record('session.created', [
+            'table_id'      => $table->table_id,
             'table_number'  => $table->table_number,
             'location_id'   => $table->location_id,
-            'location_name' => $table->location->location_name,
-            'expires_at'    => $session->expires_at,
+            'session_token' => $session->token,
         ]);
+
+        // Trick 05 — feature flag: gate a richer response format behind a flag.
+        $payload = $this->flags->isEnabled('feature_flags.extended_session_response')
+            ? [
+                'session_token' => $session->token,
+                'table_number'  => $table->table_number,
+                'location_id'   => $table->location_id,
+                'location_name' => $table->location->location_name,
+                'expires_at'    => $session->expires_at,
+                'capacity'      => $table->capacity,
+            ]
+            : [
+                'session_token' => $session->token,
+                'table_number'  => $table->table_number,
+                'location_id'   => $table->location_id,
+                'location_name' => $table->location->location_name,
+                'expires_at'    => $session->expires_at,
+            ];
+
+        return response()->json($this->filterFields($payload));
     }
 
     /** Resolve an active session token and return table + location context. */
@@ -43,24 +74,27 @@ class TableSessionController extends Controller
             ->firstOrFail();
 
         if (!$session->isValid()) {
+            // Trick 10 — expired sessions are a business signal (user confusion).
+            $this->metrics->record('session.expired', [
+                'session_token' => $token,
+                'expired_at'    => $session->expires_at,
+            ]);
             return response()->json(['error' => 'QR session has expired. Please ask a waiter for a new one.'], 410);
         }
 
-        return response()->json([
+        return response()->json($this->filterFields([
             'token'         => $session->token,
             'table_number'  => $session->table->table_number,
             'location_id'   => $session->table->location_id,
             'location_name' => $session->table->location->location_name,
             'expires_at'    => $session->expires_at,
             'order_id'      => $session->order_id,
-        ]);
+        ]));
     }
 
     /** Link an order_id to this session once kawax submits the order to TI. */
-    public function placeOrder(string $token, Request $request): JsonResponse
+    public function placeOrder(string $token, PlaceOrderRequest $request): JsonResponse
     {
-        $request->validate(['order_id' => 'required|integer']);
-
         $session = TableSession::where('token', $token)->firstOrFail();
 
         if (!$session->isValid()) {
@@ -72,6 +106,13 @@ class TableSessionController extends Controller
         }
 
         $session->update(['order_id' => $request->order_id]);
+
+        // Trick 10 — order linked: this is the moment money intent is recorded.
+        $this->metrics->record('order.linked', [
+            'session_token' => $token,
+            'order_id'      => $request->order_id,
+            'table_id'      => $session->table_id,
+        ]);
 
         return response()->json(['order_id' => $session->order_id, 'status' => 'linked']);
     }

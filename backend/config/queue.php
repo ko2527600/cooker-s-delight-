@@ -13,7 +13,9 @@ return [
     |
     */
 
-    'default' => env('QUEUE_CONNECTION', 'sync'),
+    // Trick 06 — async queues. Use 'database' so jobs survive restarts without Redis.
+    // Set QUEUE_CONNECTION=redis in production for better throughput.
+    'default' => env('QUEUE_CONNECTION', 'database'),
 
     /*
     |--------------------------------------------------------------------------

@@ -117,6 +117,16 @@ return [
         'emergency' => [
             'path' => storage_path('logs/system.log'),
         ],
+
+        // Trick 10 — business metrics channel.
+        // Alert on what the user does, not what the box does.
+        // Parse with: grep '"event"' storage/logs/business.log | jq .
+        'business' => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/business.log'),
+            'level'  => 'info',
+            'days'   => 30,
+        ],
     ],
 
 ];

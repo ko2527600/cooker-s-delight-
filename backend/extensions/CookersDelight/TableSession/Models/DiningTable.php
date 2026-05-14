@@ -3,6 +3,7 @@
 namespace CookersDelight\TableSession\Models;
 
 use Igniter\Flame\Database\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 /**
@@ -13,6 +14,8 @@ use Illuminate\Support\Str;
  */
 class DiningTable extends Model
 {
+    // Trick 09 — Don't DELETE. Mark it gone.
+    use SoftDeletes;
     protected $table = 'cd_dining_tables';
 
     protected $fillable = [
