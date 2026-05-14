@@ -3,12 +3,18 @@ import { motion } from 'motion/react';
 import { HiStar } from 'react-icons/hi2';
 import { BsInstagram, BsHeartFill } from 'react-icons/bs';
 import PageWrapper from '../components/PageWrapper';
+import SEOHead from '../components/SEOHead';
 import { REVIEWS, GALLERY_IMAGES } from '../constants';
 import { getImgUrl } from '../utils/image';
 
 export default function ReviewsPage() {
   return (
     <PageWrapper>
+      <SEOHead
+        title="Customer Reviews | Cookers Delight"
+        description="See what customers love about Cookers Delight. Hundreds of five-star reviews for our authentic Ghanaian and Nigerian food and fast delivery in Accra."
+        canonical="https://cookers-delight.vercel.app/reviews"
+      />
       <div className="bg-brand-orange py-3 overflow-hidden flex whitespace-nowrap">
         <div className="animate-marquee-scroll flex font-bold uppercase text-xs tracking-tighter">
           {[...Array(20)].map((_, i) => (

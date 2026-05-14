@@ -5,6 +5,7 @@ import {
 } from 'react-icons/hi2';
 import { BsWhatsapp, BsInstagram, BsFacebook } from 'react-icons/bs';
 import PageWrapper from '../components/PageWrapper';
+import SEOHead from '../components/SEOHead';
 import CDBoatDownloadSection from '../components/CDBoatDownloadSection';
 import { useCountUp } from '../hooks/useCountUp';
 import { formatImg } from '../utils/image';
@@ -109,6 +110,11 @@ export default function HomePage() {
 
   return (
     <PageWrapper>
+      <SEOHead
+        title="Cookers Delight | Authentic Ghanaian & Nigerian Food in Accra"
+        description="Order authentic Ghanaian and Nigerian food from Cookers Delight. Fast delivery across Accra. Dine in, take away, or order online. Great Foods. Great People."
+        canonical="https://cookers-delight.vercel.app/"
+      />
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
       <section className="min-h-screen bg-[#FFFBF7] pt-20 flex items-center overflow-hidden relative">
         {/* Decorative background blobs */}

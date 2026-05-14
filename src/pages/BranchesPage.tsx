@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { FiPhone } from 'react-icons/fi';
 import { BsWhatsapp } from 'react-icons/bs';
 import PageWrapper from '../components/PageWrapper';
+import SEOHead from '../components/SEOHead';
 import { useApi } from '../hooks/useApi';
 import { locationApi } from '../lib/api';
 import { getImgUrl } from '../utils/image';
@@ -13,6 +14,11 @@ export default function BranchesPage() {
 
   return (
     <PageWrapper>
+      <SEOHead
+        title="Our Branches | Cookers Delight"
+        description="Find a Cookers Delight branch near you in Accra, Ghana. Multiple locations offering dine-in, takeaway, and delivery of authentic Ghanaian and Nigerian food."
+        canonical="https://cookers-delight.vercel.app/branches"
+      />
       <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
         <img src={getImgUrl('/assets/forcourt2.jpg')} className="absolute inset-0 w-full h-full object-cover opacity-50" alt="" />
         <div className="absolute inset-0 bg-gradient-to-t from-brand-black to-transparent" />

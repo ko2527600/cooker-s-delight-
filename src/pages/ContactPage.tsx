@@ -3,6 +3,7 @@ import { BsWhatsapp, BsInstagram, BsFacebook } from 'react-icons/bs';
 import { FiPhone } from 'react-icons/fi';
 import { usePageContext } from './PublicLayout';
 import PageWrapper from '../components/PageWrapper';
+import SEOHead from '../components/SEOHead';
 
 // Inline image formatter (mirrors the one in App.tsx)
 const formatImg = (src: string, w: number) => src;
@@ -23,6 +24,11 @@ const ContactPage = () => {
 
   return (
     <PageWrapper>
+      <SEOHead
+        title="Contact Us | Cookers Delight"
+        description="Get in touch with Cookers Delight. Call, WhatsApp, or message us to enquire about orders, reservations, catering, or any questions about our Accra restaurants."
+        canonical="https://cookers-delight.vercel.app/contact"
+      />
       <section className="relative h-[40vh] flex items-center justify-center overflow-hidden">
         <img src={formatImg("/assets/fried rice and kelewala and chicken.jpg", 1920)} className="absolute inset-0 w-full h-full object-cover opacity-50" alt="" />
         <div className="absolute inset-0 bg-gradient-to-t from-brand-black to-transparent"></div>
